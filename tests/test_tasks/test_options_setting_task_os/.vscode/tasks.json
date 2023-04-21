@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "/test1/"
+    },
+    "windows": {
+        "options": {
+            "cwd": "/test2/"
+        }
+    },
+    "tasks": [
+        {
+            "label": "Test",
+            "options": {
+                "cwd": "/test3/"
+            },
+            "windows": {
+                "options": {
+                    "cwd": "/test4/"
+                }
+            }
+        }
+    ]
+}

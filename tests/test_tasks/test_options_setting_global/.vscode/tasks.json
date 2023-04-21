@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "/test1/"
+    },
+    "tasks": [
+        {
+            "label": "Test"
+        }
+    ]
+}
