@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Test",
+            "options": {
+                "env": {"KEY1": "VALUE1", "PATH": "PATHOVERRIDE"}
+            }
+        }
+    ]
+}

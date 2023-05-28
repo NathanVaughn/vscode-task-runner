@@ -4,9 +4,14 @@ import shutil
 import dacite
 import shellingham
 
-from src.constants import PLATFORM_KEY
-from src.models import QuotedString, ShellConfiguration, ShellQuoting, ShellType
-from src.typehints import CommandString
+from vtr.constants import PLATFORM_KEY
+from vtr.models import (
+    CommandString,
+    QuotedString,
+    ShellConfiguration,
+    ShellQuoting,
+    ShellType,
+)
 
 
 def identify_shell_type(shell_executable: str) -> ShellType:
@@ -32,7 +37,10 @@ def identify_shell_type(shell_executable: str) -> ShellType:
         return ShellType.WSL
 
     # bash.exe is a thing on Windows too
-    return ShellType.SH
+    if shell_basename.endswith("sh") or shell_basename.endswith("sh.exe"):
+        return ShellType.SH
+
+    return ShellType.Unknown
 
 
 def get_parent_shell() -> ShellConfiguration:
@@ -49,34 +57,30 @@ def get_parent_shell() -> ShellConfiguration:
 
     # if path is none or empty
     if not shell_executable:
-        # use SHELL variable
-        if PLATFORM_KEY != "windows":
-            shell_executable = os.environ.get("SHELL")
-            # default to /bin/sh
-            if not shell_executable or not shutil.which(shell_executable):
-                shell_executable = "/bin/sh"
-
         # use COMSPEC variable
-        elif PLATFORM_KEY == "windows":
+        if PLATFORM_KEY == "windows":
             shell_executable = os.environ.get("COMSPEC")
             # default to cmd.exe
             if not shell_executable or not shutil.which(shell_executable):
                 shell_executable = os.path.join(
                     os.environ.get("SystemRoot", ""), "System32", "cmd.exe"
                 )
+        # use SHELL variable
+        else:
+            shell_executable = os.environ.get("SHELL")
+            # default to /bin/sh
+            if not shell_executable or not shutil.which(shell_executable):
+                shell_executable = "/bin/sh"
 
     # make sure we found SOMETHING
     if not shell_executable:
         raise FileNotFoundError("A shell could not be found")
 
     # just make sure path is fully resolved
-    shell_executable = shutil.which(shell_executable)
-
-    # path could not be resolved
-    if not shell_executable:
+    if shell_executable := shutil.which(shell_executable):
+        return ShellConfiguration(executable=shell_executable)
+    else:
         raise FileNotFoundError("A shell could not be found")
-
-    return ShellConfiguration(executable=shell_executable)
 
 
 def stringify(value: str | int | float | bool) -> str:

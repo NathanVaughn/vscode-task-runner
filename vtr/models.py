@@ -34,12 +34,7 @@ class ShellType(Enum):
     PowerShell = auto()
     CMD = auto()
     WSL = auto()
-
-
-@dataclass
-class Shell:
-    executable: str
-    type_: ShellType
+    Unknown = auto()
 
 
 @dataclass
@@ -53,3 +48,7 @@ class ShellConfiguration:
 class QuotedString:
     value: str
     quoting: ShellQuoting
+
+
+CommandString = str | QuotedString
+# https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L320

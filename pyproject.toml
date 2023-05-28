@@ -1,21 +1,25 @@
 [tool.poetry]
     name        = "vscode-task-runner"
     version     = "0.1.0"
-    description = ""
+    description = "Task runner for VSCode tasks.json"
     authors     = ["Nathan Vaughn <nvaughn51@gmail.com>"]
     readme      = "README.md"
-    packages    = [{ include = "src" }]
+    packages    = [{ include = "vtr" }]
 
 [tool.poetry.dependencies]
-    python      = "^3.11"
+    python      = ">3.10,<4.0"
     shellingham = "^1.5.0.post1"
     pyjson5     = "^1.6.2"
-    dacite = "^1.8.1"
+    dacite      = "^1.8.1"
 
 [tool.poetry.group.dev.dependencies]
-    pre-commit = "^3.2.0"
-    pytest     = "^7.3.1"
+    pre-commit  = "^3.2.0"
+    pytest      = "^7.3.1"
     pytest-mock = "^3.10.0"
+    pytest-cov  = "^4.1.0"
+
+[tool.poetry.scripts]
+    vtr = "vtr.console:run"
 
 [tool.pyright]
     typeCheckingMode = "basic"
@@ -24,9 +28,6 @@
 
 [tool.ruff]
     ignore = ["E501"]
-
-[tool.poetry.scripts]
-    vtr = "src.console:run"
 
 [build-system]
     requires      = ["poetry-core"]

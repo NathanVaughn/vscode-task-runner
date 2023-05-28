@@ -1,0 +1,6 @@
+# https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.yaml
+
+# line length
+MD013:
+    # ignore code blocks with long lines
+    code_blocks: false

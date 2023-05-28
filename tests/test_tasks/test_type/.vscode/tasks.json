@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Test1"
+        },
+        {
+            "label": "Test2",
+            "type": "shell"
+        },
+        {
+            "label": "Test3",
+            "type": "process"
+        },
+        {
+            "label": "Test4",
+            "type": "notanoption"
+        }
+    ]
+}

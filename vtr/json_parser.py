@@ -4,7 +4,7 @@ from typing import Any
 
 import pyjson5
 
-import src.constants
+import vtr.constants
 
 
 def replace_env_vars(string: str) -> str:
@@ -40,17 +40,21 @@ def replace_variables_data(data: Any) -> Any:
     elif isinstance(data, list):
         return [replace_variables_data(item) for item in data]
     elif isinstance(data, str):
-        for key, value in src.constants.PREDEFINED_VARIABLES.items():
+        for key, value in vtr.constants.PREDEFINED_VARIABLES.items():
             data = data.replace(key, value)
         return replace_env_vars(data)
     else:
         return data
 
 
-def load_vscode_tasks_data(path: str = os.getcwd()) -> dict:
+def load_vscode_tasks_data(path: str = os.getcwd()) -> tuple[dict, str]:
+    """
+    Given a working directory, loads the vscode tasks config, and replaces
+    all the variables. Returns raw dict data and the filename that was loaded.
+    """
     tasks_json = os.path.join(path, ".vscode", "tasks.json")
 
     with open(tasks_json) as fp:
         tasks_json_data = pyjson5.load(fp)
 
-    return replace_variables_data(tasks_json_data)
+    return replace_variables_data(tasks_json_data), tasks_json

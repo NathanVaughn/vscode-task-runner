@@ -1,14 +1,15 @@
+from __future__ import annotations
+
 import os
 import shutil
 from typing import Any, Literal
 
 import dacite
 
-import src.constants
-import src.helpers
-import src.terminal_task_system
-from src.models import ShellConfiguration, ShellType
-from src.typehints import CommandString
+import vtr.constants
+import vtr.helpers
+import vtr.terminal_task_system
+from vtr.models import CommandString, ShellConfiguration, ShellType
 
 
 class Task:
@@ -29,39 +30,39 @@ class Task:
 
         # global setting
         if (
-            src.constants.OPTIONS_KEY in self.all_task_data
-            and setting_key in self.all_task_data[src.constants.OPTIONS_KEY]
+            vtr.constants.OPTIONS_KEY in self.all_task_data
+            and setting_key in self.all_task_data[vtr.constants.OPTIONS_KEY]
         ):
-            value = self.all_task_data[src.constants.OPTIONS_KEY][setting_key]
+            value = self.all_task_data[vtr.constants.OPTIONS_KEY][setting_key]
 
         # global os-specific setting
         if (
-            src.constants.PLATFORM_KEY in self.all_task_data
-            and src.constants.OPTIONS_KEY
-            in self.all_task_data[src.constants.PLATFORM_KEY]
+            vtr.constants.PLATFORM_KEY in self.all_task_data
+            and vtr.constants.OPTIONS_KEY
+            in self.all_task_data[vtr.constants.PLATFORM_KEY]
             and setting_key
-            in self.all_task_data[src.constants.PLATFORM_KEY][src.constants.OPTIONS_KEY]
+            in self.all_task_data[vtr.constants.PLATFORM_KEY][vtr.constants.OPTIONS_KEY]
         ):
-            value = self.all_task_data[src.constants.PLATFORM_KEY][
-                src.constants.OPTIONS_KEY
+            value = self.all_task_data[vtr.constants.PLATFORM_KEY][
+                vtr.constants.OPTIONS_KEY
             ][setting_key]
 
         # task setting
         if (
-            src.constants.OPTIONS_KEY in self.task_data
-            and setting_key in self.task_data[src.constants.OPTIONS_KEY]
+            vtr.constants.OPTIONS_KEY in self.task_data
+            and setting_key in self.task_data[vtr.constants.OPTIONS_KEY]
         ):
-            value = self.task_data[src.constants.OPTIONS_KEY][setting_key]
+            value = self.task_data[vtr.constants.OPTIONS_KEY][setting_key]
 
         # task os-specific setting
         if (
-            src.constants.PLATFORM_KEY in self.task_data
-            and src.constants.OPTIONS_KEY in self.task_data[src.constants.PLATFORM_KEY]
+            vtr.constants.PLATFORM_KEY in self.task_data
+            and vtr.constants.OPTIONS_KEY in self.task_data[vtr.constants.PLATFORM_KEY]
             and setting_key
-            in self.task_data[src.constants.PLATFORM_KEY][src.constants.OPTIONS_KEY]
+            in self.task_data[vtr.constants.PLATFORM_KEY][vtr.constants.OPTIONS_KEY]
         ):
-            value = self.task_data[src.constants.PLATFORM_KEY][
-                src.constants.OPTIONS_KEY
+            value = self.task_data[vtr.constants.PLATFORM_KEY][
+                vtr.constants.OPTIONS_KEY
             ][setting_key]
 
         return value
@@ -79,12 +80,19 @@ class Task:
 
         # task os-specific setting
         if (
-            src.constants.PLATFORM_KEY in self.task_data
-            and setting_key in self.task_data[src.constants.PLATFORM_KEY]
+            vtr.constants.PLATFORM_KEY in self.task_data
+            and setting_key in self.task_data[vtr.constants.PLATFORM_KEY]
         ):
-            value = self.task_data[src.constants.PLATFORM_KEY][setting_key]
+            value = self.task_data[vtr.constants.PLATFORM_KEY][setting_key]
 
         return value
+
+    @property
+    def is_virtual(self) -> bool:
+        """
+        Determines if the task is virtual (by not actually having any commands to run)
+        """
+        return self._get_task_setting("command") is None
 
     @property
     def cwd(self) -> str:
@@ -115,10 +123,7 @@ class Task:
 
         # convert everything to strings, and make sure it's simple key-value pairs
         for key, value in env.items():
-            if not isinstance(key, str):
-                raise EnvironmentError(f"Key {key} is not a string")
-
-            env[key] = src.helpers.stringify(value)
+            env[key] = vtr.helpers.stringify(value)
 
         return env
 
@@ -145,7 +150,7 @@ class Task:
         Gets the command for the task.
         """
         raw_task_command = self._get_task_setting("command")
-        return src.helpers.load_command_string(raw_task_command)
+        return vtr.helpers.load_command_string(raw_task_command)
 
     @property
     def args(self) -> list[CommandString]:
@@ -163,7 +168,7 @@ class Task:
             raise ValueError("Invalid args format")
 
         for i, arg in enumerate(task_args):
-            task_args[i] = src.helpers.load_command_string(arg)
+            task_args[i] = vtr.helpers.load_command_string(arg)
 
         return task_args
 
@@ -185,7 +190,7 @@ class Task:
 
         if not shell_configuration.executable:
             # if we still don't have a shell, use the parent shell
-            shell_configuration = src.helpers.get_parent_shell()
+            shell_configuration = vtr.helpers.get_parent_shell()
 
         else:
             # make the shell executable absolute
@@ -194,7 +199,7 @@ class Task:
             )
 
         assert shell_configuration.executable is not None
-        return shell_configuration, src.helpers.identify_shell_type(
+        return shell_configuration, vtr.helpers.identify_shell_type(
             shell_configuration.executable
         )
 
@@ -228,18 +233,36 @@ class Task:
                 shell_config.args = []
 
             # build the shell quoting options
-            src.terminal_task_system.get_quoting_options(shell_type, shell_config)
+            vtr.terminal_task_system.get_quoting_options(shell_type, shell_config)
             assert shell_config.quoting is not None
 
             return [
                 shell_config.executable
-            ] + src.terminal_task_system.create_shell_launch_config(
+            ] + vtr.terminal_task_system.create_shell_launch_config(
                 shell_type,
                 shell_config.args,
-                src.terminal_task_system.build_shell_command_line(
+                vtr.terminal_task_system.build_shell_command_line(
                     shell_type, shell_config.quoting, self.command, self.args
                 ),
             )
 
         else:
             raise ValueError("Unsupported task type")
+
+    @property
+    def depends_on(self) -> list[Task]:
+        """
+        Return a list of tasks this task depends on.
+        """
+        depends_on_setting = self._get_task_setting("dependsOn")
+
+        # return empty list if not set
+        if depends_on_setting is None:
+            return []
+
+        # a single string is allowed
+        if isinstance(depends_on_setting, str):
+            depends_on_setting = [depends_on_setting]
+
+        # create task objects depending on the label
+        return [Task(self.all_task_data, label) for label in depends_on_setting]

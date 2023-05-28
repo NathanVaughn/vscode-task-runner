@@ -8,9 +8,14 @@ import copy
 import re
 from typing import Optional
 
-from src.constants import DEFAULT_OS_QUOTING, DEFAULT_SHELL_QUOTING, PLATFORM_KEY
-from src.models import ShellConfiguration, ShellQuoting, ShellQuotingOptions, ShellType
-from src.typehints import CommandString
+from vtr.constants import DEFAULT_OS_QUOTING, DEFAULT_SHELL_QUOTING, PLATFORM_KEY
+from vtr.models import (
+    CommandString,
+    ShellConfiguration,
+    ShellQuoting,
+    ShellQuotingOptions,
+    ShellType,
+)
 
 
 def get_quoting_options(
@@ -81,10 +86,9 @@ def create_shell_launch_config(
                 to_add.extend(["/d", "/c"])
 
         else:
-            if PLATFORM_KEY == "osx":
-                # Under Mac remove -l to not start it as a login shell.
-                if "-l" in shell_args:
-                    shell_args.remove("-l")
+            # Under Mac remove -l to not start it as a login shell.
+            if PLATFORM_KEY == "osx" and "-l" in shell_args:
+                shell_args.remove("-l")
 
             to_add.append("-c")
 
@@ -139,7 +143,10 @@ def build_shell_command_line(
             elif ch == shell_quoting_options.escape:
                 # Skip the next character
                 skip = True
-            elif ch == shell_quoting_options.strong or ch == shell_quoting_options.weak:
+            elif ch in [
+                shell_quoting_options.strong,
+                shell_quoting_options.weak,
+            ]:
                 quote = ch
             elif ch == " ":
                 return True
@@ -158,17 +165,16 @@ def build_shell_command_line(
             )
         elif kind == ShellQuoting.Escape and shell_quoting_options.escape:
             if isinstance(shell_quoting_options.escape, str):
-                return (value.replace(" ", shell_quoting_options.escape + " "), True)
-            else:
-                buffer = []
-                for ch in shell_quoting_options.escape.characters_to_escape:
-                    buffer.append("\\" + ch)
-                regexp = re.compile("[" + ",".join(buffer) + "]")
-                escape_char = shell_quoting_options.escape.escape_character
-                return (
-                    regexp.sub(lambda match: escape_char + match.group(), value),
-                    True,
-                )
+                return value.replace(" ", f"{shell_quoting_options.escape} "), True
+            buffer = []
+            for ch in shell_quoting_options.escape.characters_to_escape:
+                buffer.append("\\" + ch)
+            regexp = re.compile("[" + ",".join(buffer) + "]")
+            escape_char = shell_quoting_options.escape.escape_character
+            return (
+                regexp.sub(lambda match: escape_char + match.group(), value),
+                True,
+            )
         return (value, False)
 
     def quote_if_necessary(value: CommandString) -> tuple[str, bool]:
@@ -185,7 +191,7 @@ def build_shell_command_line(
     # backwards compatible with the old command line model. To allow variable resolving
     # with spaces we do continue if the resolved value is different than the original
     # one and the resolved one needs quoting.
-    if (not args or len(args) == 0) and isinstance(task_command, str):
+    if not args and isinstance(task_command, str):
         return task_command
 
     result: list[str] = []
@@ -203,8 +209,8 @@ def build_shell_command_line(
     # There are special rules quoted command line in cmd.exe
     if PLATFORM_KEY == "windows":
         if shell_type == ShellType.CMD and command_quoted and arg_quoted:
-            command_line = '"' + command_line + '"'
+            command_line = f'"{command_line}"'
         elif shell_type == ShellType.PowerShell and command_quoted:
-            command_line = "& " + command_line
+            command_line = f"& {command_line}"
 
     return command_line

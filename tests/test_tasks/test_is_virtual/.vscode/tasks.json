@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Test1"
+        },
+        {
+            "label": "Test2",
+            "command": "ls"
+        },
+        {
+            "label": "Test3",
+            "args": ["arg1"]
+        },
+        {
+            "label": "Test4",
+            "command": "command",
+            "args": ["arg1"]
+        }
+    ]
+}

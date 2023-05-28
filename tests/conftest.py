@@ -4,9 +4,9 @@ from typing import Any, Generator
 import pytest
 from pytest_mock import MockerFixture
 
-import src.constants
-from src.task import Task
-from src.task_parser import load_vscode_tasks_data
+import vtr.constants
+from vtr.json_parser import load_vscode_tasks_data
+from vtr.task import Task
 
 
 @pytest.fixture
@@ -32,24 +32,27 @@ def environment_variable(request: Any) -> Generator:
 
 @pytest.fixture
 def windows(mocker: MockerFixture) -> None:
-    mocker.patch.object(src.constants, "PLATFORM_KEY", "windows")
+    mocker.patch.object(vtr.constants, "PLATFORM_KEY", "windows")
 
 
 @pytest.fixture
 def linux(mocker: MockerFixture) -> None:
-    mocker.patch.object(src.constants, "PLATFORM_KEY", "linux")
+    mocker.patch.object(vtr.constants, "PLATFORM_KEY", "linux")
 
 
 @pytest.fixture
 def osx(mocker: MockerFixture) -> None:
-    mocker.patch.object(src.constants, "PLATFORM_KEY", "osx")
+    mocker.patch.object(vtr.constants, "PLATFORM_KEY", "osx")
 
 
 def load_task(path: str, label: str) -> Task:
+    """
+    Given a working directory and task label, returns the Task object.
+    """
     # if the given path is not a directory, remove the last part
     if os.path.isfile(path):
         path = os.path.dirname(path)
 
-    data = load_vscode_tasks_data(path)
+    data, _ = load_vscode_tasks_data(path)
 
     return Task(data, label)

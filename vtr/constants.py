@@ -2,7 +2,7 @@ import os
 import platform
 from typing import Literal
 
-from src.models import ShellQuotingOptions, ShellQuotingOptionsEscape, ShellType
+from vtr.models import ShellQuotingOptions, ShellQuotingOptionsEscape, ShellType
 
 PLATFORM_KEYS: dict[
     Literal["Windows", "Linux", "Darwin"], Literal["windows", "linux", "osx"]
