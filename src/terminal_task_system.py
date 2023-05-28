@@ -68,23 +68,25 @@ def create_shell_launch_config(
 
     to_add: list[str] = []
 
-    if PLATFORM_KEY == "windows":
-        if shell_type.PowerShell:
-            to_add.append("-Command")
-        elif shell_type.SH:
-            to_add.append("-c")
-        elif shell_type.WSL:
-            to_add.append("-e")
+    if not shell_args:
+        # skip all this if the user has already manually specific arguments
+        if PLATFORM_KEY == "windows":
+            if shell_type == ShellType.PowerShell:
+                to_add.append("-Command")
+            elif shell_type == ShellType.SH:
+                to_add.append("-c")
+            elif shell_type == ShellType.WSL:
+                to_add.append("-e")
+            else:
+                to_add.extend(["/d", "/c"])
+
         else:
-            to_add.extend(["/d", "/c"])
+            if PLATFORM_KEY == "osx":
+                # Under Mac remove -l to not start it as a login shell.
+                if "-l" in shell_args:
+                    shell_args.remove("-l")
 
-    else:
-        if PLATFORM_KEY == "osx":
-            # Under Mac remove -l to not start it as a login shell.
-            if "-l" in shell_args:
-                shell_args.remove("-l")
-
-        to_add.append("-c")
+            to_add.append("-c")
 
     combined_shell_args = _add_all_argument(to_add, shell_args)
     combined_shell_args.append(command_line)

@@ -200,6 +200,9 @@ class Task:
 
     @property
     def subprocess_command(self) -> list[str]:
+        """
+        Generate the list of strings to pass to subprocess.
+        """
         if self.type_ == "process":
             assert isinstance(self.command, str)
             which_task_command = shutil.which(self.command)
