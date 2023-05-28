@@ -1,7 +1,6 @@
 from typing import Any, Type
 
 import pytest
-from pytest_mock import MockerFixture
 
 import vtr.helpers
 from vtr.models import CommandString, QuotedString, ShellQuoting, ShellType
@@ -40,11 +39,9 @@ from vtr.models import CommandString, QuotedString, ShellQuoting, ShellType
     ),
 )
 def test_identify_shell_type(
-    shell_executable: str, shell_type: ShellType, mocker: MockerFixture
+    shell_executable: str, shell_type: ShellType, shutil_which_patch: None
 ) -> None:
     # patch shutil.which to return whatever gets put in for this test
-    mocker.patch("shutil.which", new=lambda x: x)
-
     assert vtr.helpers.identify_shell_type(shell_executable) == shell_type
 
 

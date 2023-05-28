@@ -8,7 +8,7 @@ import copy
 import re
 from typing import Optional
 
-from vtr.constants import DEFAULT_OS_QUOTING, DEFAULT_SHELL_QUOTING, PLATFORM_KEY
+import vtr.constants
 from vtr.models import (
     CommandString,
     ShellConfiguration,
@@ -27,10 +27,12 @@ def get_quoting_options(
     if shell_config.quoting:
         return
 
-    if shell_type in DEFAULT_SHELL_QUOTING:
-        shell_config.quoting = DEFAULT_SHELL_QUOTING[shell_type]
+    if shell_type in vtr.constants.DEFAULT_SHELL_QUOTING:
+        shell_config.quoting = vtr.constants.DEFAULT_SHELL_QUOTING[shell_type]
     else:
-        shell_config.quoting = DEFAULT_OS_QUOTING[PLATFORM_KEY]
+        shell_config.quoting = vtr.constants.DEFAULT_OS_QUOTING[
+            vtr.constants.PLATFORM_KEY
+        ]
 
 
 def _add_all_argument(
@@ -65,7 +67,7 @@ def create_shell_launch_config(
 ) -> list[str]:
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/browser/terminalTaskSystem.ts#L1107-L1177
 
-    # manually converted
+    # manually converted and simplified
 
     # convert a single shell args string into a list
     if isinstance(shell_args, str):
@@ -73,24 +75,23 @@ def create_shell_launch_config(
 
     to_add: list[str] = []
 
+    # skip all this if the user has already manually specific arguments
     if not shell_args:
-        # skip all this if the user has already manually specific arguments
-        if PLATFORM_KEY == "windows":
-            if shell_type == ShellType.PowerShell:
-                to_add.append("-Command")
-            elif shell_type == ShellType.SH:
-                to_add.append("-c")
-            elif shell_type == ShellType.WSL:
-                to_add.append("-e")
-            else:
-                to_add.extend(["/d", "/c"])
+        # this cannot happen in our case, since we don't have default
+        # arguments loaded from settings.
 
-        else:
-            # Under Mac remove -l to not start it as a login shell.
-            if PLATFORM_KEY == "osx" and "-l" in shell_args:
-                shell_args.remove("-l")
+        # Under Mac remove -l to not start it as a login shell.
+        # if vtr.constants.PLATFORM_KEY == "osx" and "-l" in shell_args:
+        #     shell_args.remove("-l")
 
+        if shell_type == ShellType.PowerShell:
+            to_add.append("-Command")
+        elif shell_type == ShellType.SH:
             to_add.append("-c")
+        elif shell_type == ShellType.WSL:
+            to_add.append("-e")
+        elif shell_type == ShellType.CMD:
+            to_add.extend(["/d", "/c"])
 
     combined_shell_args = _add_all_argument(to_add, shell_args)
     combined_shell_args.append(command_line)
@@ -207,7 +208,7 @@ def build_shell_command_line(
 
     command_line = " ".join(result)
     # There are special rules quoted command line in cmd.exe
-    if PLATFORM_KEY == "windows":
+    if vtr.constants.PLATFORM_KEY == "windows":
         if shell_type == ShellType.CMD and command_quoted and arg_quoted:
             command_line = f'"{command_line}"'
         elif shell_type == ShellType.PowerShell and command_quoted:

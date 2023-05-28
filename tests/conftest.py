@@ -45,6 +45,11 @@ def osx(mocker: MockerFixture) -> None:
     mocker.patch.object(vtr.constants, "PLATFORM_KEY", "osx")
 
 
+@pytest.fixture
+def shutil_which_patch(mocker: MockerFixture) -> None:
+    mocker.patch("shutil.which", new=lambda x: x)
+
+
 def load_task(path: str, label: str) -> Task:
     """
     Given a working directory and task label, returns the Task object.

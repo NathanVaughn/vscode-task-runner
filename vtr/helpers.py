@@ -4,7 +4,7 @@ import shutil
 import dacite
 import shellingham
 
-from vtr.constants import PLATFORM_KEY
+import vtr.constants
 from vtr.models import (
     CommandString,
     QuotedString,
@@ -58,7 +58,7 @@ def get_parent_shell() -> ShellConfiguration:
     # if path is none or empty
     if not shell_executable:
         # use COMSPEC variable
-        if PLATFORM_KEY == "windows":
+        if vtr.constants.PLATFORM_KEY == "windows":
             shell_executable = os.environ.get("COMSPEC")
             # default to cmd.exe
             if not shell_executable or not shutil.which(shell_executable):

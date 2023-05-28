@@ -23,12 +23,12 @@ from vtr.models import QuotedString, ShellQuoting
         ),
     ],
 )
-def test_args_pass(linux: None, task_label: str, expected: Any) -> None:
+def test_args_pass(task_label: str, expected: Any) -> None:
     task = load_task(__file__, task_label)
     assert task.args == expected
 
 
-def test_args_fail(linux: None) -> None:
+def test_args_fail() -> None:
     task = load_task(__file__, "Test6")
     with pytest.raises(ValueError):
         assert task.args == {"key": "value"}

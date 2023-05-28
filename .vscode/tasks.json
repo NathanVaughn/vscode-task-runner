@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "pre-commit",
+            "type": "shell",
+            "command": "poetry run pre-commit run --all-files"
+        },
+        {
+            "label": "install",
+            "type": "shell",
+            "command": "poetry install --sync"
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "poetry build"
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "pytest . --cov vtr/ --cov-report html"
+        }
+    ]
+}
