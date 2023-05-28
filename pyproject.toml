@@ -10,11 +10,12 @@
     python      = "^3.11"
     shellingham = "^1.5.0.post1"
     pyjson5     = "^1.6.2"
+    dacite = "^1.8.1"
 
 [tool.poetry.group.dev.dependencies]
     pre-commit = "^3.2.0"
     pytest     = "^7.3.1"
-pytest-mock = "^3.10.0"
+    pytest-mock = "^3.10.0"
 
 [tool.pyright]
     typeCheckingMode = "basic"
@@ -23,6 +24,9 @@ pytest-mock = "^3.10.0"
 
 [tool.ruff]
     ignore = ["E501"]
+
+[tool.poetry.scripts]
+    vtr = "src.console:run"
 
 [build-system]
     requires      = ["poetry-core"]

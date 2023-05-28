@@ -14,5 +14,5 @@ def test_default(linux: None) -> None:
 def test_check(windows: None) -> None:
     # test that an invalid directory is rejected
     task = load_task(__file__, "Test")
-    with pytest.raises(ValueError):
+    with pytest.raises(FileNotFoundError):
         task.cwd  # noqa
