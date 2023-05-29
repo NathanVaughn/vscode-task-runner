@@ -6,15 +6,18 @@ import vtr.helpers
 from vtr.task import Task
 
 
-def execute_task(task: Task, index: int, total: int) -> None:
+def execute_task(
+    task: Task, index: int, total: int, extra_args: Optional[list[str]] = None
+) -> None:
     """
-    Execute a given task.
+    Execute a given task. A 1-based index and total number of tasks must be provided
+    for printing.
     """
     if task.is_virtual:
         print(f'[{index}/{total}] Task "{task.label}" has no direct command to execute')
         return
 
-    cmd = task.subprocess_command
+    cmd = task.subprocess_command(extra_args)
 
     print(
         f'[{index}/{total}] Executing task "{task.label}": {vtr.helpers.combine_string(cmd)}'

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 import dacite
 
@@ -203,11 +203,13 @@ class Task:
             shell_configuration.executable
         )
 
-    @property
-    def subprocess_command(self) -> list[str]:
+    def subprocess_command(self, extra_args: Optional[list[str]] = None) -> list[str]:
         """
         Generate the list of strings to pass to subprocess.
         """
+        if extra_args is None:
+            extra_args = []
+
         if self.type_ == "process":
             assert isinstance(self.command, str)
             which_task_command = shutil.which(self.command)
@@ -216,11 +218,10 @@ class Task:
                 raise ValueError(f"Unable to locate {self.command} in PATH")
 
             subprocess_command = [which_task_command]
-            if self.args is not None:
-                for arg in self.args:
-                    # the args must be strings too
-                    assert isinstance(arg, str)
-                    subprocess_command.append(arg)
+            for arg in self.args + extra_args:
+                # the args must be strings too
+                assert isinstance(arg, str)
+                subprocess_command.append(arg)
 
             return subprocess_command
 
@@ -236,13 +237,33 @@ class Task:
             vtr.terminal_task_system.get_quoting_options(shell_type, shell_config)
             assert shell_config.quoting is not None
 
+            # figure out how to tack on extra args
+            command = self.command
+            args = self.args
+
+            if extra_args:
+                # if we have args, tack it on to that
+                if args:
+                    args = args + extra_args
+                else:
+                    # if we only have a command, tack it on to that
+                    extra_text = " " + " ".join(extra_args)
+
+                    if isinstance(command, str):
+                        command += extra_text
+                    else:
+                        command.value += extra_text
+
             return [
                 shell_config.executable
             ] + vtr.terminal_task_system.create_shell_launch_config(
                 shell_type,
                 shell_config.args,
                 vtr.terminal_task_system.build_shell_command_line(
-                    shell_type, shell_config.quoting, self.command, self.args
+                    shell_type,
+                    shell_config.quoting,
+                    command,
+                    args,
                 ),
             )
 

@@ -1,6 +1,6 @@
 [tool.poetry]
     name        = "vscode-task-runner"
-    version     = "0.1.1"
+    version     = "0.1.2"
     description = "Task runner for VSCode tasks.json"
     authors     = ["Nathan Vaughn <nvaughn51@gmail.com>"]
     readme      = "README.md"
