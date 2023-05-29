@@ -141,6 +141,8 @@ repos:
     rev: v0.1.2
     hooks:
       - id: vtr
+        # Optionally override the hook name here
+        # name: Build & Test
         args:
           - build # put the tasks you want to run here
           - test
