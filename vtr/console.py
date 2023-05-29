@@ -17,7 +17,7 @@ def run() -> None:
         all_tasks: dict[str, Task] = {
             t["label"]: Task(all_tasks_data, t["label"])
             for t in all_tasks_data["tasks"]
-            if t.get("type") in ["process", "shell"]
+            if t.get("type", "process") in ["process", "shell"]
         }
     except FileNotFoundError:
         all_tasks = {}

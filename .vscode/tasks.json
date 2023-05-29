@@ -2,24 +2,32 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "pre-commit",
-            "type": "shell",
-            "command": "poetry run pre-commit run --all-files"
+            "label": "build",
+            "command": "poetry build",
+            "type": "shell"
         },
         {
             "label": "install",
+            "command": "poetry install --sync",
             "type": "shell",
-            "command": "poetry install --sync"
+            "dependsOn": [
+                "pre-commit-install"
+            ]
         },
         {
-            "label": "build",
-            "type": "shell",
-            "command": "poetry build"
+            "label": "pre-commit-install",
+            "command": "poetry run pre-commit install --install-hooks",
+            "type": "shell"
         },
         {
-            "label": "test",
-            "type": "shell",
-            "command": "pytest . --cov vtr/ --cov-report html"
+            "label": "pre-commit-run",
+            "command": "poetry run pre-commit run --all-files",
+            "type": "shell"
+        },
+        {
+            "label": "tests",
+            "command": "poetry run pytest --cov=vtr/ --cov-report html",
+            "type": "shell"
         }
     ]
 }

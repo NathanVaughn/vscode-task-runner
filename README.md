@@ -33,7 +33,8 @@ pip install vscode-task-runner
 
 Use the command `vtr` on the command line and provide the label of the task(s).
 There must be a `.vscode/tasks.json` file in the working directory you run the
-command in.
+command in. (You can also use the `vscode-task-runner` command instead
+if it makes you feel better).
 
 ## Examples
 

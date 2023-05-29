@@ -34,6 +34,6 @@ jobs:
             git fetch
             git checkout update/pre-commit-update
             git pull
-            poetry run pre-commit run --all-files
+            python -m vtr pre-commit-run
             ```
           labels: dependencies
