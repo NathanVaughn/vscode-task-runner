@@ -54,6 +54,9 @@ def load_vscode_tasks_data(path: str = os.getcwd()) -> tuple[dict, str]:
     """
     tasks_json = os.path.join(path, ".vscode", "tasks.json")
 
+    if not os.path.isfile(tasks_json):
+        raise FileNotFoundError
+
     with open(tasks_json) as fp:
         tasks_json_data = pyjson5.load(fp)
 

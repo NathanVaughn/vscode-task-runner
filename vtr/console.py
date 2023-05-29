@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import vtr.executor
 import vtr.json_parser
@@ -6,22 +7,30 @@ from vtr.task import Task
 
 
 def run() -> None:
+    task_label_help_text = "One or more task labels to run. This is case sensitive."
+
     # parse the tasks.json
-    all_tasks_data, tasks_json = vtr.json_parser.load_vscode_tasks_data()
+    try:
+        all_tasks_data, tasks_json = vtr.json_parser.load_vscode_tasks_data()
+        # build task objects
+        all_tasks: dict[str, Task] = {
+            t["label"]: Task(all_tasks_data, t["label"])
+            for t in all_tasks_data["tasks"]
+            if t.get("type") in ["process", "shell"]
+        }
+    except FileNotFoundError:
+        all_tasks = {}
+        task_label_help_text += (
+            " Invoke this command inside a directory with a"
+            + f" {os.path.join('.vscode', 'tasks.json')} file to see and run tasks."
+        )
 
-    # build task objects
-    all_tasks: dict[str, Task] = {
-        t["label"]: Task(all_tasks_data, t["label"])
-        for t in all_tasks_data["tasks"]
-        if t.get("type") in ["process", "shell"]
-    }
-
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="VSCode Task Runner")
     parser.add_argument(
         "task_labels",
         nargs="+",
         choices=all_tasks.keys(),
-        help="One or more task labels to run. This is case sensitive.",
+        help=task_label_help_text,
     )
     args = parser.parse_args()
 
