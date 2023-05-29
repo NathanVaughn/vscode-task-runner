@@ -37,6 +37,7 @@ def run() -> None:
         "--extra-args",
         nargs="*",
         action="append",
+        default=[],
         help="When running a single task, extra args to append to that task."
         + " If a single task is requested, but has dependent tasks, only the top-level"
         + " task will be given the extra arguments."
