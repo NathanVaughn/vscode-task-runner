@@ -34,6 +34,6 @@ jobs:
             git fetch
             git checkout update/pre-commit-update
             git pull
-            python -m vtr pre-commit-run
+            python -m vtr pre-commit
             ```
           labels: dependencies

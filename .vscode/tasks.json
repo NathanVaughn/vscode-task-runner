@@ -20,7 +20,7 @@
             "type": "shell"
         },
         {
-            "label": "pre-commit-run",
+            "label": "pre-commit",
             "command": "poetry run pre-commit run --all-files",
             "type": "shell"
         },
