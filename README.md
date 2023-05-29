@@ -85,6 +85,9 @@ markdownlint.............................................................Passed
   - `command`
   - `args`
   - `shell`
+    - `executable`
+    - `args`
+  - `dependsOn`
 - Quoting support:
   - `"escape"`
   - `"strong"`
@@ -102,7 +105,8 @@ markdownlint.............................................................Passed
 
 ## Differences from VS Code
 
-- If a task is of type `"shell"`, and a custom shell is not defined, the parent
+- If a task is of type `"shell"`, and a specific shell is not defined, the parent
 shell will be used.
-- Only version 2.0.0 is supported.
+- Only schema version 2.0.0 is supported.
 - Does not support any extensions that add extra options/functionality
+- Does not load any VS Code settings
