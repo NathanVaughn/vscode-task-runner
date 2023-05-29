@@ -10,6 +10,9 @@ This tool aims to be as feature-complete as possible with what VSCode supports f
 Windows, MacOSX and Linux. Much of the logic is taken directly from the VSCode
 source code and reimplemented in Python.
 
+This pairs well with VSCode extensions that add Task buttons such as
+[actboy168.tasks](https://marketplace.visualstudio.com/items?itemName=actboy168.tasks).
+
 ## Usage
 
 Python 3.10+ is required.
