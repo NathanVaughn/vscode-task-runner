@@ -8,15 +8,15 @@
         },
         {
             "label": "install",
-            "command": "poetry install --sync",
+            "command": "poetry run pre-commit install --install-hooks",
             "type": "shell",
             "dependsOn": [
-                "pre-commit-install"
+                "poetry-install"
             ]
         },
         {
-            "label": "pre-commit-install",
-            "command": "poetry run pre-commit install --install-hooks",
+            "label": "poetry-install",
+            "command": "poetry install --sync",
             "type": "shell"
         },
         {
