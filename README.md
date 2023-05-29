@@ -1,16 +1,16 @@
-# VSCode Task Runner
+# VS Code Task Runner
 
-This is a command-line tool to execute VSCode
+This is a command-line tool to execute VS Code
 [Tasks](https://code.visualstudio.com/docs/editor/tasks)
 defined in the `.vscode/tasks.json` file.
 This allows you to write Tasks once, and run them in the same manner in your editor
 and in CI/CD.
 
-This tool aims to be as feature-complete as possible with what VSCode supports for
-Windows, MacOSX and Linux. Much of the logic is taken directly from the VSCode
+This tool aims to be as feature-complete as possible with what VS Code supports for
+Windows, MacOSX and Linux. Much of the logic is taken directly from the VS Code
 source code and reimplemented in Python.
 
-This pairs well with VSCode extensions that add Task buttons such as
+This pairs well with VS Code extensions that add Task buttons such as
 [actboy168.tasks](https://marketplace.visualstudio.com/items?itemName=actboy168.tasks).
 
 ## Usage
