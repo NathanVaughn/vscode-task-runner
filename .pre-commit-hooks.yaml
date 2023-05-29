@@ -1,0 +1,8 @@
+- id: vtr
+  name: VS Code Task Runner
+  description: "Python type annotation existence checker"
+  entry: vtr
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  pass_filenames: false
+  always_run: true

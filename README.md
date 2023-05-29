@@ -1,5 +1,13 @@
 # VS Code Task Runner
 
+[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![GitHub license](https://img.shields.io/github/license/NathanVaughn/vscode-task-runner)](https://github.com/NathanVaughn/vscode-task-runner/blob/main/LICENSE)
+[![PyPi versions](https://img.shields.io/pypi/pyversions/vscode-task-runner)](https://pypi.org/project/vscode-task-runner)
+[![PyPi downloads](https://img.shields.io/pypi/dm/vscode-task-runner)](https://pypi.org/project/vscode-task-runner)
+
+---
+
 This is a command-line tool to execute VS Code
 [tasks](https://code.visualstudio.com/docs/editor/tasks)
 defined in the `.vscode/tasks.json` file.
@@ -57,7 +65,7 @@ poetry-lock..............................................................Passed
 absolufy-imports.........................................................Passed
 ruff.....................................................................Passed
 black....................................................................Passed
-pyleft...................................................................Passed
+vscode-task-runner...................................................................Passed
 pyright..................................................................Passed
 markdownlint.............................................................Passed
 ```
@@ -81,7 +89,7 @@ poetry-lock..............................................................Passed
 absolufy-imports.........................................................Passed
 ruff.....................................................................Passed
 black....................................................................Passed
-pyleft...................................................................Passed
+vscode-task-runner...................................................................Passed
 pyright..................................................................Passed
 markdownlint.............................................................Passed
 ```
