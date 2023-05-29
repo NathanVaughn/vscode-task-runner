@@ -1,0 +1,39 @@
+name: Pre-Commit Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 8 1 * *
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Install pre-commit-update
+        run: pip install pre-commit-update
+
+      - name: Run pre-commit-update
+        run: pre-commit-update
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ github.token }}
+          branch: update/pre-commit-update
+          title: Update Pre-Commit hooks
+          commit-message: Update Pre-Commit hooks
+          body: |
+            Update versions of tools in pre-commit configs to latest version.
+            Please verify the changes locally, as a pull request created by GitHub Actions cannot trigger workflows:
+
+            ```bash
+            git fetch
+            git checkout update/pre-commit-update
+            git pull
+            poetry run pre-commit run --all-files
+            ```
+          labels: dependencies

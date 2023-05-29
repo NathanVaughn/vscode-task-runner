@@ -39,14 +39,14 @@ command in.
 
 ```json
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "pre-commit",
-            "type": "shell",
-            "command": "poetry run pre-commit run --all-files"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pre-commit",
+      "type": "shell",
+      "command": "poetry run pre-commit run --all-files"
+    }
+  ]
 }
 ```
 
@@ -100,20 +100,20 @@ The `dependsOn` key is also supported:
 
 ```json
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "install",
-            "type": "shell",
-            "command": "poetry install --sync"
-        },
-        {
-            "label": "build",
-            "type": "shell",
-            "command": "poetry build",
-            "dependsOn": ["install"]
-        },
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "install",
+      "type": "shell",
+      "command": "poetry install --sync"
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "poetry build",
+      "dependsOn": ["install"]
+    }
+  ]
 }
 ```
 
@@ -132,6 +132,21 @@ Building vscode-task-runner (0.1.1)
   - Building wheel
   - Built vscode_task_runner-0.1.1-py3-none-any.whl
 ```
+
+You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
+
+```yaml
+repos:
+  - repo: https://github.com/NathanVaughn/vscode-task-runner
+    rev: v0.1.2
+    hooks:
+      - id: vtr
+        args:
+          - build # put the tasks you want to run here
+          - test
+```
+
+The pre-commit hook does not match on any file types, and and will always execute.
 
 ## Implemented Features
 
@@ -177,7 +192,7 @@ Building vscode-task-runner (0.1.1)
 ## Differences from VS Code
 
 - If a task is of type `"shell"`, and a specific shell is not defined, the parent
-shell will be used
+  shell will be used
 - Only schema version 2.0.0 is supported
 - If no `cwd` is specified, the current working directory is used for the task instead
 - Does not support any extensions that add extra options/functionality

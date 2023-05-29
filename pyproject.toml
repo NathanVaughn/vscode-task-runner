@@ -7,7 +7,7 @@
     packages    = [{ include = "vtr" }]
 
 [tool.poetry.dependencies]
-    python      = ">3.10,<4.0"
+    python      = ">=3.10,<4.0"
     shellingham = "^1.5.0.post1"
     pyjson5     = "^1.6.2"
     dacite      = "^1.8.1"

@@ -1,6 +1,6 @@
 - id: vtr
-  name: VS Code Task Runner
-  description: "Python type annotation existence checker"
+  name: vscode task runner
+  description: "Run tasks from .vscode/tasks.json on the command line"
   entry: vtr
   language: python
   minimum_pre_commit_version: 2.9.2
