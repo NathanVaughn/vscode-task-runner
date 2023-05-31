@@ -1,10 +1,10 @@
 import os
 import platform
-from typing import Literal
+from typing import Dict, Literal
 
 from vtr.models import ShellQuotingOptions, ShellQuotingOptionsEscape, ShellType
 
-PLATFORM_KEYS: dict[
+PLATFORM_KEYS: Dict[
     Literal["Windows", "Linux", "Darwin"], Literal["windows", "linux", "osx"]
 ] = {
     "Windows": "windows",

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
 import dacite
 
@@ -108,7 +108,7 @@ class Task:
         return task_cwd
 
     @property
-    def env(self) -> dict[str, str]:
+    def env(self) -> Dict[str, str]:
         """
         Gets the environment variables for the task. This merges with the current
         environment variables.
