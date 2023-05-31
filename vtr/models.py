@@ -1,20 +1,20 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional
+from typing import List, Optional, Union
 
 
 @dataclass
 class ShellQuotingOptionsEscape:
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L70-L71
     escape_character: str
-    characters_to_escape: list[str]
+    characters_to_escape: List[str]
 
 
 @dataclass
 class ShellQuotingOptions:
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L65-L83
     strong: Optional[str] = None
-    escape: Optional[ShellQuotingOptionsEscape | str] = None
+    escape: Optional[Union[ShellQuotingOptionsEscape, str]] = None
     weak: Optional[str] = None
 
 
@@ -40,7 +40,7 @@ class ShellType(Enum):
 @dataclass
 class ShellConfiguration:
     executable: Optional[str] = None
-    args: Optional[list[str]] = None
+    args: Optional[List[str]] = None
     quoting: Optional[ShellQuotingOptions] = None
 
 
@@ -50,5 +50,5 @@ class QuotedString:
     quoting: ShellQuoting
 
 
-CommandString = str | QuotedString
+CommandString = Union[str, QuotedString]
 # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L320

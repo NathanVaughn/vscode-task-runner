@@ -23,7 +23,7 @@ This pairs well with VS Code extensions that add buttons to run tasks such as
 
 ## Usage
 
-Python 3.10+ is required.
+Python 3.8+ is required.
 
 Install with pip/pipx:
 

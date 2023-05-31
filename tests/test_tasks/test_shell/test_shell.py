@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import pytest
 
 from tests.conftest import load_task
@@ -10,7 +12,7 @@ from vtr.models import ShellConfiguration, ShellType
 )
 def test_shell(
     task_label: str,
-    expected: tuple[ShellConfiguration, ShellType],
+    expected: Tuple[ShellConfiguration, ShellType],
     shutil_which_patch: None,
 ) -> None:
     # patch shutil.which to return whatever gets put in for this test

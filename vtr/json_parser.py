@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Any
+from typing import Any, Tuple
 
 import pyjson5
 
@@ -47,7 +47,7 @@ def replace_variables_data(data: Any) -> Any:
         return data
 
 
-def load_vscode_tasks_data(path: str = os.getcwd()) -> tuple[dict, str]:
+def load_vscode_tasks_data(path: str = os.getcwd()) -> Tuple[dict, str]:
     """
     Given a working directory, loads the vscode tasks config, and replaces
     all the variables. Returns raw dict data and the filename that was loaded.

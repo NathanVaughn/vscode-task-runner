@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import os
+from typing import Dict
 
 import vtr.executor
 import vtr.json_parser
@@ -14,7 +15,7 @@ def run() -> None:
     try:
         all_tasks_data, tasks_json = vtr.json_parser.load_vscode_tasks_data()
         # build task objects
-        all_tasks: dict[str, Task] = {
+        all_tasks: Dict[str, Task] = {
             t["label"]: Task(all_tasks_data, t["label"])
             for t in all_tasks_data["tasks"]
             if t.get("type", "process") in ["process", "shell"]
