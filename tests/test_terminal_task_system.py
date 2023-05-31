@@ -1,3 +1,5 @@
+from typing import List, Union
+
 import pytest
 
 import vtr.terminal_task_system
@@ -63,7 +65,7 @@ def test_get_quoting_options(
     ],
 )
 def test__add_all_argument(
-    shell_command_args: list[str], configured_shell_args: list[str], expected: list[str]
+    shell_command_args: List[str], configured_shell_args: List[str], expected: List[str]
 ) -> None:
     assert (
         vtr.terminal_task_system._add_all_argument(
@@ -123,9 +125,9 @@ def test__add_all_argument(
 def test_create_shell_launch_config_windows(
     windows: None,
     shell_type: ShellType,
-    shell_args: list[str] | str,
+    shell_args: Union[List[str], str],
     command_line: str,
-    expected: list[str],
+    expected: List[str],
 ) -> None:
     assert (
         vtr.terminal_task_system.create_shell_launch_config(
@@ -155,9 +157,9 @@ def test_create_shell_launch_config_windows(
 def test_create_shell_launch_config_linux(
     linux: None,
     shell_type: ShellType,
-    shell_args: list[str] | str,
+    shell_args: Union[List[str], str],
     command_line: str,
-    expected: list[str],
+    expected: List[str],
 ) -> None:
     assert (
         vtr.terminal_task_system.create_shell_launch_config(
@@ -261,7 +263,7 @@ def test_build_shell_command_line_windows(
     shell_type: ShellType,
     shell_quoting_options: ShellQuotingOptions,
     task_command: CommandString,
-    args: list[CommandString],
+    args: List[CommandString],
     expected: str,
 ) -> None:
     assert (

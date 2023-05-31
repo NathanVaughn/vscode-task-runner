@@ -1,13 +1,13 @@
 import subprocess
 import sys
-from typing import Optional
+from typing import List, Optional
 
 import vtr.helpers
 from vtr.task import Task
 
 
 def execute_task(
-    task: Task, index: int, total: int, extra_args: Optional[list[str]] = None
+    task: Task, index: int, total: int, extra_args: Optional[List[str]] = None
 ) -> None:
     """
     Execute a given task. A 1-based index and total number of tasks must be provided
@@ -29,7 +29,7 @@ def execute_task(
         sys.exit(proc.returncode)
 
 
-def collect_task(task: Task, all_tasks: Optional[list[Task]] = None) -> list[Task]:
+def collect_task(task: Task, all_tasks: Optional[List[Task]] = None) -> List[Task]:
     """
     Given a task, return the given task and all child tasks, recursively.
     """

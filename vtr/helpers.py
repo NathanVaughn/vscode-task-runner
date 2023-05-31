@@ -1,5 +1,6 @@
 import os
 import shutil
+from typing import List, Union
 
 import dacite
 import shellingham
@@ -94,7 +95,7 @@ def stringify(value: str | int | float | bool) -> str:
     return str(value)
 
 
-def combine_string(value: str | list[str]) -> str:
+def combine_string(value: Union[str, List[str]]) -> str:
     """
     Given either a single string, or list of string, return a single string.
     A list will be joined by spaces.
@@ -106,7 +107,7 @@ def combine_string(value: str | list[str]) -> str:
     return " ".join(value)
 
 
-def load_command_string(data: dict | str | list[str]) -> CommandString:
+def load_command_string(data: Union[dict, str, List[str]]) -> CommandString:
     """
     Given data, either return the string, or loads into a the QuotedString dataclass.
     """

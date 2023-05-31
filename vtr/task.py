@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from typing import Any, Literal, Optional
+from typing import Any, List, Literal, Optional, Tuple
 
 import dacite
 
@@ -153,7 +153,7 @@ class Task:
         return vtr.helpers.load_command_string(raw_task_command)
 
     @property
-    def args(self) -> list[CommandString]:
+    def args(self) -> List[CommandString]:
         """
         Get the arguments for the task.
         """
@@ -173,7 +173,7 @@ class Task:
         return task_args
 
     @property
-    def shell(self) -> tuple[ShellConfiguration, ShellType]:
+    def shell(self) -> Tuple[ShellConfiguration, ShellType]:
         """
         Gets the shell configuration the task is going to run under.
         """
@@ -203,7 +203,7 @@ class Task:
             shell_configuration.executable
         )
 
-    def subprocess_command(self, extra_args: Optional[list[str]] = None) -> list[str]:
+    def subprocess_command(self, extra_args: Optional[List[str]] = None) -> List[str]:
         """
         Generate the list of strings to pass to subprocess.
         """
@@ -271,7 +271,7 @@ class Task:
             raise ValueError("Unsupported task type")
 
     @property
-    def depends_on(self) -> list[Task]:
+    def depends_on(self) -> List[Task]:
         """
         Return a list of tasks this task depends on.
         """

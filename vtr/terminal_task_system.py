@@ -6,7 +6,7 @@ re-implemented in Python.
 
 import copy
 import re
-from typing import Optional
+from typing import List, Optional, Tuple, Union
 
 import vtr.constants
 from vtr.models import (
@@ -36,8 +36,8 @@ def get_quoting_options(
 
 
 def _add_all_argument(
-    shell_command_args: list[str], configured_shell_args: list[str]
-) -> list[str]:
+    shell_command_args: List[str], configured_shell_args: List[str]
+) -> List[str]:
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/browser/terminalTaskSystem.ts#L1256-L1272
 
     # converted with ChatGPT
@@ -63,8 +63,8 @@ def _add_all_argument(
 
 
 def create_shell_launch_config(
-    shell_type: ShellType, shell_args: list[str] | str, command_line: str
-) -> list[str]:
+    shell_type: ShellType, shell_args: Union[List[str], str], command_line: str
+) -> List[str]:
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/browser/terminalTaskSystem.ts#L1107-L1177
 
     # manually converted and simplified
@@ -73,7 +73,7 @@ def create_shell_launch_config(
     if isinstance(shell_args, str):
         shell_args = [shell_args]
 
-    to_add: list[str] = []
+    to_add: List[str] = []
 
     # skip all this if the user has already manually specific arguments
     if not shell_args:
@@ -107,7 +107,7 @@ def build_shell_command_line(
     shell_type: ShellType,
     shell_quoting_options: ShellQuotingOptions,
     task_command: CommandString,
-    args: list[CommandString],
+    args: List[CommandString],
 ) -> str:
     # Python re-implementation of
     # https://github.com/microsoft/vscode/blob/ab7c32a5b5275c3fa9552675b6b6035888068fd7/src/vs/workbench/contrib/tasks/browser/terminalTaskSystem.ts#L1476-L1573
@@ -153,7 +153,7 @@ def build_shell_command_line(
                 return True
         return False
 
-    def quote(value: str, kind: ShellQuoting) -> tuple[str, bool]:
+    def quote(value: str, kind: ShellQuoting) -> Tuple[str, bool]:
         if kind == ShellQuoting.Strong and shell_quoting_options.strong:
             return (
                 shell_quoting_options.strong + value + shell_quoting_options.strong,
@@ -178,7 +178,7 @@ def build_shell_command_line(
             )
         return (value, False)
 
-    def quote_if_necessary(value: CommandString) -> tuple[str, bool]:
+    def quote_if_necessary(value: CommandString) -> Tuple[str, bool]:
         if isinstance(value, str):
             if needs_quotes(value):
                 # default of strong quoting
@@ -195,7 +195,7 @@ def build_shell_command_line(
     if not args and isinstance(task_command, str):
         return task_command
 
-    result: list[str] = []
+    result: List[str] = []
     command_quoted = False
     arg_quoted = False
     value, quoted = quote_if_necessary(task_command)
