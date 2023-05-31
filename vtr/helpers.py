@@ -90,7 +90,7 @@ def get_parent_shell() -> ShellConfiguration:
         raise FileNotFoundError("A shell could not be found")
 
 
-def stringify(value: str | int | float | bool) -> str:
+def stringify(value: Union[str, int, float, bool]) -> str:
     """
     Make sure the incoming value is close enough to a string, and convert it.
     """

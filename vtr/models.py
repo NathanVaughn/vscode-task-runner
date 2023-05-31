@@ -14,7 +14,7 @@ class ShellQuotingOptionsEscape:
 class ShellQuotingOptions:
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L65-L83
     strong: Optional[str] = None
-    escape: Optional[ShellQuotingOptionsEscape | str] = None
+    escape: Optional[Union[ShellQuotingOptionsEscape, str]] = None
     weak: Optional[str] = None
 
 
