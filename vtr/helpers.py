@@ -16,6 +16,7 @@ from vtr.models import (
 
 
 def identify_shell_type(shell_executable: str) -> ShellType:
+    # sourcery skip: assign-if-exp, reintroduce-else
     """
     Try to identify what type of shell it is based on the executable.
     """
@@ -24,21 +25,26 @@ def identify_shell_type(shell_executable: str) -> ShellType:
         raise FileNotFoundError(f"Shell executable {shell_executable} not found")
 
     shell_executable = shell_executable_which
-    shell_basename = os.path.basename(shell_executable)
+
+    # https://stackoverflow.com/a/41659825
+    shell_basename = os.path.basename(shell_executable.replace("\\", os.path.sep))
+    if shell_basename.endswith(".exe"):
+        # .removesuffix is only available 3.9+
+        shell_basename = shell_basename[:-4]
 
     # don't check for .exe because it could be running powershell
     # core on Linux
-    if any(i in shell_basename for i in ("pwsh", "powershell")):
+    if shell_basename in ["pwsh", "powershell"]:
         return ShellType.PowerShell
 
-    if shell_basename == "cmd.exe":
+    if shell_basename == "cmd":
         return ShellType.CMD
 
-    if shell_basename == "wsl.exe":
+    if shell_basename == "wsl":
         return ShellType.WSL
 
     # bash.exe is a thing on Windows too
-    if shell_basename.endswith("sh") or shell_basename.endswith("sh.exe"):
+    if shell_basename.endswith("sh"):
         return ShellType.SH
 
     return ShellType.Unknown
