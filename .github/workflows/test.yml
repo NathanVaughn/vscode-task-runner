@@ -42,7 +42,7 @@ jobs:
         run: poetry install --sync
 
       - name: Run Pre-Commit Checks
-        run: poetry run pre-commit run --all-files --color=always --show-diff-on-failure
+        run: poetry run python -m vtr pre-commit --color=always --show-diff-on-failure
 
       - name: Run Tests
-        run: poetry run pytest -v
+        run: poetry run python -m vtr tests
