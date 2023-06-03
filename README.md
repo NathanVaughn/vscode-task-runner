@@ -139,7 +139,7 @@ You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
 ```yaml
 repos:
   - repo: https://github.com/NathanVaughn/vscode-task-runner
-    rev: v0.1.6
+    rev: v0.1.7
     hooks:
       - id: vtr
         # Optionally override the hook name here

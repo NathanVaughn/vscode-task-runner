@@ -130,3 +130,10 @@ def load_command_string(data: Union[dict, str, List[str]]) -> CommandString:
         )
     else:
         raise ValueError("Invalid command string data type")
+
+
+def print2(msg: str) -> None:
+    """
+    Print, but with flush set for CI/CD
+    """
+    print(msg, flush=True)

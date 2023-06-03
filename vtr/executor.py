@@ -14,18 +14,22 @@ def execute_task(
     for printing.
     """
     if task.is_virtual:
-        print(f'[{index}/{total}] Task "{task.label}" has no direct command to execute')
+        vtr.helpers.print2(
+            f'[{index}/{total}] Task "{task.label}" has no direct command to execute'
+        )
         return
 
     cmd = task.subprocess_command(extra_args)
 
-    print(
+    vtr.helpers.print2(
         f'[{index}/{total}] Executing task "{task.label}": {vtr.helpers.combine_string(cmd)}'
     )
     proc = subprocess.run(cmd, shell=False, cwd=task.cwd, env=task.env)
 
     if proc.returncode != 0:
-        print(f'Task "{task.label}" returned with exit code {proc.returncode}')
+        vtr.helpers.print2(
+            f'Task "{task.label}" returned with exit code {proc.returncode}'
+        )
         sys.exit(proc.returncode)
 
 
