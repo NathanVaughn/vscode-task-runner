@@ -76,7 +76,7 @@ For example, you can add extra settings or overrides when running in CI/CD.
 Continuing the example above:
 
 ```bash
-$ vtr pre-commit --extra-args="--color=always" --extra-args="--show-diff-on-failure"
+$ vtr pre-commit --color=always --show-diff-on-failure
 [1/1] Executing task "pre-commit": C:\Program Files\WindowsApps\Microsoft.PowerShell_7.3.4.0_x64__8wekyb3d8bbwe\pwsh.exe -Command poetry run pre-commit run --all-files --color=always --show-diff-on-failure
 check json...............................................................Passed
 check toml...............................................................Passed
@@ -139,7 +139,7 @@ You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
 ```yaml
 repos:
   - repo: https://github.com/NathanVaughn/vscode-task-runner
-    rev: v0.1.3
+    rev: v0.1.6
     hooks:
       - id: vtr
         # Optionally override the hook name here
@@ -200,4 +200,4 @@ The pre-commit hook does not match on any file types, and and will always execut
 - If no `cwd` is specified, the current working directory is used for the task instead
 - Does not support any extensions that add extra options/functionality
 - Does not load any VS Code settings
-- `--extra-args` option
+- Extra arguments option
