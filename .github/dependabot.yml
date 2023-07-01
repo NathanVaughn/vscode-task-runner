@@ -6,6 +6,10 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     target-branch: main
+    groups:
+      all:
+        patterns:
+          - "*"
 
   - package-ecosystem: pip
     directory: "/"
@@ -13,3 +17,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     target-branch: main
+    groups:
+      all:
+        patterns:
+          - "*"

@@ -31,10 +31,6 @@ repos:
     repo: https://github.com/psf/black
     rev: 23.3.0
 -   hooks:
-    -   id: pyleft
-    repo: https://github.com/nathanvaughn/pyleft
-    rev: v1.2.1
--   hooks:
     -   id: pyright
     repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.311
