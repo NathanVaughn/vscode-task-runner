@@ -34,13 +34,14 @@
     vscode-task-runner = "vtr.console:run"
 
 [tool.pyright]
-    typeCheckingMode = "basic"
-    venvPath         = "."
-    venv             = ".venv"
-    reportMissingParameterType  = true
+    typeCheckingMode           = "basic"
+    venvPath                   = "."
+    venv                       = ".venv"
+    reportMissingParameterType = true
 
 [tool.ruff]
-    ignore = ["E501"]
+    target-version = "py38"
+    ignore         = ["E501"]
 
 [build-system]
     requires      = ["poetry-core"]
