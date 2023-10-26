@@ -151,6 +151,23 @@ repos:
 
 The pre-commit hook does not match on any file types, and and will always execute.
 
+If using `pre-commit` and `poetry` is part of your task, you may need to add the
+following
+
+```json
+"options": {
+    "env": {
+        "VIRTUAL_ENV": "${workspaceFolder}${pathSeparator}.venv"
+    }
+}
+```
+
+and set [`virtualenvs.in-project`](https://python-poetry.org/docs/configuration/#virtualenvsin-project)
+to `true`.
+
+Otherwise, `poetry` may think the `pre-commit` virtual environment is your
+project's virtual environment.
+
 ## Implemented Features
 
 - Predefined variables:
