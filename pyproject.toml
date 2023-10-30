@@ -1,6 +1,6 @@
 [tool.poetry]
     name = "vscode-task-runner"
-    version = "0.1.7"
+    version = "1.0.0"
     description = "Task runner for VS Code tasks.json"
     license = "MIT"
     readme = "README.md"
@@ -19,7 +19,7 @@
 
 [tool.poetry.dependencies]
     python      = ">=3.8,<4.0"
-    shellingham = "^1.5.0.post1"
+    shellingham = "^1.5.4"
     pyjson5     = "^1.6.2"
     dacite      = "^1.8.1"
 
