@@ -23,7 +23,7 @@ jobs:
         run: pipx install poetry
 
       - name: Setup Python ${{ matrix.python_version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           # last version is default
           python-version: |
