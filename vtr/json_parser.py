@@ -57,7 +57,8 @@ def load_vscode_tasks_data(path: str = os.getcwd()) -> Tuple[dict, str]:
     if not os.path.isfile(tasks_json):
         raise FileNotFoundError
 
-    with open(tasks_json) as fp:
-        tasks_json_data = pyjson5.load(fp)
+    with open(tasks_json, "r") as fp:
+        # work around `read` positional argument differences
+        tasks_json_data = pyjson5.decode(fp.read())
 
     return replace_variables_data(tasks_json_data), tasks_json
