@@ -17,8 +17,10 @@ PLATFORM_KEY = PLATFORM_KEYS[platform.system()]  # type: ignore
 PREDEFINED_VARIABLES = {
     "${userHome}": os.path.expanduser("~"),
     "${workspaceFolder}": os.getcwd(),
+    "${workspaceRoot}": os.getcwd(),
     "${workspaceFolderBasename}": os.path.basename(os.getcwd()),
     "${pathSeparator}": os.path.sep,
+    "${/}": os.path.sep,
     "${cwd}": os.getcwd(),
 }
 

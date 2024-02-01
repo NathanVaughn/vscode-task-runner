@@ -170,11 +170,13 @@ project's virtual environment.
 
 ## Implemented Features
 
-- Predefined variables:
+- [Predefined variables](https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables):
   - `${userHome}`
+  - `${workspaceRoot}`
   - `${workspaceFolder}`
   - `${workspaceFolderBasename}`
   - `${pathSeparator}`
+  - `${/}`
   - `${cwd}`
   - `${env:VARIABLE}`
 - Settings hierarchy:
