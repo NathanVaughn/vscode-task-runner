@@ -53,3 +53,11 @@ class InvalidValue(Exception):
     """
 
     pass
+
+
+class ResponseNotProvided(Exception):
+    """
+    When an input is cancelled by the user.
+    """
+
+    pass

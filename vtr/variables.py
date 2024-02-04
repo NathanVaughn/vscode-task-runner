@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 import questionary
 
-from vtr.exceptions import UnsupportedValue, UnsupportedVariable
+from vtr.exceptions import ResponseNotProvided, UnsupportedValue, UnsupportedVariable
 
 # https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables
 SUPPORTED_PREDEFINED_VARIABLES = {
@@ -43,18 +43,18 @@ def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
     if input_data["type"] == "promptString":
         if input_data.get("password", False) is True:
             # if the value is a password
-            return questionary.password(
+            output = questionary.password(
                 input_data["description"], default=input_data.get("default", "")
             ).ask()
 
         # if the value is regular text
-        return questionary.text(
+        output = questionary.text(
             input_data["description"], default=input_data.get("default", "")
         ).ask()
 
     elif input_data["type"] == "pickString":
-        # if the value should bed picked
-        return questionary.select(
+        # if the value should be picked from options
+        output = questionary.select(
             input_data["description"],
             choices=input_data["options"],
             default=input_data.get("default"),
@@ -63,6 +63,11 @@ def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
         raise UnsupportedValue(
             f"Unsupported input variable type '{input_data['type']}'"
         )
+
+    if output is None:
+        raise ResponseNotProvided("No response provided")
+
+    return output
 
 
 def get_input_vars_values(
