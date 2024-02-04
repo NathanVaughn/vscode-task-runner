@@ -179,6 +179,7 @@ project's virtual environment.
   - `${/}`
   - `${cwd}`
   - `${env:VARIABLE}`
+  - `${input:VARIABLE}`
 - Settings hierarchy:
   - Global level settings
   - Global level OS-specific settings
@@ -205,11 +206,14 @@ project's virtual environment.
 
 - Any predefined variable not listed above. The other variables tend to rely
   upon the specific file opened in VS Code, or VS Code itself.
+- Variables scoped to workspace folders
+- Command variables
+- Input command variables
 - Problem matchers
 - Background tasks
 - UNC path conversion
 - Parallel `dependsOn` task execution
-- Task types other than `"process"` or `"shell"`
+- Task types other than `"process"` or `"shell"` (such as `"npm"`, `"docker"`, etc.)
 
 ## Differences from VS Code
 
