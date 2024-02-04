@@ -9,6 +9,12 @@ import dacite
 import vtr.constants
 import vtr.helpers
 import vtr.terminal_task_system
+from vtr.exceptions import (
+    DirectoryNotFound,
+    FileNotFound,
+    InvalidValue,
+    UnsupportedValue,
+)
 from vtr.models import CommandString, ShellConfiguration, ShellType
 
 
@@ -95,6 +101,17 @@ class Task:
         return self._get_task_setting("command") is None
 
     @property
+    def is_default_build_task(self) -> bool:
+        """
+        Determines if this task is the default build task
+        """
+        # https://stackoverflow.com/a/68028537/9944427
+        if isinstance(self.task_data.get("group"), dict):
+            return self.task_data["group"].get("isDefault", False)
+
+        return False
+
+    @property
     def cwd(self) -> str:
         """
         Gets the current working directory of the task.
@@ -103,7 +120,7 @@ class Task:
 
         # make sure the working directory exists
         if not os.path.isdir(task_cwd):
-            raise FileNotFoundError(f"Working directory '{task_cwd}' does not exist")
+            raise DirectoryNotFound(f"Working directory '{task_cwd}' does not exist")
 
         return task_cwd
 
@@ -140,7 +157,7 @@ class Task:
 
         # make sure an option was selected and is valid
         if task_type not in ("shell", "process"):
-            raise ValueError(f"Invalid task type '{task_type}'")
+            raise UnsupportedValue(f"Unsupported task type '{task_type}'")
 
         return task_type
 
@@ -165,7 +182,7 @@ class Task:
 
         # make sure it's a list
         if not isinstance(task_args, list):
-            raise ValueError("Invalid args format")
+            raise InvalidValue("Invalid args format")
 
         for i, arg in enumerate(task_args):
             task_args[i] = vtr.helpers.load_command_string(arg)
@@ -215,7 +232,7 @@ class Task:
             which_task_command = shutil.which(self.command)
 
             if not which_task_command:
-                raise ValueError(f"Unable to locate {self.command} in PATH")
+                raise FileNotFound(f"Unable to locate {self.command} in PATH")
 
             subprocess_command = [which_task_command]
             for arg in self.args + extra_args:
@@ -268,7 +285,7 @@ class Task:
             )
 
         else:
-            raise ValueError("Unsupported task type")
+            raise UnsupportedValue(f"Unsupported task type {self.type_}")
 
     @property
     def depends_on(self) -> List[Task]:
