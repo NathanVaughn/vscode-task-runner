@@ -177,6 +177,7 @@ project's virtual environment.
   - `${workspaceFolderBasename}`
   - `${pathSeparator}`
   - `${/}`
+  - `${defaultBuildTask}`
   - `${cwd}`
   - `${env:VARIABLE}`
   - `${input:VARIABLE}`
