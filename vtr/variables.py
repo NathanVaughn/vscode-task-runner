@@ -31,8 +31,6 @@ UNSUPPORTED_PREDEFINED_VARIABLES = {
     "${execPath}",
 }
 
-# todo default build task
-
 
 def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
     """
