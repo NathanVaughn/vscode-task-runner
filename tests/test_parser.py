@@ -1,6 +1,6 @@
 import pytest
 
-import vtr.json_parser
+import vtr.parser
 
 
 @pytest.mark.parametrize(
@@ -10,7 +10,7 @@ import vtr.json_parser
 )
 def test_replace_env_vars(environment_variable: None) -> None:
     assert (
-        vtr.json_parser.replace_env_vars("prefix ${env:VSCODE_TASK_RUNNER_TEST} suffix")
+        vtr.parser.replace_env_vars("prefix ${env:VSCODE_TASK_RUNNER_TEST} suffix")
         == "prefix abc123 suffix"
     )
 
@@ -36,4 +36,4 @@ def test_replace_variables_data(environment_variable: None) -> None:
         "key5": False,
     }
 
-    assert vtr.json_parser.replace_variables_data(input_data) == output_data
+    assert vtr.parser.replace_variables_data(input_data) == output_data

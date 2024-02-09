@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 import vtr.constants
-from vtr.json_parser import load_vscode_tasks_data
+from vtr.parser import load_vscode_tasks_data
 from vtr.task import Task
 from vtr.variables import replace_static_variables
 

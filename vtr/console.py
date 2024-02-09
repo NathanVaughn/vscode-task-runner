@@ -3,7 +3,7 @@ import os
 from typing import Dict, List
 
 import vtr.executor
-import vtr.json_parser
+import vtr.parser
 import vtr.variables
 from vtr.exceptions import TasksFileNotFound
 from vtr.task import Task
@@ -14,7 +14,7 @@ def run() -> None:
 
     # parse the tasks.json
     try:
-        all_tasks_data = vtr.json_parser.load_vscode_tasks_data()
+        all_tasks_data = vtr.parser.load_vscode_tasks_data()
         all_tasks_data = vtr.variables.replace_static_variables(all_tasks_data)
 
         # build task objects
