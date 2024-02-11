@@ -65,7 +65,7 @@ def run() -> None:
     all_commands = [t.subprocess_command() for t in tasks_to_execute]
 
     # get dict of input variables and values
-    input_vars_values = vtr.variables.get_input_vars_values(
+    input_vars_values = vtr.variables.get_input_variables_values(
         all_commands, all_tasks_data.get("inputs")
     )
 

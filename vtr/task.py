@@ -107,7 +107,10 @@ class Task:
         """
         # https://stackoverflow.com/a/68028537/9944427
         if isinstance(self.task_data.get("group"), dict):
-            return self.task_data["group"].get("isDefault", False)
+            return (
+                self.task_data["group"].get("isDefault", False)
+                and self.task_data["group"].get("kind", False) == "build"
+            )
 
         return False
 

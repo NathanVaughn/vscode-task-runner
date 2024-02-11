@@ -68,11 +68,13 @@ def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
     return output
 
 
-def get_input_vars_values(
+def get_input_variables_values(
     commands: List[List[str]], inputs_data: Optional[List[dict]] = None
 ) -> Dict[str, str]:
     """
     Looks at the list of commands and finds all input variables and their values.
+    This is done seperately, so as to not prompt for inputs for tasks that are not
+    going to be run.
     """
     if inputs_data is None:
         inputs_data = []
@@ -89,7 +91,7 @@ def get_input_vars_values(
     return input_vars
 
 
-def replace_env_vars(string: str) -> str:
+def replace_env_variables(string: str) -> str:
     """
     Replaces references to environment variables in a string with their values.
 
@@ -107,15 +109,22 @@ def replace_env_vars(string: str) -> str:
     return string
 
 
-def replace_recursive(data: Any) -> Any:
+def replace_static_variables(data: Any, valid_parent: bool = False) -> Any:
     """
     Recursively replaces variables in dictionary or list data.
+    Only replaces items under keys called "command", "args", or "options".
     """
     if isinstance(data, dict):
-        return {k: replace_recursive(v) for k, v in data.items()}
+        return {
+            k: replace_static_variables(v, valid_parent=True)
+            if k in ("command", "args", "options")
+            else replace_static_variables(v, valid_parent)
+            for k, v in data.items()
+        }
     elif isinstance(data, list):
-        return [replace_recursive(item) for item in data]
-    elif isinstance(data, str):
+        return [replace_static_variables(item, valid_parent) for item in data]
+    elif isinstance(data, str) and valid_parent:
+        # don't replace text if the parent keys are not in the list
         for key, value in SUPPORTED_PREDEFINED_VARIABLES.items():
             data = data.replace(key, value)
 
@@ -123,24 +132,9 @@ def replace_recursive(data: Any) -> Any:
             if item in data:
                 raise UnsupportedVariable(f"Unsupported variable '{item}'")
 
-        return replace_env_vars(data)
+        return replace_env_variables(data)
     else:
         return data
-
-
-def replace_static_variables(data: dict) -> dict:
-    """
-    Recursively replaces variables in dictionary or list data.
-    Only replaces items under keys called "command", "args", or "options".
-    """
-    if not isinstance(data, dict):
-        return data
-
-    for k, v in data.items():
-        if k in ("command", "args", "options"):
-            data[k] = replace_recursive(v)
-
-    return data
 
 
 def replace_runtime_variables(
