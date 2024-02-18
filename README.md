@@ -97,6 +97,45 @@ markdownlint.............................................................Passed
 
 This can only be used when running a single task.
 
+If your task uses an `${input:id}` variable, you can provide the value for
+this variable as an environment variable named `VTR_INPUT_{id}`. Example:
+
+```json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "tests",
+            "command": "pytest --cov=vtr/ --cov-report ${input:report_format}",
+            "type": "shell"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "report_format",
+            "description": "Coverage report format",
+            "type": "pickString",
+            "options": [
+                "html",
+                "xml",
+                "annotate",
+                "json",
+                "lcov"
+            ]
+        }
+    ]
+}
+```
+
+Then in GitHub Actions:
+
+```yaml
+  - name: Run tests
+    run: vtr tests
+    env:
+      VTR_INPUT_report_format: html
+```
+
 The `dependsOn` key is also supported:
 
 ```json
@@ -225,3 +264,4 @@ project's virtual environment.
 - Does not support any extensions that add extra options/functionality
 - Does not load any VS Code settings
 - Extra arguments option
+- `VTR_INPUT_${id}` environment variables

@@ -33,11 +33,18 @@ UNSUPPORTED_PREDEFINED_VARIABLES = {
 
 
 def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
+    # sourcery skip: use-named-expression
     """
     Given an input ID, prompt the user for the input value and return it.
     """
     input_data = next(i for i in inputs_data if i["id"] == input_id)
 
+    # allow the user to provide the input value via environment variable
+    env_value = os.environ.get(f"VTR_INPUT_{input_id}")
+    if env_value:
+        return env_value
+
+    # otherwise, obtain from user input
     if input_data["type"] == "promptString":
         if input_data.get("password", False) is True:
             # if the value is a password
@@ -45,10 +52,11 @@ def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
                 input_data["description"], default=input_data.get("default", "")
             ).ask()
 
-        # if the value is regular text
-        output = questionary.text(
-            input_data["description"], default=input_data.get("default", "")
-        ).ask()
+        else:
+            # if the value is regular text
+            output = questionary.text(
+                input_data["description"], default=input_data.get("default", "")
+            ).ask()
 
     elif input_data["type"] == "pickString":
         # if the value should be picked from options
@@ -63,7 +71,7 @@ def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
         )
 
     if output is None:
-        raise ResponseNotProvided("No response provided")
+        raise ResponseNotProvided("No response provided")  # pragma: no cover
 
     return output
 
@@ -76,19 +84,26 @@ def get_input_variables_values(
     This is done seperately, so as to not prompt for inputs for tasks that are not
     going to be run.
     """
+
+    # https://code.visualstudio.com/docs/editor/variables-reference#_input-variables
+
     if inputs_data is None:
         inputs_data = []
 
-    input_vars = {}
+    input_var_names = set()
     pattern = r"\${input:(.+?)}"
 
     for command in commands:
         for part in command:
             matches = re.findall(pattern, part)
             for match in matches:
-                input_vars[match] = get_input_value(match, inputs_data)
+                # make a set of all variables we need to get values for
+                input_var_names.add(match)
 
-    return input_vars
+    return {
+        input_var_name: get_input_value(input_var_name, inputs_data)
+        for input_var_name in input_var_names
+    }
 
 
 def replace_env_variables(string: str) -> str:
