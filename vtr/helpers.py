@@ -51,7 +51,7 @@ def identify_shell_type(shell_executable: str) -> ShellType:
     return ShellType.Unknown
 
 
-def get_parent_shell() -> ShellConfiguration:
+def get_parent_shell() -> ShellConfiguration:  # pragma: no cover
     """
     Returns the full path to the parent shell, and the arguments needed
     to launch a command.
@@ -71,7 +71,7 @@ def get_parent_shell() -> ShellConfiguration:
             # default to cmd.exe
             if not shell_executable or not shutil.which(shell_executable):
                 shell_executable = os.path.join(
-                    os.environ.get("SystemRoot", ""), "System32", "cmd.exe"
+                    os.environ.get("SystemRoot", "C:\\Windows"), "System32", "cmd.exe"
                 )
         # use SHELL variable
         else:

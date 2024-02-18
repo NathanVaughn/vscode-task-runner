@@ -33,15 +33,13 @@ UNSUPPORTED_PREDEFINED_VARIABLES = {
 
 
 def get_input_value(input_id: str, inputs_data: List[dict]) -> str:
-    # sourcery skip: use-named-expression
     """
     Given an input ID, prompt the user for the input value and return it.
     """
     input_data = next(i for i in inputs_data if i["id"] == input_id)
 
     # allow the user to provide the input value via environment variable
-    env_value = os.environ.get(f"VTR_INPUT_{input_id}")
-    if env_value:
+    if env_value := os.environ.get(f"VTR_INPUT_{input_id}"):
         return env_value
 
     # otherwise, obtain from user input

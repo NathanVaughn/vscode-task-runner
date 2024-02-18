@@ -235,7 +235,11 @@ class Task:
             which_task_command = shutil.which(self.command)
 
             if not which_task_command:
-                raise FileNotFound(f"Unable to locate {self.command} in PATH")
+                # testing this line is impossible since other components
+                # require patching shutil.which
+                raise FileNotFound(
+                    f"Unable to locate {self.command} in PATH"
+                )  # pragma: no cover
 
             subprocess_command = [which_task_command]
             for arg in self.args + extra_args:
@@ -288,7 +292,10 @@ class Task:
             )
 
         else:
-            raise UnsupportedValue(f"Unsupported task type {self.type_}")
+            # exception will be raied before here
+            raise UnsupportedValue(
+                f"Unsupported task type {self.type_}"
+            )  # pragma: no cover
 
     @property
     def depends_on(self) -> List[Task]:

@@ -4,7 +4,12 @@ import pytest
 
 import vtr.helpers
 from vtr.exceptions import FileNotFound, InvalidValue
-from vtr.models import CommandString, QuotedString, ShellQuoting, ShellType
+from vtr.models import (
+    CommandString,
+    QuotedString,
+    ShellQuoting,
+    ShellType,
+)
 
 
 @pytest.mark.parametrize(
