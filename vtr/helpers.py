@@ -6,6 +6,7 @@ import dacite
 import shellingham
 
 import vtr.constants
+from vtr.exceptions import FileNotFound, InvalidValue, ShellNotFound
 from vtr.models import (
     CommandString,
     QuotedString,
@@ -22,7 +23,7 @@ def identify_shell_type(shell_executable: str) -> ShellType:
     """
     shell_executable_which = shutil.which(shell_executable)
     if shell_executable_which is None:
-        raise FileNotFoundError(f"Shell executable {shell_executable} not found")
+        raise FileNotFound(f"Shell executable {shell_executable} not found")
 
     shell_executable = shell_executable_which
 
@@ -50,7 +51,7 @@ def identify_shell_type(shell_executable: str) -> ShellType:
     return ShellType.Unknown
 
 
-def get_parent_shell() -> ShellConfiguration:
+def get_parent_shell() -> ShellConfiguration:  # pragma: no cover
     """
     Returns the full path to the parent shell, and the arguments needed
     to launch a command.
@@ -70,7 +71,7 @@ def get_parent_shell() -> ShellConfiguration:
             # default to cmd.exe
             if not shell_executable or not shutil.which(shell_executable):
                 shell_executable = os.path.join(
-                    os.environ.get("SystemRoot", ""), "System32", "cmd.exe"
+                    os.environ.get("SystemRoot", "C:\\Windows"), "System32", "cmd.exe"
                 )
         # use SHELL variable
         else:
@@ -81,13 +82,13 @@ def get_parent_shell() -> ShellConfiguration:
 
     # make sure we found SOMETHING
     if not shell_executable:
-        raise FileNotFoundError("A shell could not be found")
+        raise ShellNotFound("A shell could not be found")
 
     # just make sure path is fully resolved
     if shell_executable := shutil.which(shell_executable):
         return ShellConfiguration(executable=shell_executable)
     else:
-        raise FileNotFoundError("A shell could not be found")
+        raise ShellNotFound("A shell could not be found")
 
 
 def stringify(value: Union[str, int, float, bool]) -> str:
@@ -96,7 +97,7 @@ def stringify(value: Union[str, int, float, bool]) -> str:
     """
 
     if not isinstance(value, (str, int, float, bool)):
-        raise ValueError(f"Value '{value}' is not a string/number/boolean")
+        raise InvalidValue(f"Value '{value}' is not a string/number/boolean")
 
     return str(value)
 
@@ -129,7 +130,7 @@ def load_command_string(data: Union[dict, str, List[str]]) -> CommandString:
             config=dacite.Config(cast=[ShellQuoting]),
         )
     else:
-        raise ValueError("Invalid command string data type")
+        raise InvalidValue("Invalid command string data type")
 
 
 def print2(msg: str) -> None:

@@ -1,13 +1,19 @@
 import subprocess
 import sys
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import vtr.helpers
+import vtr.variables
 from vtr.task import Task
 
 
 def execute_task(
-    task: Task, index: int, total: int, extra_args: Optional[List[str]] = None
+    task: Task,
+    index: int,
+    total: int,
+    input_vars_values: Dict[str, str],
+    default_build_task: Optional[str] = None,
+    extra_args: Optional[List[str]] = None,
 ) -> None:
     """
     Execute a given task. A 1-based index and total number of tasks must be provided
@@ -19,7 +25,9 @@ def execute_task(
         )
         return
 
-    cmd = task.subprocess_command(extra_args)
+    cmd = vtr.variables.replace_runtime_variables(
+        task.subprocess_command(extra_args), input_vars_values, default_build_task
+    )
 
     vtr.helpers.print2(
         f'[{index}/{total}] Executing task "{task.label}": {vtr.helpers.combine_string(cmd)}'

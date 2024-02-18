@@ -3,6 +3,7 @@ from typing import Any
 import pytest
 
 from tests.conftest import load_task
+from vtr.exceptions import InvalidValue
 from vtr.models import QuotedString, ShellQuoting
 
 
@@ -30,5 +31,5 @@ def test_args_pass(task_label: str, expected: Any) -> None:
 
 def test_args_fail() -> None:
     task = load_task(__file__, "Test6")
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidValue):
         assert task.args == {"key": "value"}

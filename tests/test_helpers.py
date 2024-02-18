@@ -3,7 +3,13 @@ from typing import Any, Type
 import pytest
 
 import vtr.helpers
-from vtr.models import CommandString, QuotedString, ShellQuoting, ShellType
+from vtr.exceptions import FileNotFound, InvalidValue
+from vtr.models import (
+    CommandString,
+    QuotedString,
+    ShellQuoting,
+    ShellType,
+)
 
 
 @pytest.mark.parametrize(
@@ -47,7 +53,7 @@ def test_identify_shell_type(
 
 def test_identify_shell_type_fail() -> None:
     # test for when the given shell path does not resolve to anything
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(FileNotFound):
         vtr.helpers.identify_shell_type("/not/real")
 
 
@@ -68,9 +74,9 @@ def test_stringify_pass(input_: Any, output: str) -> None:
 @pytest.mark.parametrize(
     "input_, exception",
     (
-        ({}, ValueError),
-        (None, ValueError),
-        ({"key": "value"}, ValueError),
+        ({}, InvalidValue),
+        (None, InvalidValue),
+        ({"key": "value"}, InvalidValue),
     ),
 )
 def test_stringify_fail(input_: Any, exception: Type[Exception]) -> None:
@@ -115,7 +121,7 @@ def test_load_command_string_pass(input_: Any, output: CommandString) -> None:
     "input_, exception",
     (
         ({}, KeyError),
-        (None, ValueError),
+        (None, InvalidValue),
         ({"key": "value"}, KeyError),
     ),
 )

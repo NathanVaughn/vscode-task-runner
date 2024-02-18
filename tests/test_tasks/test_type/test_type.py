@@ -1,6 +1,7 @@
 import pytest
 
 from tests.conftest import load_task
+from vtr.exceptions import UnsupportedValue
 
 
 @pytest.mark.parametrize(
@@ -14,5 +15,5 @@ def test_type_pass(task_label: str, expected: str) -> None:
 
 def test_type_fail() -> None:
     task = load_task(__file__, "Test4")
-    with pytest.raises(ValueError):
+    with pytest.raises(UnsupportedValue):
         assert task.type_ == "notanoption"
