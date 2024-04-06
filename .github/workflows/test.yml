@@ -7,42 +7,14 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    if: "${{ !contains(github.event.head_commit.message, 'ci skip') }}"
+    permissions:
+      contents: read
 
     strategy:
       fail-fast: false
       matrix:
         python_version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Install Poetry
-        run: pipx install poetry
-
-      - name: Setup Python ${{ matrix.python_version }}
-        uses: actions/setup-python@v5
-        with:
-          # last version is default
-          python-version: |
-            3.11
-            ${{ matrix.python_version }}
-          cache: poetry
-
-      - name: Cache Pre-Commit
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: pre-commit-
-
-      - name: Install Python Dependencies
-        run: poetry install --sync
-
-      - name: Run Pre-Commit Checks
-        run: poetry run python -m vtr pre-commit --color=always --show-diff-on-failure
-
-      - name: Run Tests
-        run: poetry run python -m vtr tests
+    uses: NathanVaughn/reusable-actions/.github/workflows/python-test.yml@main
+    with:
+      python_version: ${{ matrix.python_version }}
