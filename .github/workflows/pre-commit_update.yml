@@ -8,7 +8,7 @@ on:
 jobs:
   auto-update:
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
 
     uses: NathanVaughn/reusable-actions/.github/workflows/pre-commit-update.yml@main
