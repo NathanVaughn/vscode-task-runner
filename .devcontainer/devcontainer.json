@@ -1,5 +1,5 @@
 {
-    "image": "ghcr.io/nathanvaughn/devcontainers/python:3.12",
+    "image": "ghcr.io/nathanvaughn/devcontainers/python:latest",
     "customizations": {
         "vscode": {
             "extensions": [
