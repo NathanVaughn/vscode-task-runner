@@ -19,5 +19,8 @@
                 "redhat.vscode-yaml"
             ]
         }
-    }
+    },
+    "mounts": [
+        "source=devcontainer-profile,target=/home/vscode/,type=volume"
+    ]
 }
