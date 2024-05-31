@@ -118,7 +118,7 @@ def test__add_all_argument(
             ShellType.Unknown,
             [],
             "command1 command2",
-            ["command1 command2"],
+            ["-c", "command1 command2"],
         ),
     ],
 )
