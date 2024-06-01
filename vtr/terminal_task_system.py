@@ -68,7 +68,6 @@ def create_shell_launch_config(
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/browser/terminalTaskSystem.ts#L1107-L1177
 
     # manually converted and simplified
-
     # convert a single shell args string into a list
     if isinstance(shell_args, str):
         shell_args = [shell_args]
@@ -77,13 +76,6 @@ def create_shell_launch_config(
 
     # skip all this if the user has already manually specific arguments
     if not shell_args:
-        # this cannot happen in our case, since we don't have default
-        # arguments loaded from settings.
-
-        # Under Mac remove -l to not start it as a login shell.
-        # if vtr.constants.PLATFORM_KEY == "osx" and "-l" in shell_args:
-        #     shell_args.remove("-l")
-
         if shell_type == ShellType.PowerShell:
             to_add.append("-Command")
         elif shell_type == ShellType.SH:
@@ -92,14 +84,12 @@ def create_shell_launch_config(
             to_add.append("-e")
         elif shell_type == ShellType.CMD:
             to_add.extend(["/d", "/c"])
+        elif shell_type == ShellType.Unknown:
+            # default to a -c, works for most shells
+            to_add.append("-c")
 
     combined_shell_args = _add_all_argument(to_add, shell_args)
     combined_shell_args.append(command_line)
-
-    # if windows_shell_args:
-    #     return [" ".join(combined_shell_args)]
-    # else:
-    #     return combined_shell_args
     return combined_shell_args
 
 
