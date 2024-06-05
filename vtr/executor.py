@@ -3,6 +3,7 @@ import sys
 from typing import Dict, List, Optional
 
 import vtr.helpers
+import vtr.printer
 import vtr.variables
 from vtr.task import Task
 
@@ -20,7 +21,7 @@ def execute_task(
     for printing.
     """
     if task.is_virtual:
-        vtr.helpers.print2(
+        vtr.printer.info(
             f'[{index}/{total}] Task "{task.label}" has no direct command to execute'
         )
         return
@@ -29,16 +30,24 @@ def execute_task(
         task.subprocess_command(extra_args), input_vars_values, default_build_task
     )
 
-    vtr.helpers.print2(
-        f'[{index}/{total}] Executing task "{task.label}": {vtr.helpers.combine_string(cmd)}'
-    )
-    proc = subprocess.run(cmd, shell=False, cwd=task.cwd, env=task.env)
-
-    if proc.returncode != 0:
-        vtr.helpers.print2(
-            f'Task "{task.label}" returned with exit code {proc.returncode}'
+    with vtr.printer.group(f"Task {task.label}"):
+        vtr.printer.info(
+            f"[{index}/{total}] Executing task {vtr.printer.yellow(task.label)}: {vtr.printer.blue(vtr.helpers.combine_string(cmd))}"
         )
-        sys.exit(proc.returncode)
+        proc = subprocess.run(
+            cmd,
+            shell=False,
+            cwd=task.cwd,
+            env=task.env,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
+
+        if proc.returncode != 0:
+            vtr.printer.error(
+                f"Task {vtr.printer.yellow(task.label)} returned with exit code {proc.returncode}"
+            )
+            sys.exit(proc.returncode)
 
 
 def collect_task(task: Task, all_tasks: Optional[List[Task]] = None) -> List[Task]:
