@@ -8,14 +8,44 @@ on:
 
 jobs:
   test:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
+
+    if: "${{ !contains(github.event.head_commit.message, 'ci skip') }}"
 
     strategy:
       fail-fast: false
       matrix:
         python_version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
 
-    uses: NathanVaughn/reusable-actions/.github/workflows/python-test.yml@main
-    with:
-      python_version: ${{ matrix.python_version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Poetry
+        uses: threeal/pipx-install-action@v1.0.0
+        with:
+          packages: |
+            poetry
+
+      - name: Setup Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+          cache: poetry
+
+      - name: Cache Pre-Commit
+        uses: NathanVaughn/actions-pre-commit-cache@main
+
+      # this is done, so the local version of vscode-task-runner is used,
+      # not the pypi release
+      # https://github.com/NathanVaughn/reusable-actions/blob/main/.github/workflows/python-test.yml
+      - name: Install Dependencies
+        run: poetry install --sync
+
+      - name: Run Pre-Commit Checks
+        run: poetry run python -m vtr pre-commit --color=always --show-diff-on-failure
+
+      - name: Run Tests
+        run: poetry run python -m vtr tests --color=yes
