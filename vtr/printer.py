@@ -2,6 +2,8 @@ import os
 from contextlib import contextmanager
 from typing import Generator
 
+import colorama
+
 IS_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 
 
@@ -10,6 +12,14 @@ def _print_flush(msg: str) -> None:
     Prints a message, but flushes the output for CI/CD.
     """
     print(msg, flush=True)
+
+
+def _color_string(msg: str, color: str) -> str:
+    """
+    Returns a colored string. Respects existing colors.
+    """
+    msg = msg.replace(colorama.Style.RESET_ALL, colorama.Style.RESET_ALL + color)
+    return color + msg + colorama.Style.RESET_ALL
 
 
 def info(msg: str) -> None:
@@ -26,7 +36,28 @@ def error(msg: str) -> None:
     if IS_GITHUB_ACTIONS:
         _print_flush(f"::error::{msg}")
     else:
-        _print_flush(msg)
+        _print_flush(f"{red(msg)}")
+
+
+def blue(msg: str) -> str:
+    """
+    Returns a blue-colored string. Respects existing colors.
+    """
+    return _color_string(msg, colorama.Fore.BLUE)
+
+
+def yellow(msg: str) -> str:
+    """
+    Returns a yellow-colored string. Respects existing colors.
+    """
+    return _color_string(msg, colorama.Fore.YELLOW)
+
+
+def red(msg: str) -> str:
+    """
+    Returns a red-colored string. Respects existing colors.
+    """
+    return _color_string(msg, colorama.Fore.RED)
 
 
 def start_group(name: str) -> None:
@@ -35,8 +66,6 @@ def start_group(name: str) -> None:
     """
     if IS_GITHUB_ACTIONS:
         _print_flush(f"::group::{name}")
-    else:
-        _print_flush(f"Group: {name}")
 
 
 def end_group() -> None:
@@ -51,6 +80,7 @@ def end_group() -> None:
 def group(name: str) -> Generator[None, None, None]:
     """
     Context manager for creating a group in the GitHub Actions output.
+    Does nothing outside GitHub Actions.
     """
     start_group(name)
     try:

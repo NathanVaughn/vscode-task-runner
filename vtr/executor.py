@@ -30,9 +30,9 @@ def execute_task(
         task.subprocess_command(extra_args), input_vars_values, default_build_task
     )
 
-    with vtr.printer.group(task.label):
+    with vtr.printer.group(f"Task {task.label}"):
         vtr.printer.info(
-            f'[{index}/{total}] Executing task "{task.label}": {vtr.helpers.combine_string(cmd)}'
+            f"[{index}/{total}] Executing task {vtr.printer.yellow(task.label)}: {vtr.printer.blue(vtr.helpers.combine_string(cmd))}"
         )
         proc = subprocess.run(
             cmd,
@@ -45,7 +45,7 @@ def execute_task(
 
         if proc.returncode != 0:
             vtr.printer.error(
-                f'Task "{task.label}" returned with exit code {proc.returncode}'
+                f"Task {vtr.printer.yellow(task.label)} returned with exit code {proc.returncode}"
             )
             sys.exit(proc.returncode)
 

@@ -40,6 +40,7 @@ jobs:
 
       # this is done, so the local version of vscode-task-runner is used,
       # not the pypi release
+      # https://github.com/NathanVaughn/reusable-actions/blob/main/.github/workflows/python-test.yml
       - name: Install Dependencies
         run: poetry install --sync
 
