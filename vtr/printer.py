@@ -1,10 +1,11 @@
 import os
 from contextlib import contextmanager
+from typing import Generator
 
 IS_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 
 
-def print_flush(msg: str) -> None:
+def _print_flush(msg: str) -> None:
     """
     Prints a message, but flushes the output for CI/CD.
     """
@@ -15,7 +16,7 @@ def info(msg: str) -> None:
     """
     Prints a standard message.
     """
-    print_flush(msg)
+    _print_flush(msg)
 
 
 def error(msg: str) -> None:
@@ -23,9 +24,9 @@ def error(msg: str) -> None:
     Prints an error to the console.
     """
     if IS_GITHUB_ACTIONS:
-        print_flush(f"::error::{msg}")
+        _print_flush(f"::error::{msg}")
     else:
-        print_flush(msg)
+        _print_flush(msg)
 
 
 def start_group(name: str) -> None:
@@ -33,9 +34,9 @@ def start_group(name: str) -> None:
     Creates a new group in the GitHub Actions output.
     """
     if IS_GITHUB_ACTIONS:
-        print_flush(f"::group::{name}")
+        _print_flush(f"::group::{name}")
     else:
-        print_flush(f"Group: {name}")
+        _print_flush(f"Group: {name}")
 
 
 def end_group() -> None:
@@ -43,11 +44,11 @@ def end_group() -> None:
     Ends a group in the GitHub Actions output.
     """
     if IS_GITHUB_ACTIONS:
-        print_flush("::endgroup::")
+        _print_flush("::endgroup::")
 
 
 @contextmanager
-def group(name: str):
+def group(name: str) -> Generator[None, None, None]:
     """
     Context manager for creating a group in the GitHub Actions output.
     """
