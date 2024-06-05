@@ -47,4 +47,4 @@ jobs:
         run: poetry run python -m vtr pre-commit --color=always --show-diff-on-failure
 
       - name: Run Tests
-        run: poetry run python -m vtr tests
+        run: poetry run python -m vtr tests --color=yes
