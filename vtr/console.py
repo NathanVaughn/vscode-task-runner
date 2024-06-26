@@ -1,12 +1,47 @@
 import argparse
 import os
-from typing import Dict, List
+import sys
+from typing import Dict, List, Tuple
 
 import vtr.executor
 import vtr.parser
 import vtr.variables
 from vtr.exceptions import TasksFileNotFound
 from vtr.task import Task
+
+
+def parse_args(
+    sys_argv: list[str], task_choices: List[str], help_text: str
+) -> Tuple[list[str], list[str]]:
+    """
+    Parse arguments from the command line. Split out as seperate function for testing.
+    Returns a tuple with a list of tasks selected, and extra arguments.
+    """
+
+    parser = argparse.ArgumentParser(
+        description="VS Code Task Runner",
+        epilog="When running a single task, extra args can be appended only to that task."
+        + " If a single task is requested, but has dependent tasks, only the top-level"
+        + " task will be given the extra arguments."
+        + ' If the task is a "process" type, then this will be added to "args".'
+        + ' If the task is a "shell" type with only a "command" then this will'
+        + " be tacked on to the end and joined by spaces."
+        + ' If the task is a "shell" type with '
+        + ' a "command" and "args", then this will be appended to "args".',
+    )
+    parser.add_argument(
+        "task_labels",
+        nargs="+",
+        choices=task_choices,
+        help=help_text,
+    )
+
+    args, extra_args = parser.parse_known_args(sys_argv)
+
+    if len(args.task_labels) > 1 and extra_args:
+        parser.error("Extra arguments can only be used with a single task.")
+
+    return args.task_labels, extra_args
 
 
 def run() -> None:
@@ -30,31 +65,12 @@ def run() -> None:
             + f" {os.path.join('.vscode', 'tasks.json')} file to see and run tasks."
         )
 
-    parser = argparse.ArgumentParser(
-        description="VS Code Task Runner",
-        epilog="When running a single task, extra args can be appended only to that task."
-        + " If a single task is requested, but has dependent tasks, only the top-level"
-        + " task will be given the extra arguments."
-        + ' If the task is a "process" type, then this will be added to "args".'
-        + ' If the task is a "shell" type with only a "command" then this will'
-        + " be tacked on to the end and joined by spaces."
-        + ' If the task is a "shell" type with '
-        + ' a "command" and "args", then this will be appended to "args".',
+    selected_tasks, extra_args = parse_args(
+        sys.argv[1:], list(all_tasks.keys()), task_label_help_text
     )
-    parser.add_argument(
-        "task_labels",
-        nargs="+",
-        choices=all_tasks.keys(),
-        help=task_label_help_text,
-    )
-
-    args, extra_args = parser.parse_known_args()
-
-    if len(args.task_labels) > 1 and extra_args:
-        parser.error("Extra arguments can only be used with a single task.")
 
     # filter to tasks explicitly asked for
-    top_level_tasks = [all_tasks[t] for t in args.task_labels]
+    top_level_tasks = [all_tasks[t] for t in selected_tasks]
 
     # get all tasks, following dependencies
     tasks_to_execute: List[Task] = []
