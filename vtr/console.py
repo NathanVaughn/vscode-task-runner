@@ -36,7 +36,22 @@ def parse_args(
         help=help_text,
     )
 
-    args, extra_args = parser.parse_known_args(sys_argv)
+    # https://stackoverflow.com/a/40686614/9944427
+    # https://github.com/NathanVaughn/vscode-task-runner/issues/51
+    if "--" in sys_argv:
+        break_point = sys_argv.index("--")
+        sys_argv_to_parse, extra_extra_args = (
+            sys_argv[:break_point],
+            sys_argv[break_point + 1 :],
+        )
+    else:
+        sys_argv_to_parse = sys_argv
+        extra_extra_args = []
+
+    # parse with argparse
+    args, extra_args = parser.parse_known_args(sys_argv_to_parse)
+    # combine with items we parsed beforehand
+    extra_args = extra_args + extra_extra_args
 
     if len(args.task_labels) > 1 and extra_args:
         parser.error("Extra arguments can only be used with a single task.")

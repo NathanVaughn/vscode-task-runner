@@ -12,6 +12,10 @@ import vtr.console
         (["build", "test"], ["build", "test"], []),
         (["build", "--extra"], ["build"], ["--extra"]),
         (["build", "--extra1", "--extra2"], ["build"], ["--extra1", "--extra2"]),
+        (["build", "--"], ["build"], []),
+        (["build", "--", "--extra"], ["build"], ["--extra"]),
+        (["build", "--extra1", "--", "extra2"], ["build"], ["--extra1", "extra2"]),
+        (["test", "--", "--", "--reporter=json"], ["test"], ["--", "--reporter=json"]),
     ],
 )
 def test_parse_args_pass(
