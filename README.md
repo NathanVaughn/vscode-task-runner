@@ -95,7 +95,7 @@ pyright..................................................................Passed
 markdownlint.............................................................Passed
 ```
 
-This can only be used when running a single task. You can also use `--` as a seperator
+This can only be used when running a single task. You can also use `--` as a separator
 to add additional arguments that do not start with a `--`. Example:
 
 ```bash
