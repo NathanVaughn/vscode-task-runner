@@ -95,7 +95,13 @@ pyright..................................................................Passed
 markdownlint.............................................................Passed
 ```
 
-This can only be used when running a single task.
+This can only be used when running a single task. You can also use `--` as a separator
+to add additional arguments that do not start with a `--`. Example:
+
+```bash
+$ vtr run test -- option1 option2
+# This will run the task "test" with the arguments "option1" and "option2"
+```
 
 If your task uses an `${input:id}` variable, you can provide the value for
 this variable as an environment variable named `VTR_INPUT_{id}`. Example:

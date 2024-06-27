@@ -1,5 +1,7 @@
 import argparse
+import dataclasses
 import os
+import sys
 from typing import Dict, List
 
 import vtr.executor
@@ -7,6 +9,61 @@ import vtr.parser
 import vtr.variables
 from vtr.exceptions import TasksFileNotFound
 from vtr.task import Task
+
+
+@dataclasses.dataclass
+class ParseResult:
+    task_labels: List[str]
+    extra_args: List[str]
+
+
+def parse_args(
+    sys_argv: List[str], task_choices: List[str], help_text: str
+) -> ParseResult:
+    """
+    Parse arguments from the command line. Split out as seperate function for testing.
+    Returns an object with a list of tasks selected, and extra arguments.
+    """
+
+    parser = argparse.ArgumentParser(
+        description="VS Code Task Runner",
+        epilog="When running a single task, extra args can be appended only to that task."
+        + " If a single task is requested, but has dependent tasks, only the top-level"
+        + " task will be given the extra arguments."
+        + ' If the task is a "process" type, then this will be added to "args".'
+        + ' If the task is a "shell" type with only a "command" then this will'
+        + " be tacked on to the end and joined by spaces."
+        + ' If the task is a "shell" type with '
+        + ' a "command" and "args", then this will be appended to "args".',
+    )
+    parser.add_argument(
+        "task_labels",
+        nargs="+",
+        choices=task_choices,
+        help=help_text,
+    )
+
+    # https://stackoverflow.com/a/40686614/9944427
+    # https://github.com/NathanVaughn/vscode-task-runner/issues/51
+    if "--" in sys_argv:
+        break_point = sys_argv.index("--")
+        sys_argv_to_parse, extra_extra_args = (
+            sys_argv[:break_point],
+            sys_argv[break_point + 1 :],
+        )
+    else:
+        sys_argv_to_parse = sys_argv
+        extra_extra_args = []
+
+    # parse with argparse
+    args, extra_args = parser.parse_known_args(sys_argv_to_parse)
+    # combine with items we parsed beforehand
+    extra_args = extra_args + extra_extra_args
+
+    if len(args.task_labels) > 1 and extra_args:
+        parser.error("Extra arguments can only be used with a single task.")
+
+    return ParseResult(task_labels=args.task_labels, extra_args=extra_args)
 
 
 def run() -> None:
@@ -30,31 +87,12 @@ def run() -> None:
             + f" {os.path.join('.vscode', 'tasks.json')} file to see and run tasks."
         )
 
-    parser = argparse.ArgumentParser(
-        description="VS Code Task Runner",
-        epilog="When running a single task, extra args can be appended only to that task."
-        + " If a single task is requested, but has dependent tasks, only the top-level"
-        + " task will be given the extra arguments."
-        + ' If the task is a "process" type, then this will be added to "args".'
-        + ' If the task is a "shell" type with only a "command" then this will'
-        + " be tacked on to the end and joined by spaces."
-        + ' If the task is a "shell" type with '
-        + ' a "command" and "args", then this will be appended to "args".',
+    parse_result = parse_args(
+        sys.argv[1:], list(all_tasks.keys()), task_label_help_text
     )
-    parser.add_argument(
-        "task_labels",
-        nargs="+",
-        choices=all_tasks.keys(),
-        help=task_label_help_text,
-    )
-
-    args, extra_args = parser.parse_known_args()
-
-    if len(args.task_labels) > 1 and extra_args:
-        parser.error("Extra arguments can only be used with a single task.")
 
     # filter to tasks explicitly asked for
-    top_level_tasks = [all_tasks[t] for t in args.task_labels]
+    top_level_tasks = [all_tasks[t] for t in parse_result.task_labels]
 
     # get all tasks, following dependencies
     tasks_to_execute: List[Task] = []
@@ -79,7 +117,7 @@ def run() -> None:
         i_extra_args = []
         # top-level task will always be the last one
         if i + 1 == len(tasks_to_execute):
-            i_extra_args = extra_args
+            i_extra_args = parse_result.extra_args
 
         vtr.executor.execute_task(
             task,
