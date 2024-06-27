@@ -6,7 +6,7 @@ import vtr.console
 
 
 @pytest.mark.parametrize(
-    "in_args, out_args, out_extra_args",
+    "in_args, out_labels, out_extra_args",
     [
         (["build"], ["build"], []),
         (["build", "test"], ["build", "test"], []),
@@ -19,13 +19,13 @@ import vtr.console
     ],
 )
 def test_parse_args_pass(
-    in_args: List[str], out_args: List[str], out_extra_args: List[str]
+    in_args: List[str], out_labels: List[str], out_extra_args: List[str]
 ) -> None:
     task_choices = ["build", "test"]
     help_text = ""
-    args, extra_args = vtr.console.parse_args(in_args, task_choices, help_text)
-    assert args == out_args
-    assert extra_args == out_extra_args
+    parse_result = vtr.console.parse_args(in_args, task_choices, help_text)
+    assert parse_result.task_labels == out_labels
+    assert parse_result.extra_args == out_extra_args
 
 
 def test_parse_args_error() -> None:

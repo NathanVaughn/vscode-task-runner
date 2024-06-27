@@ -1,7 +1,8 @@
 import argparse
+import dataclasses
 import os
 import sys
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import vtr.executor
 import vtr.parser
@@ -10,12 +11,18 @@ from vtr.exceptions import TasksFileNotFound
 from vtr.task import Task
 
 
+@dataclasses.dataclass
+class ParseResult:
+    task_labels: List[str]
+    extra_args: List[str]
+
+
 def parse_args(
     sys_argv: List[str], task_choices: List[str], help_text: str
-) -> Tuple[list[str], list[str]]:
+) -> ParseResult:
     """
     Parse arguments from the command line. Split out as seperate function for testing.
-    Returns a tuple with a list of tasks selected, and extra arguments.
+    Returns an object with a list of tasks selected, and extra arguments.
     """
 
     parser = argparse.ArgumentParser(
@@ -56,7 +63,7 @@ def parse_args(
     if len(args.task_labels) > 1 and extra_args:
         parser.error("Extra arguments can only be used with a single task.")
 
-    return args.task_labels, extra_args
+    return ParseResult(task_labels=args.task_labels, extra_args=extra_args)
 
 
 def run() -> None:
@@ -80,12 +87,12 @@ def run() -> None:
             + f" {os.path.join('.vscode', 'tasks.json')} file to see and run tasks."
         )
 
-    selected_tasks, extra_args = parse_args(
+    parse_result = parse_args(
         sys.argv[1:], list(all_tasks.keys()), task_label_help_text
     )
 
     # filter to tasks explicitly asked for
-    top_level_tasks = [all_tasks[t] for t in selected_tasks]
+    top_level_tasks = [all_tasks[t] for t in parse_result.task_labels]
 
     # get all tasks, following dependencies
     tasks_to_execute: List[Task] = []
@@ -110,7 +117,7 @@ def run() -> None:
         i_extra_args = []
         # top-level task will always be the last one
         if i + 1 == len(tasks_to_execute):
-            i_extra_args = extra_args
+            i_extra_args = parse_result.extra_args
 
         vtr.executor.execute_task(
             task,
