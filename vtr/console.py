@@ -11,7 +11,7 @@ from vtr.task import Task
 
 
 def parse_args(
-    sys_argv: list[str], task_choices: List[str], help_text: str
+    sys_argv: List[str], task_choices: List[str], help_text: str
 ) -> Tuple[list[str], list[str]]:
     """
     Parse arguments from the command line. Split out as seperate function for testing.
