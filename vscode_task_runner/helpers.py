@@ -5,9 +5,9 @@ from typing import List, Union
 import dacite
 import shellingham
 
-import vtr.constants
-from vtr.exceptions import FileNotFound, InvalidValue, ShellNotFound
-from vtr.models import (
+import vscode_task_runner.constants
+from vscode_task_runner.exceptions import FileNotFound, InvalidValue, ShellNotFound
+from vscode_task_runner.models import (
     CommandString,
     QuotedString,
     ShellConfiguration,
@@ -66,7 +66,7 @@ def get_parent_shell() -> ShellConfiguration:  # pragma: no cover
     # if path is none or empty
     if not shell_executable:
         # use COMSPEC variable
-        if vtr.constants.PLATFORM_KEY == "windows":
+        if vscode_task_runner.constants.PLATFORM_KEY == "windows":
             shell_executable = os.environ.get("COMSPEC")
             # default to cmd.exe
             if not shell_executable or not shutil.which(shell_executable):

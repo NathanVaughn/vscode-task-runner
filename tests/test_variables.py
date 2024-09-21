@@ -1,8 +1,8 @@
 import pytest
 from pytest_mock import MockerFixture
 
-import vtr.variables
-from vtr.exceptions import UnsupportedValue, UnsupportedVariable
+import vscode_task_runner.variables
+from vscode_task_runner.exceptions import UnsupportedValue, UnsupportedVariable
 
 
 @pytest.mark.parametrize(
@@ -14,28 +14,33 @@ def test_get_input_value_env(environment_variable: None) -> None:
     """
     Ensure the input value is correctly obtained from the environment.
     """
-    assert vtr.variables.get_input_value("test", [{"id": "test"}]) == "abc123"
+    assert (
+        vscode_task_runner.variables.get_input_value("test", [{"id": "test"}])
+        == "abc123"
+    )
 
 
 def test_get_input_value_text(mocker: MockerFixture) -> None:
     """
     Ensure a text input value is correctly obtained from the user.
     """
-    mocker.patch.object(vtr.variables.questionary, attribute="text")
+    mocker.patch.object(vscode_task_runner.variables.questionary, attribute="text")
 
-    vtr.variables.get_input_value(
+    vscode_task_runner.variables.get_input_value(
         "test", [{"id": "test", "description": "desc", "type": "promptString"}]
     )
-    vtr.variables.questionary.text.assert_called_once_with("desc", default="")
+    vscode_task_runner.variables.questionary.text.assert_called_once_with(
+        "desc", default=""
+    )
 
 
 def test_get_input_value_password(mocker: MockerFixture) -> None:
     """
     Ensure a password input value is correctly obtained from the user.
     """
-    mocker.patch.object(vtr.variables.questionary, attribute="password")
+    mocker.patch.object(vscode_task_runner.variables.questionary, attribute="password")
 
-    vtr.variables.get_input_value(
+    vscode_task_runner.variables.get_input_value(
         "test",
         [
             {
@@ -46,16 +51,18 @@ def test_get_input_value_password(mocker: MockerFixture) -> None:
             }
         ],
     )
-    vtr.variables.questionary.password.assert_called_once_with("desc", default="")
+    vscode_task_runner.variables.questionary.password.assert_called_once_with(
+        "desc", default=""
+    )
 
 
 def test_get_input_value_select(mocker: MockerFixture) -> None:
     """
     Ensure a select input value is correctly obtained from the user.
     """
-    mocker.patch.object(vtr.variables.questionary, attribute="select")
+    mocker.patch.object(vscode_task_runner.variables.questionary, attribute="select")
 
-    vtr.variables.get_input_value(
+    vscode_task_runner.variables.get_input_value(
         "test",
         [
             {
@@ -66,7 +73,7 @@ def test_get_input_value_select(mocker: MockerFixture) -> None:
             }
         ],
     )
-    vtr.variables.questionary.select.assert_called_once_with(
+    vscode_task_runner.variables.questionary.select.assert_called_once_with(
         "desc", choices=["option1", "option2"], default=None
     )
 
@@ -76,14 +83,18 @@ def test_get_input_value_unsupported() -> None:
     Ensure an exception is raised if an unsupported input type is encountered.
     """
     with pytest.raises(UnsupportedValue):
-        vtr.variables.get_input_value("test", [{"id": "test", "type": "command"}])
+        vscode_task_runner.variables.get_input_value(
+            "test", [{"id": "test", "type": "command"}]
+        )
 
 
 def test_get_input_variables_values(mocker: MockerFixture) -> None:
     """
     Ensure the input variables are correctly identified.
     """
-    mocker.patch.object(vtr.variables, attribute="get_input_value", return_value=None)
+    mocker.patch.object(
+        vscode_task_runner.variables, attribute="get_input_value", return_value=None
+    )
 
     commands = [
         [
@@ -95,11 +106,11 @@ def test_get_input_variables_values(mocker: MockerFixture) -> None:
         ]
     ]
 
-    vtr.variables.get_input_variables_values(commands)
+    vscode_task_runner.variables.get_input_variables_values(commands)
 
     # ensure only two calls were made
     # set does not maintain order
-    vtr.variables.get_input_value.assert_has_calls(
+    vscode_task_runner.variables.get_input_value.assert_has_calls(
         [mocker.call("var1", []), mocker.call("var2", [])], any_order=True
     )
 
@@ -114,7 +125,7 @@ def test_replace_env_variables(environment_variable: None) -> None:
     Ensure environment variables are replaced correctly.
     """
     assert (
-        vtr.variables.replace_env_variables(
+        vscode_task_runner.variables.replace_env_variables(
             "prefix ${env:VSCODE_TASK_RUNNER_TEST} suffix"
         )
         == "prefix abc123 suffix"
@@ -149,7 +160,9 @@ def test_replace_static_variables(environment_variable: None) -> None:
         "key6": [{"options": "abc123"}],
     }
 
-    assert vtr.variables.replace_static_variables(input_data) == output_data
+    assert (
+        vscode_task_runner.variables.replace_static_variables(input_data) == output_data
+    )
 
 
 def test_replace_static_variables_unsupported() -> None:
@@ -157,7 +170,9 @@ def test_replace_static_variables_unsupported() -> None:
     Ensure an exception is raised if an unsupported variable is encountered.
     """
     with pytest.raises(UnsupportedVariable):
-        vtr.variables.replace_static_variables({"options": "${lineNumber}"})
+        vscode_task_runner.variables.replace_static_variables(
+            {"options": "${lineNumber}"}
+        )
 
 
 def test_replace_runtime_variables() -> None:
@@ -170,7 +185,7 @@ def test_replace_runtime_variables() -> None:
     output_data = ["prefix test_input suffix", "prefix Task1 suffix"]
 
     assert (
-        vtr.variables.replace_runtime_variables(
+        vscode_task_runner.variables.replace_runtime_variables(
             input_data, {"test": "test_input"}, "Task1"
         )
         == output_data

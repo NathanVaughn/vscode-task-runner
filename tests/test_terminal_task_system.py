@@ -2,9 +2,9 @@ from typing import List, Union
 
 import pytest
 
-import vtr.terminal_task_system
-from vtr.constants import DEFAULT_OS_QUOTING, DEFAULT_SHELL_QUOTING
-from vtr.models import (
+import vscode_task_runner.terminal_task_system
+from vscode_task_runner.constants import DEFAULT_OS_QUOTING, DEFAULT_SHELL_QUOTING
+from vscode_task_runner.models import (
     CommandString,
     QuotedString,
     ShellConfiguration,
@@ -40,7 +40,9 @@ def test_get_quoting_options(
     shell_config_input: ShellConfiguration,
     shell_config_output: ShellConfiguration,
 ) -> None:
-    vtr.terminal_task_system.get_quoting_options(shell_type, shell_config_input)
+    vscode_task_runner.terminal_task_system.get_quoting_options(
+        shell_type, shell_config_input
+    )
     assert shell_config_input == shell_config_output
 
 
@@ -68,7 +70,7 @@ def test__add_all_argument(
     shell_command_args: List[str], configured_shell_args: List[str], expected: List[str]
 ) -> None:
     assert (
-        vtr.terminal_task_system._add_all_argument(
+        vscode_task_runner.terminal_task_system._add_all_argument(
             shell_command_args, configured_shell_args
         )
         == expected
@@ -130,7 +132,7 @@ def test_create_shell_launch_config_windows(
     expected: List[str],
 ) -> None:
     assert (
-        vtr.terminal_task_system.create_shell_launch_config(
+        vscode_task_runner.terminal_task_system.create_shell_launch_config(
             shell_type, shell_args, command_line
         )
         == expected
@@ -162,7 +164,7 @@ def test_create_shell_launch_config_linux(
     expected: List[str],
 ) -> None:
     assert (
-        vtr.terminal_task_system.create_shell_launch_config(
+        vscode_task_runner.terminal_task_system.create_shell_launch_config(
             shell_type, shell_args, command_line
         )
         == expected
@@ -267,7 +269,7 @@ def test_build_shell_command_line_windows(
     expected: str,
 ) -> None:
     assert (
-        vtr.terminal_task_system.build_shell_command_line(
+        vscode_task_runner.terminal_task_system.build_shell_command_line(
             shell_type, shell_quoting_options, task_command, args
         )
         == expected

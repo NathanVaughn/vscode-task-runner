@@ -14,7 +14,7 @@ jobs:
       id-token: write
       attestations: write
 
-    uses: NathanVaughn/reusable-actions/.github/workflows/pypi-build.yml@main
+    uses: NathanVaughn/reusable-actions/.github/workflows/pypi-build-uv.yml@main
 
   publish:
     needs: build

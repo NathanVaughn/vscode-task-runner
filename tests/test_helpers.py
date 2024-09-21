@@ -2,9 +2,9 @@ from typing import Any, Type
 
 import pytest
 
-import vtr.helpers
-from vtr.exceptions import FileNotFound, InvalidValue
-from vtr.models import (
+import vscode_task_runner.helpers
+from vscode_task_runner.exceptions import FileNotFound, InvalidValue
+from vscode_task_runner.models import (
     CommandString,
     QuotedString,
     ShellQuoting,
@@ -48,13 +48,15 @@ def test_identify_shell_type(
     shell_executable: str, shell_type: ShellType, shutil_which_patch: None
 ) -> None:
     # patch shutil.which to return whatever gets put in for this test
-    assert vtr.helpers.identify_shell_type(shell_executable) == shell_type
+    assert (
+        vscode_task_runner.helpers.identify_shell_type(shell_executable) == shell_type
+    )
 
 
 def test_identify_shell_type_fail() -> None:
     # test for when the given shell path does not resolve to anything
     with pytest.raises(FileNotFound):
-        vtr.helpers.identify_shell_type("/not/real")
+        vscode_task_runner.helpers.identify_shell_type("/not/real")
 
 
 @pytest.mark.parametrize(
@@ -68,7 +70,7 @@ def test_identify_shell_type_fail() -> None:
 )
 def test_stringify_pass(input_: Any, output: str) -> None:
     # test the stringify helper
-    assert vtr.helpers.stringify(input_) == output
+    assert vscode_task_runner.helpers.stringify(input_) == output
 
 
 @pytest.mark.parametrize(
@@ -82,7 +84,7 @@ def test_stringify_pass(input_: Any, output: str) -> None:
 def test_stringify_fail(input_: Any, exception: Type[Exception]) -> None:
     # test the stringify helper exceptions
     with pytest.raises(exception):
-        vtr.helpers.stringify(input_)
+        vscode_task_runner.helpers.stringify(input_)
 
 
 @pytest.mark.parametrize(
@@ -90,7 +92,7 @@ def test_stringify_fail(input_: Any, exception: Type[Exception]) -> None:
     (("test", "test"), (["te", "st"], "te st")),
 )
 def test_combine_string(input_: Any, output: str) -> None:
-    assert vtr.helpers.combine_string(input_) == output
+    assert vscode_task_runner.helpers.combine_string(input_) == output
 
 
 @pytest.mark.parametrize(
@@ -114,7 +116,7 @@ def test_combine_string(input_: Any, output: str) -> None:
     ),
 )
 def test_load_command_string_pass(input_: Any, output: CommandString) -> None:
-    assert vtr.helpers.load_command_string(input_) == output
+    assert vscode_task_runner.helpers.load_command_string(input_) == output
 
 
 @pytest.mark.parametrize(
@@ -127,4 +129,4 @@ def test_load_command_string_pass(input_: Any, output: CommandString) -> None:
 )
 def test_load_command_string_fail(input_: Any, exception: Type[Exception]) -> None:
     with pytest.raises(exception):
-        vtr.helpers.load_command_string(input_)
+        vscode_task_runner.helpers.load_command_string(input_)

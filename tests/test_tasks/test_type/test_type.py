@@ -1,7 +1,7 @@
 import pytest
 
 from tests.conftest import load_task
-from vtr.exceptions import UnsupportedValue
+from vscode_task_runner.exceptions import UnsupportedValue
 
 
 @pytest.mark.parametrize(
