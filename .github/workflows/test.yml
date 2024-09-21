@@ -18,35 +18,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python_version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
+        python_version: ["3.12", "3.11", "3.10", "3.9"]
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: threeal/pipx-install-action@v1.0.0
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
         with:
-          packages: |
-            poetry
+          enable-cache: true
+          # renovate:uv
+          version: "latest"
 
       - name: Setup Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
-          cache: poetry
 
       - name: Cache Pre-Commit
         uses: NathanVaughn/actions-pre-commit-cache@main
 
       # this is done, so the local version of vscode-task-runner is used,
       # not the pypi release
-      # https://github.com/NathanVaughn/reusable-actions/blob/main/.github/workflows/python-test.yml
+      # https://github.com/NathanVaughn/reusable-actions/blob/main/.github/workflows/python-test-uv.yml
       - name: Install Dependencies
-        run: poetry install --sync
+        run: uv sync
 
-      - name: Run Pre-Commit Checks
-        run: poetry run python -m vtr pre-commit --color=always --show-diff-on-failure
+      - name: Run Pre-Commit Hooks
+        run: uv run vscode_task_runner pre-commit --color=always --show-diff-on-failure
 
       - name: Run Tests
-        run: poetry run python -m vtr tests --color=yes
+        run: uv run vscode_task_runner tests --color=yes --junit-xml=test_report.xml
+
+      - name: Upload Test Summary
+        if: always()
+        uses: test-summary/action@v2.4
+        with:
+          paths: test_report.xml
