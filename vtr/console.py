@@ -100,7 +100,10 @@ def run() -> None:
         tasks_to_execute.extend(vtr.executor.collect_task(task))
 
     # build list of commands
-    all_commands = [t.subprocess_command() for t in tasks_to_execute]
+    # filter out virtual tasks
+    all_commands = [
+        t.subprocess_command() for t in tasks_to_execute if not t.is_virtual
+    ]
 
     # get dict of input variables and values
     input_vars_values = vtr.variables.get_input_variables_values(
