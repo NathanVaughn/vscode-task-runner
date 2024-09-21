@@ -22,7 +22,7 @@ def execute_task(
     """
     if task.is_virtual:
         vscode_task_runner.printer.info(
-            f'[{index}/{total}] Task "{task.label}" has no direct command to execute'
+            f"[{index}/{total}] Task {vscode_task_runner.printer.yellow(task.label)} has no direct command to execute"
         )
         return
 

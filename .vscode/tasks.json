@@ -20,7 +20,7 @@
             "label": "pre-commit",
             "command": "uv run pre-commit run --all-files",
             "type": "shell",
-            "dependsOn": ["install"]
+            "dependsOn": ["install-pkgs"]
         },
         {
             "label": "tests",
@@ -31,7 +31,8 @@
         {
             "label": "build",
             "command": "uv build",
-            "type": "shell"
+            "type": "shell",
+            "dependsOn": ["install-pkgs"]
         }
     ]
 }

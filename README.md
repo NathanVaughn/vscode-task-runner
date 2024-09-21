@@ -99,7 +99,7 @@ This can only be used when running a single task. You can also use `--` as a sep
 to add additional arguments that do not start with a `--`. Example:
 
 ```bash
-$ vtr run test -- option1 option2
+$ vtr test -- option1 option2
 # This will run the task "test" with the arguments "option1" and "option2"
 ```
 
