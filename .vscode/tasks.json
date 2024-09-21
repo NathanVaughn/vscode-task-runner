@@ -2,24 +2,35 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
-            "command": "poetry build",
+            "label": "install-pkgs",
+            "command": "uv sync",
+            "type": "shell"
+        },
+        {
+            "label": "install-pre-commit",
+            "command": "uv run pre-commit install",
             "type": "shell"
         },
         {
             "label": "install",
-            "command": "poetry install --sync",
-            "type": "shell"
+            "dependsOn": ["install-pkgs", "install-pre-commit"],
+            "dependsOrder": "sequence"
         },
         {
             "label": "pre-commit",
-            "command": "poetry run pre-commit run --all-files",
+            "command": "uv run pre-commit run --all-files",
             "type": "shell",
             "dependsOn": ["install"]
         },
         {
             "label": "tests",
-            "command": "poetry run pytest --cov=vtr/ --cov-report html",
+            "command": "uv run pytest --cov --cov-report html",
+            "type": "shell",
+            "dependsOn": ["install-pkgs"]
+        },
+        {
+            "label": "build",
+            "command": "uv build",
             "type": "shell"
         }
     ]

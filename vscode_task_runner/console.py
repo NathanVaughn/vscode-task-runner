@@ -4,11 +4,11 @@ import os
 import sys
 from typing import Dict, List
 
-import vtr.executor
-import vtr.parser
-import vtr.variables
-from vtr.exceptions import TasksFileNotFound
-from vtr.task import Task
+import vscode_task_runner.executor
+import vscode_task_runner.parser
+import vscode_task_runner.variables
+from vscode_task_runner.exceptions import TasksFileNotFound
+from vscode_task_runner.task import Task
 
 
 @dataclasses.dataclass
@@ -71,8 +71,10 @@ def run() -> None:
 
     # parse the tasks.json
     try:
-        all_tasks_data = vtr.parser.load_vscode_tasks_data()
-        all_tasks_data = vtr.variables.replace_static_variables(all_tasks_data)
+        all_tasks_data = vscode_task_runner.parser.load_vscode_tasks_data()
+        all_tasks_data = vscode_task_runner.variables.replace_static_variables(
+            all_tasks_data
+        )
 
         # build task objects
         all_tasks: Dict[str, Task] = {
@@ -97,7 +99,7 @@ def run() -> None:
     # get all tasks, following dependencies
     tasks_to_execute: List[Task] = []
     for task in top_level_tasks:
-        tasks_to_execute.extend(vtr.executor.collect_task(task))
+        tasks_to_execute.extend(vscode_task_runner.executor.collect_task(task))
 
     # build list of commands
     # filter out virtual tasks
@@ -106,7 +108,7 @@ def run() -> None:
     ]
 
     # get dict of input variables and values
-    input_vars_values = vtr.variables.get_input_variables_values(
+    input_vars_values = vscode_task_runner.variables.get_input_variables_values(
         all_commands, all_tasks_data.get("inputs")
     )
 
@@ -122,7 +124,7 @@ def run() -> None:
         if i + 1 == len(tasks_to_execute):
             i_extra_args = parse_result.extra_args
 
-        vtr.executor.execute_task(
+        vscode_task_runner.executor.execute_task(
             task,
             index=i + 1,
             total=len(tasks_to_execute),

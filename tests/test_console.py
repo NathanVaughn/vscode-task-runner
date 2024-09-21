@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-import vtr.console
+import vscode_task_runner.console
 
 
 @pytest.mark.parametrize(
@@ -23,7 +23,9 @@ def test_parse_args_pass(
 ) -> None:
     task_choices = ["build", "test"]
     help_text = ""
-    parse_result = vtr.console.parse_args(in_args, task_choices, help_text)
+    parse_result = vscode_task_runner.console.parse_args(
+        in_args, task_choices, help_text
+    )
     assert parse_result.task_labels == out_labels
     assert parse_result.extra_args == out_extra_args
 
@@ -32,4 +34,6 @@ def test_parse_args_error() -> None:
     task_choices = ["build", "test"]
     help_text = ""
     with pytest.raises(SystemExit):
-        vtr.console.parse_args(["build", "test", "--extra"], task_choices, help_text)
+        vscode_task_runner.console.parse_args(
+            ["build", "test", "--extra"], task_choices, help_text
+        )

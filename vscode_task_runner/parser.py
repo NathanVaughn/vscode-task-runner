@@ -2,7 +2,7 @@ import os
 
 import pyjson5
 
-from vtr.exceptions import TasksFileNotFound
+from vscode_task_runner.exceptions import TasksFileNotFound
 
 
 def load_vscode_tasks_data(path: str = os.getcwd()) -> dict:

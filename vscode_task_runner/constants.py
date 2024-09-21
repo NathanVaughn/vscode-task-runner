@@ -1,7 +1,11 @@
 import platform
 from typing import Dict, Literal
 
-from vtr.models import ShellQuotingOptions, ShellQuotingOptionsEscape, ShellType
+from vscode_task_runner.models import (
+    ShellQuotingOptions,
+    ShellQuotingOptionsEscape,
+    ShellType,
+)
 
 PLATFORM_KEYS: Dict[
     Literal["Windows", "Linux", "Darwin"], Literal["windows", "linux", "osx"]

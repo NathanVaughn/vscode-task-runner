@@ -4,10 +4,10 @@ from typing import Any, Generator
 import pytest
 from pytest_mock import MockerFixture
 
-import vtr.constants
-from vtr.parser import load_vscode_tasks_data
-from vtr.task import Task
-from vtr.variables import replace_static_variables
+import vscode_task_runner.constants
+from vscode_task_runner.parser import load_vscode_tasks_data
+from vscode_task_runner.task import Task
+from vscode_task_runner.variables import replace_static_variables
 
 
 @pytest.fixture
@@ -33,17 +33,17 @@ def environment_variable(request: Any) -> Generator:
 
 @pytest.fixture
 def windows(mocker: MockerFixture) -> None:
-    mocker.patch.object(vtr.constants, "PLATFORM_KEY", "windows")
+    mocker.patch.object(vscode_task_runner.constants, "PLATFORM_KEY", "windows")
 
 
 @pytest.fixture
 def linux(mocker: MockerFixture) -> None:
-    mocker.patch.object(vtr.constants, "PLATFORM_KEY", "linux")
+    mocker.patch.object(vscode_task_runner.constants, "PLATFORM_KEY", "linux")
 
 
 @pytest.fixture
 def osx(mocker: MockerFixture) -> None:
-    mocker.patch.object(vtr.constants, "PLATFORM_KEY", "osx")
+    mocker.patch.object(vscode_task_runner.constants, "PLATFORM_KEY", "osx")
 
 
 @pytest.fixture

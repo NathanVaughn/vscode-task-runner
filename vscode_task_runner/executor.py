@@ -2,10 +2,10 @@ import subprocess
 import sys
 from typing import Dict, List, Optional
 
-import vtr.helpers
-import vtr.printer
-import vtr.variables
-from vtr.task import Task
+import vscode_task_runner.helpers
+import vscode_task_runner.printer
+import vscode_task_runner.variables
+from vscode_task_runner.task import Task
 
 
 def execute_task(
@@ -21,18 +21,18 @@ def execute_task(
     for printing.
     """
     if task.is_virtual:
-        vtr.printer.info(
+        vscode_task_runner.printer.info(
             f'[{index}/{total}] Task "{task.label}" has no direct command to execute'
         )
         return
 
-    cmd = vtr.variables.replace_runtime_variables(
+    cmd = vscode_task_runner.variables.replace_runtime_variables(
         task.subprocess_command(extra_args), input_vars_values, default_build_task
     )
 
-    with vtr.printer.group(f"Task {task.label}"):
-        vtr.printer.info(
-            f"[{index}/{total}] Executing task {vtr.printer.yellow(task.label)}: {vtr.printer.blue(vtr.helpers.combine_string(cmd))}"
+    with vscode_task_runner.printer.group(f"Task {task.label}"):
+        vscode_task_runner.printer.info(
+            f"[{index}/{total}] Executing task {vscode_task_runner.printer.yellow(task.label)}: {vscode_task_runner.printer.blue(vscode_task_runner.helpers.combine_string(cmd))}"
         )
         proc = subprocess.run(
             cmd,
@@ -44,8 +44,8 @@ def execute_task(
         )
 
         if proc.returncode != 0:
-            vtr.printer.error(
-                f"Task {vtr.printer.yellow(task.label)} returned with exit code {proc.returncode}"
+            vscode_task_runner.printer.error(
+                f"Task {vscode_task_runner.printer.yellow(task.label)} returned with exit code {proc.returncode}"
             )
             sys.exit(proc.returncode)
 

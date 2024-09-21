@@ -14,12 +14,9 @@ repos:
     repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
 -   hooks:
-    -   id: poetry-check
-    -   args:
-        -   --no-update
-        id: poetry-lock
-    repo: https://github.com/python-poetry/poetry
-    rev: 1.8.3
+    -   id: uv-lock
+    repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.4.14
 -   hooks:
     -   id: absolufy-imports
     repo: https://github.com/MarcoGorelli/absolufy-imports

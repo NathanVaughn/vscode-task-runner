@@ -4,7 +4,11 @@ from typing import Any, Dict, List, Optional
 
 import questionary
 
-from vtr.exceptions import ResponseNotProvided, UnsupportedValue, UnsupportedVariable
+from vscode_task_runner.exceptions import (
+    ResponseNotProvided,
+    UnsupportedValue,
+    UnsupportedVariable,
+)
 
 # https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables
 SUPPORTED_PREDEFINED_VARIABLES = {

@@ -8,8 +8,8 @@ import copy
 import re
 from typing import List, Optional, Tuple, Union
 
-import vtr.constants
-from vtr.models import (
+import vscode_task_runner.constants
+from vscode_task_runner.models import (
     CommandString,
     ShellConfiguration,
     ShellQuoting,
@@ -27,11 +27,13 @@ def get_quoting_options(
     if shell_config.quoting:
         return
 
-    if shell_type in vtr.constants.DEFAULT_SHELL_QUOTING:
-        shell_config.quoting = vtr.constants.DEFAULT_SHELL_QUOTING[shell_type]
+    if shell_type in vscode_task_runner.constants.DEFAULT_SHELL_QUOTING:
+        shell_config.quoting = vscode_task_runner.constants.DEFAULT_SHELL_QUOTING[
+            shell_type
+        ]
     else:
-        shell_config.quoting = vtr.constants.DEFAULT_OS_QUOTING[
-            vtr.constants.PLATFORM_KEY
+        shell_config.quoting = vscode_task_runner.constants.DEFAULT_OS_QUOTING[
+            vscode_task_runner.constants.PLATFORM_KEY
         ]
 
 
@@ -198,7 +200,7 @@ def build_shell_command_line(
 
     command_line = " ".join(result)
     # There are special rules quoted command line in cmd.exe
-    if vtr.constants.PLATFORM_KEY == "windows":
+    if vscode_task_runner.constants.PLATFORM_KEY == "windows":
         if shell_type == ShellType.CMD and command_quoted and arg_quoted:
             command_line = f'"{command_line}"'
         elif shell_type == ShellType.PowerShell and command_quoted:
