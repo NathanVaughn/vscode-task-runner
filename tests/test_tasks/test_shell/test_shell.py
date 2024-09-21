@@ -3,7 +3,7 @@ from typing import Tuple
 import pytest
 
 from tests.conftest import load_task
-from vtr.models import ShellConfiguration, ShellType
+from vscode_task_runner.models import ShellConfiguration, ShellType
 
 
 @pytest.mark.parametrize(

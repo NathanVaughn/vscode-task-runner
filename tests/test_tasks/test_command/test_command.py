@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from tests.conftest import load_task
-from vtr.models import QuotedString, ShellQuoting
+from vscode_task_runner.models import QuotedString, ShellQuoting
 
 
 @pytest.mark.parametrize(

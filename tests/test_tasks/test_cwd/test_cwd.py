@@ -3,7 +3,7 @@ import os
 import pytest
 
 from tests.conftest import load_task
-from vtr.exceptions import DirectoryNotFound
+from vscode_task_runner.exceptions import DirectoryNotFound
 
 
 def test_default(linux: None) -> None:

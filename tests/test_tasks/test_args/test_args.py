@@ -3,8 +3,8 @@ from typing import Any
 import pytest
 
 from tests.conftest import load_task
-from vtr.exceptions import InvalidValue
-from vtr.models import QuotedString, ShellQuoting
+from vscode_task_runner.exceptions import InvalidValue
+from vscode_task_runner.models import QuotedString, ShellQuoting
 
 
 @pytest.mark.parametrize(

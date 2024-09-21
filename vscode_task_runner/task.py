@@ -6,16 +6,16 @@ from typing import Any, Dict, List, Literal, Optional, Tuple
 
 import dacite
 
-import vtr.constants
-import vtr.helpers
-import vtr.terminal_task_system
-from vtr.exceptions import (
+import vscode_task_runner.constants
+import vscode_task_runner.helpers
+import vscode_task_runner.terminal_task_system
+from vscode_task_runner.exceptions import (
     DirectoryNotFound,
     FileNotFound,
     InvalidValue,
     UnsupportedValue,
 )
-from vtr.models import CommandString, ShellConfiguration, ShellType
+from vscode_task_runner.models import CommandString, ShellConfiguration, ShellType
 
 
 class Task:
@@ -36,39 +36,49 @@ class Task:
 
         # global setting
         if (
-            vtr.constants.OPTIONS_KEY in self.all_task_data
-            and setting_key in self.all_task_data[vtr.constants.OPTIONS_KEY]
+            vscode_task_runner.constants.OPTIONS_KEY in self.all_task_data
+            and setting_key
+            in self.all_task_data[vscode_task_runner.constants.OPTIONS_KEY]
         ):
-            value = self.all_task_data[vtr.constants.OPTIONS_KEY][setting_key]
+            value = self.all_task_data[vscode_task_runner.constants.OPTIONS_KEY][
+                setting_key
+            ]
 
         # global os-specific setting
         if (
-            vtr.constants.PLATFORM_KEY in self.all_task_data
-            and vtr.constants.OPTIONS_KEY
-            in self.all_task_data[vtr.constants.PLATFORM_KEY]
+            vscode_task_runner.constants.PLATFORM_KEY in self.all_task_data
+            and vscode_task_runner.constants.OPTIONS_KEY
+            in self.all_task_data[vscode_task_runner.constants.PLATFORM_KEY]
             and setting_key
-            in self.all_task_data[vtr.constants.PLATFORM_KEY][vtr.constants.OPTIONS_KEY]
+            in self.all_task_data[vscode_task_runner.constants.PLATFORM_KEY][
+                vscode_task_runner.constants.OPTIONS_KEY
+            ]
         ):
-            value = self.all_task_data[vtr.constants.PLATFORM_KEY][
-                vtr.constants.OPTIONS_KEY
+            value = self.all_task_data[vscode_task_runner.constants.PLATFORM_KEY][
+                vscode_task_runner.constants.OPTIONS_KEY
             ][setting_key]
 
         # task setting
         if (
-            vtr.constants.OPTIONS_KEY in self.task_data
-            and setting_key in self.task_data[vtr.constants.OPTIONS_KEY]
+            vscode_task_runner.constants.OPTIONS_KEY in self.task_data
+            and setting_key in self.task_data[vscode_task_runner.constants.OPTIONS_KEY]
         ):
-            value = self.task_data[vtr.constants.OPTIONS_KEY][setting_key]
+            value = self.task_data[vscode_task_runner.constants.OPTIONS_KEY][
+                setting_key
+            ]
 
         # task os-specific setting
         if (
-            vtr.constants.PLATFORM_KEY in self.task_data
-            and vtr.constants.OPTIONS_KEY in self.task_data[vtr.constants.PLATFORM_KEY]
+            vscode_task_runner.constants.PLATFORM_KEY in self.task_data
+            and vscode_task_runner.constants.OPTIONS_KEY
+            in self.task_data[vscode_task_runner.constants.PLATFORM_KEY]
             and setting_key
-            in self.task_data[vtr.constants.PLATFORM_KEY][vtr.constants.OPTIONS_KEY]
+            in self.task_data[vscode_task_runner.constants.PLATFORM_KEY][
+                vscode_task_runner.constants.OPTIONS_KEY
+            ]
         ):
-            value = self.task_data[vtr.constants.PLATFORM_KEY][
-                vtr.constants.OPTIONS_KEY
+            value = self.task_data[vscode_task_runner.constants.PLATFORM_KEY][
+                vscode_task_runner.constants.OPTIONS_KEY
             ][setting_key]
 
         return value
@@ -86,10 +96,12 @@ class Task:
 
         # task os-specific setting
         if (
-            vtr.constants.PLATFORM_KEY in self.task_data
-            and setting_key in self.task_data[vtr.constants.PLATFORM_KEY]
+            vscode_task_runner.constants.PLATFORM_KEY in self.task_data
+            and setting_key in self.task_data[vscode_task_runner.constants.PLATFORM_KEY]
         ):
-            value = self.task_data[vtr.constants.PLATFORM_KEY][setting_key]
+            value = self.task_data[vscode_task_runner.constants.PLATFORM_KEY][
+                setting_key
+            ]
 
         return value
 
@@ -143,7 +155,7 @@ class Task:
 
         # convert everything to strings, and make sure it's simple key-value pairs
         for key, value in env.items():
-            env[key] = vtr.helpers.stringify(value)
+            env[key] = vscode_task_runner.helpers.stringify(value)
 
         return env
 
@@ -170,7 +182,7 @@ class Task:
         Gets the command for the task.
         """
         raw_task_command = self._get_task_setting("command")
-        return vtr.helpers.load_command_string(raw_task_command)
+        return vscode_task_runner.helpers.load_command_string(raw_task_command)
 
     @property
     def args(self) -> List[CommandString]:
@@ -188,7 +200,7 @@ class Task:
             raise InvalidValue("Invalid args format")
 
         for i, arg in enumerate(task_args):
-            task_args[i] = vtr.helpers.load_command_string(arg)
+            task_args[i] = vscode_task_runner.helpers.load_command_string(arg)
 
         return task_args
 
@@ -210,7 +222,7 @@ class Task:
 
         if not shell_configuration.executable:
             # if we still don't have a shell, use the parent shell
-            shell_configuration = vtr.helpers.get_parent_shell()
+            shell_configuration = vscode_task_runner.helpers.get_parent_shell()
 
         else:
             # make the shell executable absolute
@@ -219,7 +231,7 @@ class Task:
             )
 
         assert shell_configuration.executable is not None
-        return shell_configuration, vtr.helpers.identify_shell_type(
+        return shell_configuration, vscode_task_runner.helpers.identify_shell_type(
             shell_configuration.executable
         )
 
@@ -258,7 +270,9 @@ class Task:
                 shell_config.args = []
 
             # build the shell quoting options
-            vtr.terminal_task_system.get_quoting_options(shell_type, shell_config)
+            vscode_task_runner.terminal_task_system.get_quoting_options(
+                shell_type, shell_config
+            )
             assert shell_config.quoting is not None
 
             # figure out how to tack on extra args
@@ -280,10 +294,10 @@ class Task:
 
             return [
                 shell_config.executable
-            ] + vtr.terminal_task_system.create_shell_launch_config(
+            ] + vscode_task_runner.terminal_task_system.create_shell_launch_config(
                 shell_type,
                 shell_config.args,
-                vtr.terminal_task_system.build_shell_command_line(
+                vscode_task_runner.terminal_task_system.build_shell_command_line(
                     shell_type,
                     shell_config.quoting,
                     command,
