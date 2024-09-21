@@ -5,6 +5,11 @@
     license = { text = "MIT" }
     readme = "README.md"
     authors = [{ name = "Nathan Vaughn", email = "nath@nvaughn.email" }]
+    classifiers = [
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: Build Tools",
+    ]
     requires-python = ">=3.9"
     dependencies = [
         "shellingham==1.5.4",
