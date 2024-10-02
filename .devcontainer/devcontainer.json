@@ -22,5 +22,8 @@
     },
     "mounts": [
         "source=devcontainer-profile-${containerWorkspaceFolderBasename},target=/home/vscode/,type=volume"
-    ]
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    }
 }
