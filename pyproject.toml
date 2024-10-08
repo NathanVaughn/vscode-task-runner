@@ -1,8 +1,7 @@
 [project]
     name = "vscode-task-runner"
-    version = "1.3.2"
+    version = "1.3.3"
     description = "Task runner for VS Code tasks.json"
-    license = { text = "MIT" }
     readme = "README.md"
     authors = [{ name = "Nathan Vaughn", email = "nath@nvaughn.email" }]
     classifiers = [
@@ -14,6 +13,7 @@
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ]
     requires-python = ">=3.9"
     dependencies = [
@@ -47,9 +47,6 @@
     venvPath                   = "."
     venv                       = ".venv"
     reportMissingParameterType = true
-
-[tool.ruff]
-    target-version = "py39"
 
 [build-system]
     requires      = ["hatchling"]

@@ -12,11 +12,11 @@ repos:
     -   id: check-merge-conflict
     -   id: mixed-line-ending
     repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
 -   hooks:
     -   id: uv-lock
     repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.4.15
+    rev: 0.4.18
 -   hooks:
     -   id: absolufy-imports
     repo: https://github.com/MarcoGorelli/absolufy-imports
@@ -27,12 +27,12 @@ repos:
         id: ruff
     -   id: ruff-format
     repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.6
+    rev: v0.6.9
 -   hooks:
     -   id: pyright
     repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.381
+    rev: v1.1.383
 -   hooks:
     -   id: markdownlint
     repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.41.0
+    rev: v0.42.0
