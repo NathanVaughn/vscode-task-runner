@@ -1,6 +1,6 @@
 [project]
     name = "vscode-task-runner"
-    version = "1.3.3"
+    version = "1.3.4"
     description = "Task runner for VS Code tasks.json"
     readme = "README.md"
     authors = [{ name = "Nathan Vaughn", email = "nath@nvaughn.email" }]
@@ -17,11 +17,11 @@
     ]
     requires-python = ">=3.9"
     dependencies = [
-        "shellingham==1.5.4",
-        "pyjson5==1.6.6",
-        "dacite==1.8.1",
-        "questionary==2.0.1",
-        "colorama==0.4.6",
+        "shellingham>=1.5.4",
+        "pyjson5>=1.6.7",
+        "dacite>=1.8.1",
+        "questionary>=2.0.1",
+        "colorama>=0.4.6",
     ]
 
 [project.urls]
