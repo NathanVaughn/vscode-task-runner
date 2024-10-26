@@ -25,10 +25,12 @@ This pairs well with VS Code extensions that add buttons to run tasks such as
 
 Python 3.9+ is required.
 
-Install with pip/pipx:
+Install with [pipx](https://pipx.pypa.io/stable/) or [uv](https://docs.astral.sh/uv/):
 
 ```bash
-pip install vscode-task-runner
+pipx install vscode-task-runner
+# or
+uv tool install vscode-task-runner
 ```
 
 Use the command `vtr` on the command line and provide the label of the task(s).
