@@ -26,10 +26,6 @@ jobs:
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          # renovate:uv
-          version: "latest"
 
       - name: Setup Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5

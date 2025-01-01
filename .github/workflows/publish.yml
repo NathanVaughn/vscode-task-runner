@@ -31,11 +31,5 @@ jobs:
           name: pkg-dist
           path: dist/
 
-      - name: Setup uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          version: latest
-
-      - name: Publish package
-        run: uv publish
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
