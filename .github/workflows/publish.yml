@@ -32,7 +32,7 @@ jobs:
           path: dist/
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
           version: latest
