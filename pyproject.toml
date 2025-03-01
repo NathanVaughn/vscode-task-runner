@@ -1,6 +1,6 @@
 [project]
     name = "vscode-task-runner"
-    version = "1.3.4"
+    version = "1.3.5"
     description = "Task runner for VS Code tasks.json"
     readme = "README.md"
     authors = [{ name = "Nathan Vaughn", email = "nath@nvaughn.email" }]
@@ -24,19 +24,18 @@
         "colorama>=0.4.6",
     ]
 
-[project.urls]
-    Homepage   = "https://github.com/NathanVaughn/vscode-task-runner"
-    Repository = "https://github.com/NathanVaughn/vscode-task-runner.git"
-    Issues     = "https://github.com/NathanVaughn/vscode-task-runner/issues"
-
-[tool.uv]
-    dev-dependencies = [
+[dependency-groups]
+    dev = [
         "pre-commit>=3.2.0",
-        "pre-commit-uv>=3.8.0",
         "pytest>=7.3.1",
         "pytest-mock>=3.10.0",
         "pytest-cov>=4.1",
     ]
+
+[project.urls]
+    Homepage   = "https://github.com/NathanVaughn/vscode-task-runner"
+    Repository = "https://github.com/NathanVaughn/vscode-task-runner.git"
+    Issues     = "https://github.com/NathanVaughn/vscode-task-runner/issues"
 
 [project.scripts]
     vtr                = "vscode_task_runner.console:run"

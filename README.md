@@ -23,12 +23,14 @@ This pairs well with VS Code extensions that add buttons to run tasks such as
 
 ## Usage
 
-Python 3.8+ is required.
+Python 3.9+ is required.
 
-Install with pip/pipx:
+Install with [pipx](https://pipx.pypa.io/stable/) or [uv](https://docs.astral.sh/uv/):
 
 ```bash
-pip install vscode-task-runner
+pipx install vscode-task-runner
+# or
+uv tool install vscode-task-runner
 ```
 
 Use the command `vtr` on the command line and provide the label of the task(s).
@@ -271,3 +273,8 @@ project's virtual environment.
 - Does not load any VS Code settings
 - Extra arguments option
 - `VTR_INPUT_${id}` environment variables
+
+## Similar Projects
+
+- [vstask](https://github.com/cmccandless/vstask)
+- [overseer.nvim](https://github.com/stevearc/overseer.nvim/blob/master/doc/guides.md#vs-code-tasks)
