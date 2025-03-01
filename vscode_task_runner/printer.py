@@ -7,6 +7,7 @@ import colorama
 IS_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 IS_AZURE_PIPELINES = os.getenv("TF_BUILD") == "true"
 
+
 def _print_flush(msg: str) -> None:
     """
     Prints a message, but flushes the output for CI/CD.
