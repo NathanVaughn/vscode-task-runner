@@ -5,7 +5,7 @@ from typing import Generator
 import colorama
 
 IS_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
-
+IS_AZURE_PIPELINES = os.getenv("TF_BUILD") == "true"
 
 def _print_flush(msg: str) -> None:
     """
@@ -35,6 +35,8 @@ def error(msg: str) -> None:
     """
     if IS_GITHUB_ACTIONS:
         _print_flush(f"::error::{msg}")
+    elif IS_AZURE_PIPELINES:
+        _print_flush(f"##vso[task.logissue type=error]{msg}")
     else:
         _print_flush(f"{red(msg)}")
 
@@ -66,6 +68,8 @@ def start_group(name: str) -> None:
     """
     if IS_GITHUB_ACTIONS:
         _print_flush(f"::group::{name}")
+    elif IS_AZURE_PIPELINES:
+        _print_flush(f"##[group]{name}")
 
 
 def end_group() -> None:
@@ -74,6 +78,8 @@ def end_group() -> None:
     """
     if IS_GITHUB_ACTIONS:
         _print_flush("::endgroup::")
+    elif IS_AZURE_PIPELINES:
+        _print_flush("##[endgroup]")
 
 
 @contextmanager
