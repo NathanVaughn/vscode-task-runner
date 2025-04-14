@@ -115,7 +115,7 @@ def combine_string(value: Union[str, List[str]]) -> str:
 
 
 def load_command_string(
-    data: Union[dict[str, str | List[str]], str, List[str]],
+    data: Union[dict[str, Union[str, List[str]]], str, List[str]],
 ) -> CommandString:
     """
     Given data, either return the string, or loads into a the QuotedString dataclass.
