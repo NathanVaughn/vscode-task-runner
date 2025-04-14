@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import dacite
 
@@ -15,7 +15,12 @@ from vscode_task_runner.exceptions import (
     InvalidValue,
     UnsupportedValue,
 )
-from vscode_task_runner.models import CommandString, ShellConfiguration, ShellType
+from vscode_task_runner.models import (
+    CommandString,
+    ShellConfiguration,
+    ShellType,
+    TaskType,
+)
 
 
 class Task:
@@ -83,18 +88,18 @@ class Task:
 
         return value
 
-    def _get_task_setting(self, setting_key: str, global_: bool = False) -> Any:
+    def _get_global_setting(self, setting_key: str, default: Any = None) -> Any:
+        """
+        Get a the value of a setting that is global.
+        """
+        return self.all_task_data.get(setting_key, default)
+
+    def _get_task_setting(self, setting_key: str, default: Any = None) -> Any:
         """
         Get a the value of a setting that is specific to a task (like the command).
         Returns None if no value was found.
-
-        `global_` will also look for the setting in the global task settings.
         """
-        value = None
-
-        if global_ and setting_key in self.all_task_data:
-            # global setting
-            value = self.all_task_data[setting_key]
+        value = default
 
         # task setting
         if setting_key in self.task_data:
@@ -116,8 +121,24 @@ class Task:
         """
         Determines if the task is virtual (by not actually having any commands to run)
         """
-        # doesn't use self.command because that assumes there is always a command to run
-        return self._get_task_setting("command", global_=True) is None
+        return not bool(self.command)
+
+    @property
+    def is_invalid(self) -> bool:
+        """
+        Determines if the task is not something we support.
+        """
+        try:
+            # check if the task is valid
+            self.type_
+        except UnsupportedValue:
+            return True
+
+        if self.is_virtual and not self.depends_on:
+            # check if the task is virtual and has no depends on
+            return True
+
+        return False
 
     @property
     def is_default_build_task(self) -> bool:
@@ -167,49 +188,73 @@ class Task:
         return env
 
     @property
-    def type_(self) -> Literal["shell", "process"]:
+    def type_(self) -> TaskType:
         """
         Gets the type of the task.
         """
-        task_type = self._get_task_setting("type")
-
-        # apply default value
-        if task_type is None:
-            task_type = "process"
+        task_type = self._get_task_setting(
+            "type", vscode_task_runner.constants.DEFAULT_TASK_TYPE.value
+        )
 
         # make sure an option was selected and is valid
-        if task_type not in ("shell", "process"):
+        if task_type not in TaskType:
             raise UnsupportedValue(f"Unsupported task type '{task_type}'")
 
-        return task_type
+        # type issues already caught above
+        return TaskType[task_type]  # type: ignore
 
     @property
-    def command(self) -> CommandString:
+    def _global_command(self) -> CommandString | None:
         """
-        Gets the command for the task.
+        Gets the globally configured command.
         """
-        raw_task_command = self._get_task_setting("command", global_=True)
-        return vscode_task_runner.helpers.load_command_string(raw_task_command)
+        raw_global_command = self._get_global_setting("command")
+
+        if raw_global_command is not None:
+            return vscode_task_runner.helpers.load_command_string(raw_global_command)
+
+    @property
+    def _task_command(self) -> CommandString | None:
+        """
+        Gets the task command.
+        """
+        raw_task_command = self._get_task_setting("command")
+
+        if raw_task_command is not None:
+            return vscode_task_runner.helpers.load_command_string(raw_task_command)
+
+    @property
+    def command(self) -> CommandString | None:
+        """
+        Gets the final command to run for the task.
+        """
+        return self._task_command or self._global_command
 
     @property
     def args(self) -> List[CommandString]:
         """
         Get the arguments for the task.
         """
-        task_args = self._get_task_setting("args")
-
-        # no args given
-        if task_args is None:
-            return []
+        global_args: List[str] = self._get_global_setting("args", default=[])
+        task_args: List[str] = self._get_task_setting("args", default=[])
 
         # make sure it's a list
-        if not isinstance(task_args, list):
+        if not isinstance(task_args, list) or not isinstance(global_args, list):
             raise InvalidValue("Invalid args format")
 
-        for i, arg in enumerate(task_args):
-            task_args[i] = vscode_task_runner.helpers.load_command_string(arg)
+        # in the case that the command defined globally and in the task are the same,
+        # tack on additional args
+        if self.command == self._global_command:
+            args_to_parse = global_args + task_args
+        else:
+            args_to_parse = task_args
 
-        return task_args
+        # parse all of the args
+        final_args: List[CommandString] = []
+        final_args.extend(
+            vscode_task_runner.helpers.load_command_string(arg) for arg in args_to_parse
+        )
+        return final_args
 
     @property
     def shell(self) -> Tuple[ShellConfiguration, ShellType]:
@@ -249,7 +294,7 @@ class Task:
         if extra_args is None:
             extra_args = []
 
-        if self.type_ == "process":
+        if self.type_ == TaskType.process:
             assert isinstance(self.command, str)
             which_task_command = shutil.which(self.command)
 
@@ -268,7 +313,7 @@ class Task:
 
             return subprocess_command
 
-        elif self.type_ == "shell":
+        elif self.type_ == TaskType.shell:
             # first, get the shell information
             shell_config, shell_type = self.shell
             assert shell_config.executable is not None
@@ -284,6 +329,7 @@ class Task:
 
             # figure out how to tack on extra args
             command = self.command
+            assert command is not None
             args = self.args
 
             if extra_args:

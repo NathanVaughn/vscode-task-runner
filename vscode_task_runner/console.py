@@ -8,6 +8,7 @@ import vscode_task_runner.executor
 import vscode_task_runner.parser
 import vscode_task_runner.variables
 from vscode_task_runner.exceptions import TasksFileNotFound
+from vscode_task_runner.models import TaskType
 from vscode_task_runner.task import Task
 
 
@@ -30,10 +31,10 @@ def parse_args(
         epilog="When running a single task, extra args can be appended only to that task."
         + " If a single task is requested, but has dependent tasks, only the top-level"
         + " task will be given the extra arguments."
-        + ' If the task is a "process" type, then this will be added to "args".'
-        + ' If the task is a "shell" type with only a "command" then this will'
+        + f' If the task is a "{TaskType.process.value}" type, then this will be added to "args".'
+        + f' If the task is a "{TaskType.process.value}" type with only a "command" then this will'
         + " be tacked on to the end and joined by spaces."
-        + ' If the task is a "shell" type with '
+        + f' If the task is a "{TaskType.process.value}" type with '
         + ' a "command" and "args", then this will be appended to "args".',
     )
     parser.add_argument(
@@ -80,8 +81,11 @@ def run() -> None:
         all_tasks: Dict[str, Task] = {
             t["label"]: Task(all_tasks_data, t["label"])
             for t in all_tasks_data["tasks"]
-            if t.get("type", "process") in ["process", "shell"]
         }
+
+        # remove unsupported tasks
+        all_tasks = {k: v for k, v in all_tasks.items() if not v.is_invalid}
+
     except TasksFileNotFound:
         all_tasks = {}
         task_label_help_text += (

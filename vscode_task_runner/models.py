@@ -29,6 +29,15 @@ class ShellQuoting(Enum):
     Escape = "escape"
 
 
+class TaskType(Enum):
+    """
+    Enum for task types
+    """
+
+    process = "process"
+    shell = "shell"
+
+
 class ShellType(Enum):
     SH = auto()
     PowerShell = auto()
