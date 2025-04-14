@@ -217,7 +217,7 @@ project's virtual environment.
 
 ## Implemented Features
 
-- [Predefined variables](https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables):
+- [Predefined variables](https://code.visualstudio.com/docs/reference/variables-reference#_predefined-variables):
   - `${userHome}`
   - `${workspaceRoot}`
   - `${workspaceFolder}`

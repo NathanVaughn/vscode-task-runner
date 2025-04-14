@@ -83,12 +83,18 @@ class Task:
 
         return value
 
-    def _get_task_setting(self, setting_key: str) -> Any:
+    def _get_task_setting(self, setting_key: str, global_: bool = False) -> Any:
         """
         Get a the value of a setting that is specific to a task (like the command).
         Returns None if no value was found.
+
+        `global_` will also look for the setting in the global task settings.
         """
         value = None
+
+        if global_ and setting_key in self.all_task_data:
+            # global setting
+            value = self.all_task_data[setting_key]
 
         # task setting
         if setting_key in self.task_data:
@@ -110,7 +116,8 @@ class Task:
         """
         Determines if the task is virtual (by not actually having any commands to run)
         """
-        return self._get_task_setting("command") is None
+        # doesn't use self.command because that assumes there is always a command to run
+        return self._get_task_setting("command", global_=True) is None
 
     @property
     def is_default_build_task(self) -> bool:
@@ -181,7 +188,7 @@ class Task:
         """
         Gets the command for the task.
         """
-        raw_task_command = self._get_task_setting("command")
+        raw_task_command = self._get_task_setting("command", global_=True)
         return vscode_task_runner.helpers.load_command_string(raw_task_command)
 
     @property
