@@ -197,11 +197,12 @@ class Task:
         )
 
         # make sure an option was selected and is valid
-        if task_type not in TaskType:
+        try:
+            # only valid syntax in 3.12+
+            # if task_type not in TaskType:
+            return TaskType[task_type]
+        except KeyError:
             raise UnsupportedValue(f"Unsupported task type '{task_type}'")
-
-        # type issues already caught above
-        return TaskType[task_type]  # type: ignore
 
     @property
     def _global_command(self) -> Union[CommandString, None]:
