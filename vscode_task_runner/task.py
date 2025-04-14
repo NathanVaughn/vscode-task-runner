@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import dacite
 
@@ -204,7 +204,7 @@ class Task:
         return TaskType[task_type]  # type: ignore
 
     @property
-    def _global_command(self) -> CommandString | None:
+    def _global_command(self) -> Union[CommandString, None]:
         """
         Gets the globally configured command.
         """
@@ -214,7 +214,7 @@ class Task:
             return vscode_task_runner.helpers.load_command_string(raw_global_command)
 
     @property
-    def _task_command(self) -> CommandString | None:
+    def _task_command(self) -> Union[CommandString, None]:
         """
         Gets the task command.
         """
@@ -224,7 +224,7 @@ class Task:
             return vscode_task_runner.helpers.load_command_string(raw_task_command)
 
     @property
-    def command(self) -> CommandString | None:
+    def command(self) -> Union[CommandString, None]:
         """
         Gets the final command to run for the task.
         """
