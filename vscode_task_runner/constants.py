@@ -5,6 +5,7 @@ from vscode_task_runner.models import (
     ShellQuotingOptions,
     ShellQuotingOptionsEscape,
     ShellType,
+    TaskType,
 )
 
 PLATFORM_KEYS: Dict[
@@ -45,3 +46,5 @@ DEFAULT_OS_QUOTING = {
     "osx": DEFAULT_SHELL_QUOTING[ShellType.SH],
     "windows": DEFAULT_SHELL_QUOTING[ShellType.PowerShell],
 }
+
+DEFAULT_TASK_TYPE = TaskType.process
