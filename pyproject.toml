@@ -42,6 +42,7 @@
     vscode-task-runner = "vscode_task_runner.console:run"
 
 [tool.pyright]
+    pythonVersion              = "3.9" # set to minimum supported version
     typeCheckingMode           = "basic"
     venvPath                   = "."
     venv                       = ".venv"
