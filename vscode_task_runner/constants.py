@@ -8,9 +8,10 @@ from vscode_task_runner.models import (
     TaskType,
 )
 
-PLATFORM_KEYS: Dict[
-    Literal["Windows", "Linux", "Darwin"], Literal["windows", "linux", "osx"]
-] = {
+_PY_PLATFORM_LITERAL = Literal["Windows", "Linux", "Darwin"]
+_VSC_PLATFORM_LITERAL = Literal["windows", "linux", "osx"]
+
+PLATFORM_KEYS: Dict[_PY_PLATFORM_LITERAL, _VSC_PLATFORM_LITERAL] = {
     "Windows": "windows",
     "Linux": "linux",
     "Darwin": "osx",
@@ -41,7 +42,7 @@ DEFAULT_SHELL_QUOTING = {
     ),
 }
 
-DEFAULT_OS_QUOTING = {
+DEFAULT_OS_QUOTING: Dict[_VSC_PLATFORM_LITERAL, ShellQuotingOptions] = {
     "linux": DEFAULT_SHELL_QUOTING[ShellType.SH],
     "osx": DEFAULT_SHELL_QUOTING[ShellType.SH],
     "windows": DEFAULT_SHELL_QUOTING[ShellType.PowerShell],
