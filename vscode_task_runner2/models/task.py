@@ -1,16 +1,15 @@
+from __future__ import annotations
+
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Union
+from typing import Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
-from vscode_task_runner.models2.options import (
+from vscode_task_runner2.models.options import (
     CommandOptions,
     OSOptions,
     QuotedStringType,
 )
-
-if TYPE_CHECKING:
-    from vscode_task_runner.models2.tasks import Tasks
 
 
 class DependsOrderEnum(Enum, str):
@@ -47,7 +46,7 @@ class Group(BaseModel):
     """
 
     kind: Optional[GroupEnum] = None
-    isDefault: bool = False
+    is_default: bool = Field(alias="isDefault", default=False)
 
 
 class TaskProperties(OSOptions):
@@ -70,7 +69,7 @@ class TaskProperties(OSOptions):
     """
     Group of the task
     """
-    isBackground: bool = False
+    is_background: bool = Field(alias="isBackground", default=False)
     """
     If the task is a background task
     """
@@ -89,13 +88,21 @@ class Task(TaskProperties):
     """
     Unique label for this task.
     """
-    dependsOn: Optional[list[str]] = Field(default_factory=list)
+    depends_on_labels: list[str] = Field(alias="dependsOn", default_factory=list)
     """
     List of task labels that this task depends on.
     """
-    dependsOrder: DependsOrderEnum = DependsOrderEnum.parallel
+    depends_order: DependsOrderEnum = Field(
+        alias="dependsOrder", default=DependsOrderEnum.parallel
+    )
     """
     Order in which child tasks are executed.
+    """
+
+    depends_on: list[Task] = PrivateAttr(default_factory=list)
+    """
+    List of task objects that this task depends on.
+    This will be set by the parent Tasks object after initialization.
     """
 
     @property
@@ -103,13 +110,5 @@ class Task(TaskProperties):
         return (
             isinstance(self.group, Group)
             and self.group.kind == GroupEnum.build
-            and self.group.isDefault
+            and self.group.is_default
         )
-
-    @property
-    def tasks(self) -> Tasks:
-        return self._tasks
-
-    @tasks.setter
-    def tasks(self, tasks: Tasks):
-        self._tasks = tasks
