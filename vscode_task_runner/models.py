@@ -1,6 +1,10 @@
-from dataclasses import dataclass
+"""Model classes for task runner dependency management."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 
 @dataclass
@@ -52,3 +56,59 @@ class QuotedString:
 
 CommandString = Union[str, QuotedString]
 # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L320
+
+
+class ExecutionMode(Enum):
+    """
+    Defines how task dependencies should be executed.
+    """
+
+    SEQUENTIAL = "sequence"
+    PARALLEL = "parallel"
+
+
+@dataclass
+class TaskNode:
+    """
+    Represents a node in the task dependency tree.
+
+    This class is used to build a tree structure of tasks for more efficient
+    execution management, particularly for complex task hierarchies with
+    mixed sequential and parallel dependencies.
+    """
+
+    label: str
+    task: Any  # Task object - avoid circular import
+    execution_mode: ExecutionMode = ExecutionMode.SEQUENTIAL
+    dependencies: List[TaskNode] = field(default_factory=list)
+    visited: bool = False
+
+    def add_dependency(self, dependency: TaskNode) -> None:
+        """
+        Add a dependency to this task node.
+
+        Args:
+            dependency: The task node to add as a dependency
+        """
+        self.dependencies.append(dependency)
+
+    def mark_as_visited(self) -> None:
+        """
+        Mark this node as visited during tree traversal.
+        """
+        self.visited = True
+
+    def is_visited(self) -> bool:
+        """
+        Check if this node has been visited during tree traversal.
+
+        Returns:
+            bool: True if the node has been visited, False otherwise
+        """
+        return self.visited
+
+    def reset_visited(self) -> None:
+        """
+        Reset the visited flag for this node.
+        """
+        self.visited = False

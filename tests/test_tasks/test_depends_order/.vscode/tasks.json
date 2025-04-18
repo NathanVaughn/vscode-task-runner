@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "TestParallel",
+      "type": "shell",
+      "command": "echo 'TestParallel'",
+      "dependsOn": [
+        "TestDep1",
+        "TestDep2"
+      ],
+      "dependsOrder": "parallel"
+    },
+    {
+      "label": "TestSequence",
+      "type": "shell",
+      "command": "echo 'TestSequence'",
+      "dependsOn": [
+        "TestDep1",
+        "TestDep2"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "TestDefault",
+      "type": "shell",
+      "command": "echo 'TestDefault'",
+      "dependsOn": [
+        "TestDep1",
+        "TestDep2"
+      ]
+    },
+    {
+      "label": "TestDep1",
+      "type": "shell",
+      "command": "echo 'TestDep1'"
+    },
+    {
+      "label": "TestDep2",
+      "type": "shell",
+      "command": "echo 'TestDep2'"
+    }
+  ]
+}

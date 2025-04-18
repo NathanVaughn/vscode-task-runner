@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Debug Complex Task",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${command:python.interpreterPath}",
+      "module": "vscode_task_runner",
+      "args": [
+        "ComplexTask - Main"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/tests/test_tasks/test_complex_execution",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}${pathSeparator}${env:PYTHONPATH}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ComplexTask - Main",
+      "type": "shell",
+      "problemMatcher": [],
+      "dependsOn": [
+        "ComplexTask - Step1",
+        "ComplexTask - Step2",
+        "ComplexTask - Step3 (Parallel)"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "ComplexTask - Step1",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "-c",
+        "import time; print(\"Step 1 started\"); time.sleep(0.5); print(\"Step 1 completed\")"
+      ]
+    },
+    {
+      "label": "ComplexTask - Step2",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "-c",
+        "import time; print(\"Step 2 started\"); time.sleep(0.5); print(\"Step 2 completed\")"
+      ]
+    },
+    {
+      "label": "ComplexTask - Step3 (Parallel)",
+      "type": "shell",
+      "problemMatcher": [],
+      "dependsOn": [
+        "ComplexTask - Parallel1",
+        "ComplexTask - Parallel2",
+        "ComplexTask - Parallel3",
+        "ComplexTask - Parallel4"
+      ],
+      "dependsOrder": "parallel"
+    },
+    {
+      "label": "ComplexTask - Parallel1",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "-c",
+        "import time; print(\"Parallel task 1 started\"); time.sleep(1); print(\"Parallel task 1 completed\")"
+      ]
+    },
+    {
+      "label": "ComplexTask - Parallel2",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "-c",
+        "import time; print(\"Parallel task 2 started\"); time.sleep(1.2); print(\"Parallel task 2 completed\")"
+      ]
+    },
+    {
+      "label": "ComplexTask - Parallel3",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "-c",
+        "import time; print(\"Parallel task 3 started\"); time.sleep(0.8); print(\"Parallel task 3 completed\")"
+      ]
+    },
+    {
+      "label": "ComplexTask - Parallel4",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "-c",
+        "import time; print(\"Parallel task 4 started\"); time.sleep(1.5); print(\"Parallel task 4 completed\")"
+      ]
+    }
+  ]
+}
