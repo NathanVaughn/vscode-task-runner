@@ -12,10 +12,6 @@
       ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/tests/test_tasks/test_complex_execution",
-      "justMyCode": false,
-      "env": {
-        "PYTHONPATH": "${workspaceFolder}${pathSeparator}${env:PYTHONPATH}"
-      }
     }
   ]
 }

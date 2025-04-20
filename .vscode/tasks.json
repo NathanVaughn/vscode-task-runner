@@ -51,9 +51,6 @@
             "command": "${command:python.interpreterPath} -m vscode_task_runner \"ComplexTask - Main\"",
             "options": {
                 "cwd": "${workspaceFolder}/tests/test_tasks/test_complex_execution",
-                "env": {
-                    "PYTHONPATH": "${workspaceFolder}${pathSeparator}${env:PYTHONPATH}"
-                }
             },
             "dependsOn": [
                 "install-pkgs"
