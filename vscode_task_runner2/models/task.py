@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
@@ -11,8 +11,11 @@ from vscode_task_runner2.models.options import (
     QuotedStringType,
 )
 
+if TYPE_CHECKING:
+    from vscode_task_runner2.models.tasks import Tasks
 
-class DependsOrderEnum(Enum, str):
+
+class DependsOrderEnum(str, Enum):
     """
     Enum for task execution order
     """
@@ -21,7 +24,7 @@ class DependsOrderEnum(Enum, str):
     sequence = "sequence"
 
 
-class TaskTypeEnum(Enum, str):
+class TaskTypeEnum(str, Enum):
     """
     Enum for task types
     """
@@ -30,7 +33,7 @@ class TaskTypeEnum(Enum, str):
     shell = "shell"
 
 
-class GroupEnum(Enum, str):
+class GroupEnum(str, Enum):
     """
     Enum for task groups
     """
@@ -99,11 +102,25 @@ class Task(TaskProperties):
     Order in which child tasks are executed.
     """
 
-    depends_on: list[Task] = PrivateAttr(default_factory=list)
+    _depends_on: list[Task] = PrivateAttr(default_factory=list)
     """
     List of task objects that this task depends on.
     This will be set by the parent Tasks object after initialization.
+    Must have an underscore to be a private attribute.
     """
+    _tasks: Tasks = PrivateAttr()
+    """
+    Reference to the parent Tasks object.
+    This will be set by the parent Tasks object after initialization.
+    Must have an underscore to be a private attribute.
+    """
+
+    @property
+    def depends_on(self) -> list[Task]:
+        """
+        The list of task objects that this task depends on.
+        """
+        return self._depends_on
 
     @property
     def is_default_build_task(self) -> bool:
@@ -112,3 +129,20 @@ class Task(TaskProperties):
             and self.group.kind == GroupEnum.build
             and self.group.is_default
         )
+
+    @property
+    def is_supported(self) -> bool:
+        """
+        Check if the task is supported by VTR.
+        """
+        if self.is_background:
+            # bakground tasks are not supported
+            return False
+
+        try:
+            self.type_enum
+        except ValueError:
+            # unsupported task type
+            return False
+
+        return True

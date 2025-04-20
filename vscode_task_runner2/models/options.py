@@ -1,11 +1,9 @@
-import os
-import pathlib
 from enum import Enum
 from typing import Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, DirectoryPath, FilePath, RootModel
+from pydantic import BaseModel, ConfigDict, FilePath, RootModel
 
-from vscode_task_runner.constants import PLATFORM_KEY
+from vscode_task_runner2.constants import PLATFORM_KEY
 
 
 class ShellQuoting(Enum):
@@ -78,9 +76,12 @@ class CommandOptions(BaseModel):
     """
     The shell to use if the task is a shell command.
     """
-    cwd: Optional[DirectoryPath] = pathlib.Path(os.getcwd())
+    cwd: Optional[str] = None
     """
     The current working directory of the executed program or shell.
+    If omitted, the current working directory is used.
+    Uses a string instead of DirectoryPath to allow for paths that may not exist
+    on certain platforms.
     """
     env: Dict[str, str] = {}
     """
@@ -130,7 +131,7 @@ class OSOptions(BaseModel):
     osx: Optional[OSOption] = None
 
     @property
-    def os_option(self) -> Union[OSOption, None]:
+    def os(self) -> Union[OSOption, None]:
         """
         Get the OS option for the current OS
         """

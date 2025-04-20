@@ -1,7 +1,7 @@
 import enum
 from typing import Any, List, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class InputType(str, enum.Enum):
@@ -17,7 +17,7 @@ class Input(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    type: InputType
+    type_: InputType = Field(alias="type")
     """
     Type of the input
     """
@@ -29,11 +29,11 @@ class Input(BaseModel):
     """
     Description of the input.
     """
-    default: Optional[str] = None
+    default: str = ""
     """
     Default value of the input.
     """
-    options: Optional[List[str]] = None
+    options: List[str] = Field(default_factory=list)
     """
     List of options for pickString input type.
     """
