@@ -3,12 +3,11 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
 from vscode_task_runner2.models.options import (
-    CommandOptions,
-    OSOptions,
-    QuotedStringType,
+    OSConfigs,
+    TaskConfig,
 )
 
 if TYPE_CHECKING:
@@ -52,7 +51,7 @@ class Group(BaseModel):
     is_default: bool = Field(alias="isDefault", default=False)
 
 
-class TaskProperties(OSOptions):
+class TaskProperties(OSConfigs, TaskConfig):
     """
     Properties of a task.
     These are also availble globally.
@@ -61,13 +60,6 @@ class TaskProperties(OSOptions):
     model_config = ConfigDict(extra="allow")
 
     type_: str = Field(alias="type", default=TaskTypeEnum.process.value)
-
-    command: Optional[QuotedStringType] = None
-    args: Optional[list[QuotedStringType]] = None
-    options: Optional[CommandOptions] = None
-    """
-    Options for this task.
-    """
     group: Optional[Union[GroupEnum, Group]] = None
     """
     Group of the task
@@ -114,6 +106,14 @@ class Task(TaskProperties):
     This will be set by the parent Tasks object after initialization.
     Must have an underscore to be a private attribute.
     """
+
+    @field_validator("depends_on_labels", mode="before")
+    def convert_depends_on_labels(cls, value: Union[str, list[str]]) -> list[str]:
+        """
+        Convert the depends_on_labels to a list of strings.
+        Technically putting a single string is valid.
+        """
+        return [value] if isinstance(value, str) else value
 
     @property
     def depends_on(self) -> list[Task]:

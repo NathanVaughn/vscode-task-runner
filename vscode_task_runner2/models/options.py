@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, FilePath, RootModel, field_validator
+from pydantic import BaseModel, ConfigDict, FilePath, field_validator
 
 from vscode_task_runner2.constants import PLATFORM_KEY
 
@@ -12,9 +12,9 @@ class ShellQuoting(Enum):
     """
 
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L59-L60
-    escape = 1
-    strong = 2
-    weak = 3
+    escape = "escape"
+    strong = "strong"
+    weak = "weak"
 
 
 class ShellQuotingOptionsEscape(BaseModel):
@@ -115,40 +115,48 @@ class QuotedString(BaseModel):
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L315-L318
 
     value: Union[str, list[str]]
-    quoting: ShellQuoting = ShellQuoting.strong
+    quoting: ShellQuoting
 
 
-class QuotedStringType(RootModel):
+CommandString = Union[QuotedString, str]
+# https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L320
+
+StrListStringQuotedStringType = Union[QuotedString, list[str], str]
+# !!! Order is important for pydantic
+
+
+class TaskConfig(BaseModel):
     """
-    Dataclass for most valid string types
-    """
-
-    root: Union[str, list[str], QuotedString]
-
-
-class OSOption(BaseModel):
-    """
-    Dataclass for options that can be overriden for a specific OS
+    Dataclass for task config options
     """
 
     model_config = ConfigDict(extra="allow")
 
-    args: Optional[QuotedStringType] = None
-    command: Optional[QuotedStringType] = None
+    args: Optional[list[CommandString]] = None
+    """
+    Arguments passed to the command. This allows a list of strings or a list of quoted strings
+    """
+    command: Optional[StrListStringQuotedStringType] = None
+    """
+    Command that the task will run. This allows a single string, list of strings, or a quoted string
+    """
     options: Optional[CommandOptions] = None
-
-
-class OSOptions(BaseModel):
     """
-    Dataclass for a list of options based on the OS
+    Options for this task.
     """
 
-    windows: Optional[OSOption] = None
-    linux: Optional[OSOption] = None
-    osx: Optional[OSOption] = None
+
+class OSConfigs(BaseModel):
+    """
+    Dataclass for a list of configs based on the OS
+    """
+
+    windows: Optional[TaskConfig] = None
+    linux: Optional[TaskConfig] = None
+    osx: Optional[TaskConfig] = None
 
     @property
-    def os(self) -> Union[OSOption, None]:
+    def os(self) -> Union[TaskConfig, None]:
         """
         Get the OS option for the current OS
         """
