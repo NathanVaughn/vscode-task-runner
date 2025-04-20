@@ -1,9 +1,10 @@
 import os
+from typing import Union
 
 import questionary
 
 from vscode_task_runner2.exceptions import ResponseNotProvided, UnsupportedInput
-from vscode_task_runner2.models.inputs import Input, InputType
+from vscode_task_runner2.models.inputs import Input, InputChoice, InputType
 
 
 def get_input_value(input_: Input) -> str:
@@ -25,9 +26,21 @@ def get_input_value(input_: Input) -> str:
 
     elif input_.type_ == InputType.pickString:
         # if the value should be picked from options
+        choices: list[Union[str, questionary.Choice]] = []
+
+        # if the options are strings, add them as is
+        # otherwise, add them as questionary.Choice
+        for option in input_.options:
+            if isinstance(option, InputChoice):
+                choices.append(
+                    questionary.Choice(title=option.label, value=option.value)
+                )
+            else:
+                choices.append(option)
+
         asker = questionary.select(
             input_.description,
-            choices=input_.options,
+            choices=choices,
             default=input_.default,
         )
 
