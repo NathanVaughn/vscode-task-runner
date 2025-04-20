@@ -83,16 +83,9 @@ def task_args(task: Task) -> list[CommandString]:
     global_args = task._tasks.args_computed()
     task_args = task.args_computed()
 
-    # in the case that the command defined globally and in the task are the same,
-    # tack on additional args
+    # in the case that there is a global command defined, but not a task
+    # command, tack on the task args to the global args
     task_command = task.command_computed()
-    global_command = task._tasks.command_computed()
-
-    print(task_command, task_args)
-    print(global_command, global_args)
-
-    # if the task does not have a command,
-    # combine with global args
     return global_args + task_args if task_command is None else task_args
 
 
