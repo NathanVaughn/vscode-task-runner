@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from vscode_task_runner2.models.execution_level import ExecutionLevel
+from vscode_task_runner2.models.options import CommandString
 from vscode_task_runner2.models.task import DependsOrderEnum, Task
 
 
@@ -108,7 +109,7 @@ def task_cwd(task: Task) -> Path:
     return cwd
 
 
-def task_command(task: Task) -> Optional[str]:
+def task_command(task: Task) -> Optional[CommandString]:
     """
     Given a task, return the current working directory.
     """
@@ -119,13 +120,15 @@ def task_command(task: Task) -> Optional[str]:
         command = task._tasks.command
     if task._tasks.os and task._tasks.os.command:
         command = task._tasks.os.command
+
     # then task settings
     if task.command:
         command = task.command
     if task.os and task.os.command:
         command = task.os.command
 
-    return command  # type: ignore
+    # convert the various string types to a CommandString
+    return command.export_command_string() if command else None
 
 
 def task_subprocess_command(task: Task, extra_args: list[str]) -> list[str]:

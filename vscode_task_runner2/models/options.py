@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, FilePath, field_validator
+from pydantic import BaseModel, ConfigDict, FilePath, RootModel, field_validator
 
 from vscode_task_runner2.constants import PLATFORM_KEY
 
@@ -121,8 +121,23 @@ class QuotedString(BaseModel):
 CommandString = Union[QuotedString, str]
 # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L320
 
-StrListStringQuotedStringType = Union[QuotedString, list[str], str]
-# !!! Order is important for pydantic
+
+class StringListStringQuotedStringType(RootModel):
+    root: Union[QuotedString, list[str], str]
+    # ! Order is important for pydantic
+
+    def export_command_string(self) -> CommandString:
+        """
+        Export the string data to a CommandString
+        """
+        if isinstance(self.root, str):
+            return self.root
+        elif isinstance(self.root, list):
+            return " ".join(self.root)
+        elif isinstance(self.root, QuotedString):
+            return self.root
+        else:
+            raise ValueError(f"Invalid type {type(self.root)}")
 
 
 class TaskConfig(BaseModel):
@@ -136,7 +151,7 @@ class TaskConfig(BaseModel):
     """
     Arguments passed to the command. This allows a list of strings or a list of quoted strings
     """
-    command: Optional[StrListStringQuotedStringType] = None
+    command: Optional[StringListStringQuotedStringType] = None
     """
     Command that the task will run. This allows a single string, list of strings, or a quoted string
     """
