@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "env-test",
+            "command": "echo $TEST1 $TEST2 $TEST3",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "TEST1": 12.34,
+                    "TEST2": 56,
+                    "TEST3": true,
+                    "TEST4": null
+                }
+            },
+        },
+    ]
+}

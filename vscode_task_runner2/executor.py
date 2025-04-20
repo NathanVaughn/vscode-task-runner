@@ -53,13 +53,13 @@ def _new_task_env(task: Task) -> dict[str, str]:
     # from the global configuration to the task-specific configuration.
     # if the task defines options.
 
-    global_task_env = {}
+    global_tasks_env = {}
     task_env = {}
 
     if task._tasks.options:
-        global_task_env = {**global_task_env, **task._tasks.options.env}
+        global_tasks_env = {**global_tasks_env, **task._tasks.options.env}
     if task._tasks.os and task._tasks.os.options:
-        global_task_env = {**global_task_env, **task._tasks.os.options.env}
+        global_tasks_env = {**global_tasks_env, **task._tasks.os.options.env}
 
     if task.options:
         task_env = {**task_env, **task.options.env}
@@ -67,11 +67,8 @@ def _new_task_env(task: Task) -> dict[str, str]:
         task_env = {**task_env, **task.os.options.env}
 
     # if the task defined any of its own options, discard global
-    if task_env:
-        return task_env
-
     # otherwise, return the global task environment
-    return global_task_env
+    return task_env or global_tasks_env
 
 
 def task_env(task: Task) -> dict[str, str]:
@@ -114,7 +111,7 @@ def task_subprocess_command(task: Task, extra_args: list[str]) -> list[str]:
     """
     Given a task and extra arguments, return the command to run the task.
     """
-    pass
+    return []
 
 
 def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
@@ -122,4 +119,4 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
     Execute the tasks in the order they are defined in the tasks.json file.
     """
     # collect all tasks to execute
-    execution_levels = collect_levels(tasks)
+    collect_levels(tasks)

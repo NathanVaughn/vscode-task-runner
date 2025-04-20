@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, FilePath, RootModel
+from pydantic import BaseModel, ConfigDict, FilePath, RootModel, field_validator
 
 from vscode_task_runner2.constants import PLATFORM_KEY
 
@@ -88,6 +88,23 @@ class CommandOptions(BaseModel):
     The environment of the executed program or shell.
     If omitted, the current environment is used.
     """
+
+    @field_validator("env", mode="before")
+    def stringify_env(cls, value: Dict[str, str]) -> Dict[str, str]:
+        """
+        Convert all values in the env dictionary to strings.
+        Vscode tends to be pretty lax about only allowing strings,
+        so replicate that behavior. `null` is not allowed.
+        """
+        response = {}
+        for k, v in value.items():
+            if v is None:
+                raise ValueError(f"Environment variable {k} cannot be null")
+
+            # convert booleans to strings in the same way as JS
+            response[k] = str(v).lower() if isinstance(v, bool) else str(v)
+
+        return response
 
 
 class QuotedString(BaseModel):
