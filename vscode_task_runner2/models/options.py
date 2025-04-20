@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, FilePath, RootModel, field_validator
+from pydantic import BaseModel, ConfigDict, Field, FilePath, RootModel, field_validator
 
 from vscode_task_runner2.constants import PLATFORM_KEY
 
@@ -147,10 +147,11 @@ class TaskConfig(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    args: Optional[list[CommandString]] = None
+    args: list[CommandString] = Field(default_factory=list)
     """
     Arguments passed to the command. This allows a list of strings or a list of quoted strings
     """
+    # a default empty list makes things a lot easier
     command: Optional[StringListStringQuotedStringType] = None
     """
     Command that the task will run. This allows a single string, list of strings, or a quoted string

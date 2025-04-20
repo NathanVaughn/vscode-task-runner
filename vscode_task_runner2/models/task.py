@@ -6,7 +6,9 @@ from typing import TYPE_CHECKING, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
 from vscode_task_runner2.models.options import (
+    CommandString,
     OSConfigs,
+    StringListStringQuotedStringType,
     TaskConfig,
 )
 
@@ -72,6 +74,59 @@ class TaskProperties(OSConfigs, TaskConfig):
     @property
     def type_enum(self) -> TaskTypeEnum:
         return TaskTypeEnum(self.type_)
+
+    def new_env_computed(self) -> dict[str, str]:
+        """
+        Computed explicitly defined environment variables for this task.
+        Does not take into account the global environment variables.
+        """
+        task_env = {}
+
+        if self.options:
+            task_env = {**task_env, **self.options.env}
+        if self.os and self.os.options:
+            task_env = {**task_env, **self.os.options.env}
+
+        return task_env
+
+    def cwd_computed(self) -> Optional[str]:
+        """
+        Computed working directoy for this task.
+        Does not take into account the global working directory.
+        """
+        cwd = None
+        if self.os and self.os.options and self.os.options.cwd:
+            cwd = self.os.options.cwd
+        elif self.options and self.options.cwd:
+            cwd = self.options.cwd
+
+        return cwd
+
+    def command_computed(self) -> Optional[StringListStringQuotedStringType]:
+        """
+        Computed command for this task.
+        Does not take into account the global command.
+        """
+        command = None
+        if self.os and self.os.command:
+            command = self.os.command
+        elif self.command:
+            command = self.command
+
+        return command
+
+    def args_computed(self) -> list[CommandString]:
+        """
+        Computed args for this task.
+        Does not take into account the global args.
+        """
+        args = []
+        if self.os and self.os.args:
+            args = self.os.args
+        elif self.args:
+            args = self.args
+
+        return args
 
 
 class Task(TaskProperties):
