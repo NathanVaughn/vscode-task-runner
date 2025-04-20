@@ -64,7 +64,7 @@ class TaskExecutor:
         self.visited_tasks.clear()
 
         # Execute the tree starting from the root
-        self._execute_node(root_node, inputs_data, extra_args)
+        self._execute_node(root_node, inputs_data, extra_args, is_root=True)
 
     def _reset_visited_state(self, node: TaskNode) -> None:
         """
@@ -83,6 +83,7 @@ class TaskExecutor:
         inputs_data: Optional[List[Dict[str, Any]]] = None,
         extra_args: Optional[List[str]] = None,
         task_color_index: int = 0,
+        is_root: bool = False,
     ) -> None:
         """
         Execute a single node and its dependencies.
@@ -92,6 +93,7 @@ class TaskExecutor:
             inputs_data: Input variables data from tasks.json
             extra_args: Extra arguments to pass to the task
             task_color_index: Index used for color coding output
+            is_root: Whether this is the root (top-level) task
         """
         # Skip if already visited (prevents circular dependencies)
         if node.is_visited() or node.label in self.visited_tasks:
@@ -108,7 +110,8 @@ class TaskExecutor:
             # For sequential execution, pass increasing color indices
             color_idx = task_color_index
             for dependency in node.dependencies:
-                self._execute_node(dependency, inputs_data, extra_args, color_idx)
+                # Don't pass extra_args to dependencies, only to the root task
+                self._execute_node(dependency, inputs_data, None, color_idx)
                 color_idx += 1
 
         # Execute the task itself if it's not a virtual task
@@ -124,8 +127,14 @@ class TaskExecutor:
                     )
                 )
 
+            # Only pass extra_args if this is the root task
+            task_extra_args = extra_args if is_root else None
+
             self._execute_single_task(
-                node.task, input_vars_dict, extra_args, color_index=task_color_index
+                node.task,
+                input_vars_dict,
+                task_extra_args,
+                color_index=task_color_index,
             )
 
     def _execute_dependencies_sequentially(
