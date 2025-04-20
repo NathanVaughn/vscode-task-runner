@@ -1,26 +1,38 @@
 {
     "version": "2.0.0",
-    "options": {
-        "cwd": "value1"
-    },
-    "linux": {
-        "options": {
-            "cwd": "value2"
-        }
-    },
     "tasks": [
         {
-            "label": "cwd-test",
-            "command": "echo $PWD",
-            "type": "shell",
-            "options": {
-                "cwd": "value3"
-            },
-            "linux": {
-                "options": {
-                    "cwd": "tests"
-                }
-            },
+            "label": "install-pkgs",
+            "command": "uv sync",
+            "type": "shell"
         },
+        {
+            "label": "install-pre-commit",
+            "command": "uv run pre-commit install",
+            "type": "shell"
+        },
+        {
+            "label": "install",
+            "dependsOn": ["install-pkgs", "install-pre-commit"],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "pre-commit",
+            "command": "uv run pre-commit run --all-files",
+            "type": "shell",
+            "dependsOn": ["install-pkgs"]
+        },
+        {
+            "label": "tests",
+            "command": "uv run pytest --cov=vscode_task_runner/ --cov-report html",
+            "type": "shell",
+            "dependsOn": ["install-pkgs"]
+        },
+        {
+            "label": "build",
+            "command": "uv build",
+            "type": "shell",
+            "dependsOn": ["install-pkgs"]
+        }
     ]
 }
