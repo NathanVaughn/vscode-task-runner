@@ -8,7 +8,7 @@ from vscode_task_runner2.utils.paths import which_resolver
 
 
 class ShellQuotingOptionsEscape(BaseModel):
-    # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L70-L71
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L50-L53
     escapeChar: str
     charsToEscape: list[str]
 
@@ -18,7 +18,7 @@ class ShellQuotingOptions(BaseModel):
     Shell quoting options
     """
 
-    # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L65-L83
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L46-L64
 
     strong: Optional[str] = None
     """
@@ -39,7 +39,7 @@ class ShellConfiguration(BaseModel):
     Shell configuration settings
     """
 
-    # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L85-L100
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L66-L70
 
     executable: Optional[str] = None
     """

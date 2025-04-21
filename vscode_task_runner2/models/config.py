@@ -1,12 +1,11 @@
 from typing import Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from vscode_task_runner2.constants import PLATFORM_KEY
 from vscode_task_runner2.models.shell import ShellConfiguration
 from vscode_task_runner2.models.strings import (
     CommandString,
-    StringListStringQuotedStringType,
 )
 
 
@@ -52,19 +51,14 @@ class CommandOptions(BaseModel):
         return response
 
 
-class TaskConfig(BaseModel):
+class BaseCommandProperties(BaseModel):
     """
     Dataclass for task config options
     """
 
-    model_config = ConfigDict(extra="allow")
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L245-L263
 
-    args: list[CommandString] = Field(default_factory=list)
-    """
-    Arguments passed to the command. This allows a list of strings or a list of quoted strings
-    """
-    # a default empty list makes things a lot easier
-    command: Optional[StringListStringQuotedStringType] = None
+    command: Optional[CommandString] = None
     """
     Command that the task will run. This allows a single string, list of strings, or a quoted string
     """
@@ -72,19 +66,26 @@ class TaskConfig(BaseModel):
     """
     Options for this task.
     """
+    args: list[CommandString] = Field(default_factory=list)
+    """
+    Arguments passed to the command. This allows a list of strings or a list of quoted strings
+    """
+    # a default empty list makes things a lot easier
 
 
-class OSConfigs(BaseModel):
+class CommandProperties(BaseModel):
     """
     Dataclass for a list of configs based on the OS
     """
 
-    windows: Optional[TaskConfig] = None
-    linux: Optional[TaskConfig] = None
-    osx: Optional[TaskConfig] = None
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L266-L282
+
+    windows: Optional[BaseCommandProperties] = None
+    linux: Optional[BaseCommandProperties] = None
+    osx: Optional[BaseCommandProperties] = None
 
     @property
-    def os(self) -> Union[TaskConfig, None]:
+    def os(self) -> Union[BaseCommandProperties, None]:
         """
         Get the OS option for the current OS
         """

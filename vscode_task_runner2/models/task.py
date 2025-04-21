@@ -4,28 +4,27 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
-from vscode_task_runner2.models.config import OSConfigs, TaskConfig
-from vscode_task_runner2.models.enums import DependsOrder, GroupKind, TaskType
+from vscode_task_runner2.models.config import BaseCommandProperties, CommandProperties
+from vscode_task_runner2.models.enums import DependsOrder, GroupKindEnum, TaskType
 from vscode_task_runner2.models.shell import ShellConfiguration
-from vscode_task_runner2.models.strings import (
-    CommandString,
-    StringListStringQuotedStringType,
-)
+from vscode_task_runner2.models.strings import CommandString
 
 if TYPE_CHECKING:
     from vscode_task_runner2.models.tasks import Tasks
 
 
-class GroupData(BaseModel):
+class GroupKind(BaseModel):
     """
     Group model.
     """
 
-    kind: Optional[GroupKind] = None
-    is_default: bool = Field(alias="isDefault", default=False)
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L284-L287
+
+    kind: Optional[GroupKindEnum] = None
+    is_default: Union[bool, str] = Field(alias="isDefault", default=False)
 
 
-class TaskProperties(OSConfigs, TaskConfig):
+class TaskProperties(CommandProperties, BaseCommandProperties):
     """
     Properties of a task.
     These are also availble globally.
@@ -34,7 +33,7 @@ class TaskProperties(OSConfigs, TaskConfig):
     model_config = ConfigDict(extra="allow")
 
     type_: str = Field(alias="type", default=TaskType.process.value)
-    group: Optional[Union[GroupKind, GroupData]] = None
+    group: Optional[Union[GroupKindEnum, GroupKind]] = None
     """
     Group of the task
     """
@@ -74,7 +73,7 @@ class TaskProperties(OSConfigs, TaskConfig):
 
         return cwd
 
-    def command_computed(self) -> Optional[StringListStringQuotedStringType]:
+    def command_computed(self) -> Optional[CommandString]:
         """
         Computed command for this task.
         Does not take into account the global command.
@@ -166,9 +165,9 @@ class Task(TaskProperties):
     @property
     def is_default_build_task(self) -> bool:
         return (
-            isinstance(self.group, GroupData)
-            and self.group.kind == GroupKind.build
-            and self.group.is_default
+            isinstance(self.group, GroupKind)
+            and self.group.kind == GroupKindEnum.build
+            and self.group.is_default is True
         )
 
     @property

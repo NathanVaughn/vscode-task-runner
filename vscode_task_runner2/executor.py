@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from vscode_task_runner2.models.config import CommandString, ShellConfiguration
+from vscode_task_runner2.models.enums import TaskType
 from vscode_task_runner2.models.execution_level import ExecutionLevel
 from vscode_task_runner2.models.task import DependsOrder, Task
 from vscode_task_runner2.utils.paths import which_resolver
@@ -75,7 +76,7 @@ def task_command(task: Task) -> Optional[CommandString]:
         command = global_command
 
     # convert the various string types to a CommandString
-    return command.export_command_string() if command else None
+    return command
 
 
 def task_args(task: Task) -> list[CommandString]:
@@ -117,11 +118,67 @@ def task_shell(task: Task) -> ShellConfiguration:
     return shell
 
 
-def task_subprocess_command(task: Task, extra_args: list[str]) -> list[str]:
+def task_subprocess_command(
+    task: Task, extra_args: Optional[list[str]] = None
+) -> list[str]:
     """
     Given a task and extra arguments, return the command to run the task.
     """
-    return []
+    if extra_args is None:
+        extra_args = []
+
+    if task.type_enum == TaskType.process:
+        command = task_command(task)
+
+        subprocess_command = [which_resolver(command)]
+        for arg in task_args(task) + extra_args:
+            # the args must be strings too
+            subprocess_command.append(arg)
+
+        return subprocess_command
+
+    elif task.type_enum == TaskType.shell:
+        shell_config = task_shell(task)
+
+        if shell_config.args is None:
+            shell_config.args = []
+
+        # build the shell quoting options
+        vscode_task_runner2.terminal_task_system.get_quoting_options(
+            shell_type, shell_config
+        )
+        assert shell_config.quoting is not None
+
+        # figure out how to tack on extra args
+        command = self.command
+        assert command is not None
+        args = self.args
+
+        if extra_args:
+            # if we have args, tack it on to that
+            if args:
+                args = args + extra_args
+            else:
+                # if we only have a command, tack it on to that
+                extra_text = " " + " ".join(extra_args)
+
+                if isinstance(command, str):
+                    command += extra_text
+                else:
+                    command.value += extra_text
+
+        return [
+            shell_config.executable
+        ] + vscode_task_runner2.terminal_task_system.create_shell_launch_config(
+            shell_type,
+            shell_config.args,
+            vscode_task_runner2.terminal_task_system.build_shell_command_line(
+                shell_type,
+                shell_config.quoting,
+                command,
+                args,
+            ),
+        )
 
 
 def collect_levels(tasks: list[Task]) -> list[ExecutionLevel]:

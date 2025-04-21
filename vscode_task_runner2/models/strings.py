@@ -11,28 +11,23 @@ class QuotedString(BaseModel):
     """
 
     # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L315-L318
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L227-L228
 
     value: Union[str, list[str]]
     quoting: ShellQuoting
 
 
-CommandString = Union[QuotedString, str]
-# https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L320
-
-
-class StringListStringQuotedStringType(RootModel):
+class CommandString(RootModel):
+    # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L227-L243
     root: Union[QuotedString, list[str], str]
-    # ! Order is important for pydantic
 
-    def export_command_string(self) -> CommandString:
-        """
-        Export the string data to a CommandString
-        """
+    @property
+    def value(self) -> str:
         if isinstance(self.root, str):
             return self.root
         elif isinstance(self.root, list):
             return " ".join(self.root)
-        elif isinstance(self.root, QuotedString):
-            return self.root
-        else:
-            raise ValueError(f"Invalid type {type(self.root)}")
+        elif isinstance(self.root, QuotedString) and isinstance(self.root.value, str):
+            return self.root.value
+
+        return " ".join(self.root.value)

@@ -52,7 +52,7 @@ class TaskType(str, Enum):
     shell = "shell"
 
 
-class GroupKind(str, Enum):
+class GroupKindEnum(str, Enum):
     """
     Enum for task groups
     """
