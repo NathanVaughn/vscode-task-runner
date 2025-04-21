@@ -4,7 +4,7 @@ from typing import Union
 import questionary
 
 from vscode_task_runner2.exceptions import ResponseNotProvided, UnsupportedInput
-from vscode_task_runner2.models.inputs import Input, InputChoice, InputType
+from vscode_task_runner2.models.input import Input, InputChoice, InputType
 
 
 def get_input_value(input_: Input) -> str:

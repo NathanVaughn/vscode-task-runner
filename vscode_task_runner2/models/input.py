@@ -1,17 +1,10 @@
 from __future__ import annotations
 
-import enum
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-
-class InputType(str, enum.Enum):
-    """Enum for input types."""
-
-    promptString = "promptString"
-    pickString = "pickString"
-    command = "command"
+from vscode_task_runner2.models.enums import InputType
 
 
 class InputChoice(BaseModel):

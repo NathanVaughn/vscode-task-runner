@@ -2,7 +2,7 @@ from typing import Any, Literal, Union
 
 from pydantic import Field
 
-from vscode_task_runner2.models.inputs import Input
+from vscode_task_runner2.models.input import Input
 from vscode_task_runner2.models.task import Task, TaskProperties
 
 

@@ -1,55 +1,27 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import TYPE_CHECKING, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
-from vscode_task_runner2.models.options import (
+from vscode_task_runner2.models.config import OSConfigs, TaskConfig
+from vscode_task_runner2.models.enums import DependsOrder, GroupKind, TaskType
+from vscode_task_runner2.models.shell import ShellConfiguration
+from vscode_task_runner2.models.strings import (
     CommandString,
-    OSConfigs,
     StringListStringQuotedStringType,
-    TaskConfig,
 )
 
 if TYPE_CHECKING:
     from vscode_task_runner2.models.tasks import Tasks
 
 
-class DependsOrderEnum(str, Enum):
-    """
-    Enum for task execution order
-    """
-
-    parallel = "parallel"
-    sequence = "sequence"
-
-
-class TaskTypeEnum(str, Enum):
-    """
-    Enum for task types
-    """
-
-    process = "process"
-    shell = "shell"
-
-
-class GroupEnum(str, Enum):
-    """
-    Enum for task groups
-    """
-
-    build = "build"
-    test = "test"
-    none = "none"
-
-
-class Group(BaseModel):
+class GroupData(BaseModel):
     """
     Group model.
     """
 
-    kind: Optional[GroupEnum] = None
+    kind: Optional[GroupKind] = None
     is_default: bool = Field(alias="isDefault", default=False)
 
 
@@ -61,8 +33,8 @@ class TaskProperties(OSConfigs, TaskConfig):
 
     model_config = ConfigDict(extra="allow")
 
-    type_: str = Field(alias="type", default=TaskTypeEnum.process.value)
-    group: Optional[Union[GroupEnum, Group]] = None
+    type_: str = Field(alias="type", default=TaskType.process.value)
+    group: Optional[Union[GroupKind, GroupData]] = None
     """
     Group of the task
     """
@@ -72,8 +44,8 @@ class TaskProperties(OSConfigs, TaskConfig):
     """
 
     @property
-    def type_enum(self) -> TaskTypeEnum:
-        return TaskTypeEnum(self.type_)
+    def type_enum(self) -> TaskType:
+        return TaskType(self.type_)
 
     def new_env_computed(self) -> dict[str, str]:
         """
@@ -128,6 +100,20 @@ class TaskProperties(OSConfigs, TaskConfig):
 
         return args
 
+    def shell_computed(self) -> Optional[ShellConfiguration]:
+        """
+        Computed shell for this task.
+        Does not take into account the global shell.
+        """
+        shell = None
+
+        if self.os and self.os.options and self.os.options.shell:
+            shell = self.os.options.shell
+        elif self.options and self.options.shell:
+            shell = self.options.shell
+
+        return shell
+
 
 class Task(TaskProperties):
     """
@@ -142,8 +128,8 @@ class Task(TaskProperties):
     """
     List of task labels that this task depends on.
     """
-    depends_order: DependsOrderEnum = Field(
-        alias="dependsOrder", default=DependsOrderEnum.parallel
+    depends_order: DependsOrder = Field(
+        alias="dependsOrder", default=DependsOrder.parallel
     )
     """
     Order in which child tasks are executed.
@@ -180,8 +166,8 @@ class Task(TaskProperties):
     @property
     def is_default_build_task(self) -> bool:
         return (
-            isinstance(self.group, Group)
-            and self.group.kind == GroupEnum.build
+            isinstance(self.group, GroupData)
+            and self.group.kind == GroupKind.build
             and self.group.is_default
         )
 

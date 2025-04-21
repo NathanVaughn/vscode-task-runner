@@ -2,9 +2,11 @@ import os
 from pathlib import Path
 from typing import Optional
 
+from vscode_task_runner2.models.config import CommandString, ShellConfiguration
 from vscode_task_runner2.models.execution_level import ExecutionLevel
-from vscode_task_runner2.models.options import CommandString
-from vscode_task_runner2.models.task import DependsOrderEnum, Task
+from vscode_task_runner2.models.task import DependsOrder, Task
+from vscode_task_runner2.utils.paths import which_resolver
+from vscode_task_runner2.utils.shell import get_parent_shell
 
 
 def _new_task_env(task: Task) -> dict[str, str]:
@@ -89,6 +91,32 @@ def task_args(task: Task) -> list[CommandString]:
     return global_args + task_args if task_command is None else task_args
 
 
+def task_shell(task: Task) -> ShellConfiguration:
+    """
+    Given a task, return the current shell configuration.
+    """
+    shell = ShellConfiguration()
+
+    # task settings
+    if task_shell := task.shell_computed():
+        shell = task_shell
+
+    # global settings
+    elif global_shell := task._tasks.shell_computed():
+        shell = global_shell
+
+    if not shell.executable:
+        # if no shell binary defined, use the parent shell
+        shell = get_parent_shell()
+
+    # make sure shell executable exists and is absolute
+    assert shell.executable is not None
+    shell.executable = which_resolver(shell.executable)
+
+    # return the shell config
+    return shell
+
+
 def task_subprocess_command(task: Task, extra_args: list[str]) -> list[str]:
     """
     Given a task and extra arguments, return the command to run the task.
@@ -128,9 +156,7 @@ def _collect_levels_recursive(task: Task) -> list[ExecutionLevel]:
             )
 
     # Add the current task to the execution levels
-    execution_levels.append(
-        ExecutionLevel(order=DependsOrderEnum.sequence, tasks=[task])
-    )
+    execution_levels.append(ExecutionLevel(order=DependsOrder.sequence, tasks=[task]))
     return execution_levels
 
 

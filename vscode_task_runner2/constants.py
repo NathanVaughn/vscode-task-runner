@@ -2,11 +2,10 @@ import os
 import platform
 from typing import Dict, Literal
 
-from vscode_task_runner.models import (
+from vscode_task_runner2.models.enums import ShellType, TaskType
+from vscode_task_runner2.models.shell import (
     ShellQuotingOptions,
     ShellQuotingOptionsEscape,
-    ShellType,
-    TaskType,
 )
 
 TASKS_FILE = os.path.join(".vscode", "tasks.json")
@@ -31,7 +30,7 @@ DEFAULT_SHELL_QUOTING = {
     ShellType.CMD: ShellQuotingOptions(strong='"'),
     ShellType.PowerShell: ShellQuotingOptions(
         escape=ShellQuotingOptionsEscape(
-            escape_character="`", characters_to_escape=[" ", '"', "'", "(", ")"]
+            escapeChar="`", charsToEscape=[" ", '"', "'", "(", ")"]
         ),
         strong="'",
         weak='"',
@@ -39,7 +38,7 @@ DEFAULT_SHELL_QUOTING = {
     # zsh is the exact same as bash, so combine the 2
     ShellType.SH: ShellQuotingOptions(
         escape=ShellQuotingOptionsEscape(
-            escape_character="\\", characters_to_escape=[" ", '"', "'"]
+            escapeChar="\\", charsToEscape=[" ", '"', "'"]
         ),
         strong="'",
         weak='"',

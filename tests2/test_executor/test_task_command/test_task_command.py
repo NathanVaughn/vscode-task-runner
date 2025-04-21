@@ -1,6 +1,7 @@
 from tests2.conftest import task_obj
 from vscode_task_runner2 import executor
-from vscode_task_runner2.models.options import QuotedString, ShellQuoting
+from vscode_task_runner2.models.enums import ShellQuoting
+from vscode_task_runner2.models.strings import QuotedString
 
 
 def test_full(linux: None) -> None:

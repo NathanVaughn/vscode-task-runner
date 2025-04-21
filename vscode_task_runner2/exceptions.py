@@ -20,3 +20,15 @@ class TasksFileInvalid(Exception):
     """
     .vscode/tasks.json is invalid.
     """
+
+
+class ShellNotFound(Exception):
+    """
+    When a usable shell could not be identified
+    """
+
+
+class ExecutableNotFound(Exception):
+    """
+    When a binary file could not be found
+    """
