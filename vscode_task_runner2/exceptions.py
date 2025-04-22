@@ -44,3 +44,9 @@ class UnsupportedTaskType(Exception):
     """
     Raised when a task type is not supported
     """
+
+
+class WorkingDirectoryNotFound(Exception):
+    """
+    Raised when a defined working directory does not exist
+    """

@@ -16,6 +16,7 @@ from vscode_task_runner2.constants import (
 from vscode_task_runner2.models.enums import ShellQuotingEnum, ShellTypeEnum
 from vscode_task_runner2.models.shell import ShellConfiguration, ShellQuotingOptions
 from vscode_task_runner2.models.strings import CommandString
+from vscode_task_runner2.utils.strings import joiner
 
 
 def get_quoting_options(shell_config: ShellConfiguration) -> ShellQuotingOptions:
@@ -200,7 +201,7 @@ def build_shell_command_line(
         result.append(value)
         arg_quoted = arg_quoted or quoted
 
-    command_line = " ".join(result)
+    command_line = joiner(result)
     # There are special rules quoted command line in cmd.exe
     if PLATFORM_KEY == "windows":
         if shell_type == ShellTypeEnum.CMD and command_quoted and arg_quoted:

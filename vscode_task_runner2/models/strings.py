@@ -3,6 +3,7 @@ from typing import Union
 from pydantic import BaseModel
 
 from vscode_task_runner2.models.enums import ShellQuotingEnum
+from vscode_task_runner2.utils.strings import joiner
 
 
 class QuotedStringConfig(BaseModel):
@@ -27,11 +28,10 @@ def csc_value(value: CommandStringConfig) -> str:
     if isinstance(value, str):
         return value
     elif isinstance(value, list):
-        return " ".join(value)
-    elif isinstance(value, QuotedStringConfig) and isinstance(value.value, str):
+        return joiner(value)
+    elif isinstance(value.value, str):
         return value.value
-
-    return " ".join(value.value)
+    return joiner(value.value)
 
 
 class QuotedString(BaseModel):

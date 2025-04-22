@@ -1,8 +1,11 @@
 import os
+import subprocess
+import sys
 from pathlib import Path
 from typing import Optional
 
-from vscode_task_runner2.exceptions import MissingCommand
+from vscode_task_runner2 import printer
+from vscode_task_runner2.exceptions import MissingCommand, WorkingDirectoryNotFound
 from vscode_task_runner2.models.enums import TaskTypeEnum
 from vscode_task_runner2.models.execution_level import ExecutionLevel
 from vscode_task_runner2.models.shell import ShellConfiguration
@@ -10,6 +13,7 @@ from vscode_task_runner2.models.strings import CommandStringConfig, csc_value
 from vscode_task_runner2.models.task import DependsOrderEnum, Task
 from vscode_task_runner2.utils.paths import which_resolver
 from vscode_task_runner2.utils.shell import get_parent_shell
+from vscode_task_runner2.utils.strings import joiner
 from vscode_task_runner2.vscode import task_configuration, terminal_task_system
 
 
@@ -61,10 +65,13 @@ def task_cwd(task: Task) -> Path:
     elif global_cwd := task._tasks.cwd_computed():
         cwd = base.joinpath(global_cwd)
 
+    if not cwd.is_dir():
+        raise WorkingDirectoryNotFound(f"Working directory {cwd} does not exist")
+
     return cwd
 
 
-def task_command(task: Task) -> CommandStringConfig:
+def task_command(task: Task) -> Optional[CommandStringConfig]:
     """
     Given a task, return the command.
     """
@@ -77,10 +84,6 @@ def task_command(task: Task) -> CommandStringConfig:
     # global settings
     elif global_command := task._tasks.command_computed():
         command = global_command
-
-    # a task always needs a command
-    if command is None:
-        raise MissingCommand(f"Task {task.label} is missing a command")
 
     return command
 
@@ -124,6 +127,14 @@ def task_shell(task: Task) -> ShellConfiguration:
     return shell
 
 
+def is_virtual_task(task: Task) -> bool:
+    """
+    Returns if a task is a virtual task. This is the case
+    if the task does not define a command, and depends on other tasks
+    """
+    return not bool(task_command(task)) and bool(task.depends_on)
+
+
 def task_subprocess_command(
     task: Task, extra_args: Optional[list[str]] = None
 ) -> list[str]:
@@ -135,6 +146,9 @@ def task_subprocess_command(
         extra_args = []
 
     command = task_command(task)
+    if command is None:
+        raise MissingCommand(f"Task '{task.label}' does not define a command")
+
     args = task_args(task)
 
     if task.type_enum == TaskTypeEnum.process:
@@ -167,7 +181,7 @@ def task_subprocess_command(
                 args = args + extra_args
             else:
                 # if we only have a command, tack it on to that
-                extra_text = " " + " ".join(extra_args)
+                extra_text = " " + joiner(extra_args)
 
                 if isinstance(command, str):
                     command += extra_text
@@ -223,6 +237,8 @@ def _collect_levels_recursive(task: Task) -> list[ExecutionLevel]:
                 ExecutionLevel(order=tree_task.depends_order, tasks=child_tasks)
             )
 
+    _walk_tree(task)
+
     # Add the current task to the execution levels
     execution_levels.append(
         ExecutionLevel(order=DependsOrderEnum.sequence, tasks=[task])
@@ -235,4 +251,45 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
     Execute the tasks in the order they are defined in the tasks.json file.
     """
     # collect all tasks to execute
-    collect_levels(tasks)
+    levels = collect_levels(tasks)
+
+    # task count
+    task_count = sum(len(level.tasks) for level in levels)
+
+    # iterate through all tasks
+    index = 0
+    for level in levels:
+        for task in level.tasks:
+            execute_task(task, index=index, total=task_count)
+            index += 1
+
+
+def execute_task(task: Task, index: int, total: int) -> None:
+    i = index + 1
+
+    if is_virtual_task(task):
+        printer.info(
+            f"[{i}/{total}] Task {printer.yellow(task.label)} has no direct command to execute"
+        )
+        return
+
+    cmd = task_subprocess_command(task)
+
+    with printer.group(f"Task {task.label}"):
+        printer.info(
+            f"[{i}/{total}] Executing task {printer.yellow(task.label)}: {printer.blue(joiner(cmd))}"
+        )
+        proc = subprocess.run(
+            cmd,
+            shell=False,
+            cwd=task_cwd(task),
+            env=task_env(task),
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
+
+        if proc.returncode != 0:
+            printer.error(
+                f"Task {printer.yellow(task.label)} returned with exit code {proc.returncode}"
+            )
+            sys.exit(proc.returncode)

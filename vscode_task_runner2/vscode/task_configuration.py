@@ -5,6 +5,7 @@ from vscode_task_runner2.models.strings import (
     CommandStringConfig,
     QuotedString,
 )
+from vscode_task_runner2.utils.strings import joiner
 
 
 @overload
@@ -18,6 +19,9 @@ def shell_string(value: CommandStringConfig) -> CommandString: ...
 
 
 def shell_string(value: Optional[CommandStringConfig]) -> Optional[CommandString]:
+    """
+    Converts a config command string into a runtime command string
+    """
     # sourcery skip: assign-if-exp, reintroduce-else
     # https://github.com/microsoft/vscode/blob/52592e3ca8f6c18d612907245e809ddd24f76291/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L943-L965
     if not value:
@@ -26,12 +30,12 @@ def shell_string(value: Optional[CommandStringConfig]) -> Optional[CommandString
     if isinstance(value, str):
         return value
     elif isinstance(value, list):
-        return " ".join(value)
+        return joiner(value)
     else:
         result = (
             value.value
             if isinstance(value.value, str)
-            else " ".join(value.value)
+            else joiner(value.value)
             if isinstance(value.value, list)
             else None
         )
