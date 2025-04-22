@@ -1,16 +1,16 @@
 import os
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from vscode_task_runner2.models.enums import ShellType
+from vscode_task_runner2.models.enums import ShellTypeEnum
 from vscode_task_runner2.utils.paths import which_resolver
 
 
 class ShellQuotingOptionsEscape(BaseModel):
     # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L50-L53
-    escapeChar: str
-    charsToEscape: list[str]
+    escape_character: str = Field(alias="escapeChar")
+    characters_to_escape: list[str] = Field(alias="charsToEscape")
 
 
 class ShellQuotingOptions(BaseModel):
@@ -46,7 +46,7 @@ class ShellConfiguration(BaseModel):
     The shell executable.
     """
     # not using a FilePath to allow for missing paths on not all platforms
-    args: Optional[list[str]] = None
+    args: list[str] = Field(default_factory=list)
     """
     The args to be passed to the shell executable.
     """
@@ -55,7 +55,8 @@ class ShellConfiguration(BaseModel):
     Which kind of quotes the shell supports.
     """
 
-    def shell_type(self) -> ShellType:
+    @property
+    def type_(self) -> ShellTypeEnum:
         """
         Try to identify what type of shell it is based on the executable.
         """
@@ -69,16 +70,16 @@ class ShellConfiguration(BaseModel):
         # don't check for .exe because it could be running powershell
         # core on Linux
         if shell_basename in ["pwsh", "powershell"]:
-            return ShellType.PowerShell
+            return ShellTypeEnum.PowerShell
 
         elif shell_basename == "cmd":
-            return ShellType.CMD
+            return ShellTypeEnum.CMD
 
         elif shell_basename == "wsl":
-            return ShellType.WSL
+            return ShellTypeEnum.WSL
 
         # bash.exe is a thing on Windows too
         elif shell_basename.endswith("sh"):
-            return ShellType.SH
+            return ShellTypeEnum.SH
 
-        return ShellType.Unknown
+        return ShellTypeEnum.Unknown

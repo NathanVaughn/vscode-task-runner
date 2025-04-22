@@ -2,7 +2,7 @@ import os
 import platform
 from typing import Dict, Literal
 
-from vscode_task_runner2.models.enums import ShellType, TaskType
+from vscode_task_runner2.models.enums import ShellTypeEnum, TaskTypeEnum
 from vscode_task_runner2.models.shell import (
     ShellQuotingOptions,
     ShellQuotingOptionsEscape,
@@ -27,8 +27,8 @@ OPTIONS_KEY = "options"
 
 # https://github.com/microsoft/vscode/blob/ab7c32a5b5275c3fa9552675b6b6035888068fd7/src/vs/workbench/contrib/tasks/browser/terminalTaskSystem.ts#L163-L191
 DEFAULT_SHELL_QUOTING = {
-    ShellType.CMD: ShellQuotingOptions(strong='"'),
-    ShellType.PowerShell: ShellQuotingOptions(
+    ShellTypeEnum.CMD: ShellQuotingOptions(strong='"'),
+    ShellTypeEnum.PowerShell: ShellQuotingOptions(
         escape=ShellQuotingOptionsEscape(
             escapeChar="`", charsToEscape=[" ", '"', "'", "(", ")"]
         ),
@@ -36,7 +36,7 @@ DEFAULT_SHELL_QUOTING = {
         weak='"',
     ),
     # zsh is the exact same as bash, so combine the 2
-    ShellType.SH: ShellQuotingOptions(
+    ShellTypeEnum.SH: ShellQuotingOptions(
         escape=ShellQuotingOptionsEscape(
             escapeChar="\\", charsToEscape=[" ", '"', "'"]
         ),
@@ -46,9 +46,9 @@ DEFAULT_SHELL_QUOTING = {
 }
 
 DEFAULT_OS_QUOTING: Dict[_VSC_PLATFORM_LITERAL, ShellQuotingOptions] = {
-    "linux": DEFAULT_SHELL_QUOTING[ShellType.SH],
-    "osx": DEFAULT_SHELL_QUOTING[ShellType.SH],
-    "windows": DEFAULT_SHELL_QUOTING[ShellType.PowerShell],
+    "linux": DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
+    "osx": DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
+    "windows": DEFAULT_SHELL_QUOTING[ShellTypeEnum.PowerShell],
 }
 
-DEFAULT_TASK_TYPE = TaskType.process
+DEFAULT_TASK_TYPE = TaskTypeEnum.process

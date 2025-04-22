@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class InputType(str, Enum):
+class InputTypeEnum(str, Enum):
     """
     Enum for input types.
     """
@@ -11,7 +11,7 @@ class InputType(str, Enum):
     command = "command"
 
 
-class ShellType(Enum):
+class ShellTypeEnum(Enum):
     """
     Enum for different shell types
     """
@@ -23,7 +23,7 @@ class ShellType(Enum):
     Unknown = auto()
 
 
-class ShellQuoting(Enum):
+class ShellQuotingEnum(Enum):
     """
     Enum for shell quoting options
     """
@@ -34,7 +34,7 @@ class ShellQuoting(Enum):
     weak = "weak"
 
 
-class DependsOrder(str, Enum):
+class DependsOrderEnum(str, Enum):
     """
     Enum for task execution order
     """
@@ -43,7 +43,7 @@ class DependsOrder(str, Enum):
     sequence = "sequence"
 
 
-class TaskType(str, Enum):
+class TaskTypeEnum(str, Enum):
     """
     Enum for task types
     """

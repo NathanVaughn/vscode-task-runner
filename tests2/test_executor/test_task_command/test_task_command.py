@@ -1,14 +1,17 @@
+import pytest
+
 from tests2.conftest import task_obj
 from vscode_task_runner2 import executor
-from vscode_task_runner2.models.enums import ShellQuoting
-from vscode_task_runner2.models.strings import QuotedString
+from vscode_task_runner2.exceptions import MissingCommand
+from vscode_task_runner2.models.enums import ShellQuotingEnum
+from vscode_task_runner2.models.strings import QuotedStringConfig
 
 
 def test_full(linux: None) -> None:
     task = task_obj(__file__, "cmd-test")
 
-    assert executor.task_command(task) == QuotedString(
-        value="command4", quoting=ShellQuoting.weak
+    assert executor.task_command(task) == QuotedStringConfig(
+        value="command4", quoting=ShellQuotingEnum.weak
     )
 
 
@@ -16,7 +19,7 @@ def test_partial1(linux: None) -> None:
     task = task_obj(__file__, "cmd-test")
     task.linux = None
 
-    assert executor.task_command(task) == "command3"
+    assert executor.task_command(task) == ["command3"]
 
 
 def test_partial2(linux: None) -> None:
@@ -43,4 +46,5 @@ def test_partial4(linux: None) -> None:
     task._tasks.linux = None
     task._tasks.command = None
 
-    assert executor.task_command(task) is None
+    with pytest.raises(MissingCommand):
+        assert executor.task_command(task) is None

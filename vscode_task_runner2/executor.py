@@ -2,12 +2,15 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from vscode_task_runner2.models.config import CommandString, ShellConfiguration
-from vscode_task_runner2.models.enums import TaskType
+from vscode_task_runner2.exceptions import MissingCommand
+from vscode_task_runner2.models.enums import TaskTypeEnum
 from vscode_task_runner2.models.execution_level import ExecutionLevel
-from vscode_task_runner2.models.task import DependsOrder, Task
+from vscode_task_runner2.models.shell import ShellConfiguration
+from vscode_task_runner2.models.strings import CommandStringConfig, csc_value
+from vscode_task_runner2.models.task import DependsOrderEnum, Task
 from vscode_task_runner2.utils.paths import which_resolver
 from vscode_task_runner2.utils.shell import get_parent_shell
+from vscode_task_runner2.vscode import task_configuration, terminal_task_system
 
 
 def _new_task_env(task: Task) -> dict[str, str]:
@@ -61,9 +64,9 @@ def task_cwd(task: Task) -> Path:
     return cwd
 
 
-def task_command(task: Task) -> Optional[CommandString]:
+def task_command(task: Task) -> CommandStringConfig:
     """
-    Given a task, return the current working directory.
+    Given a task, return the command.
     """
     command = None
 
@@ -75,11 +78,14 @@ def task_command(task: Task) -> Optional[CommandString]:
     elif global_command := task._tasks.command_computed():
         command = global_command
 
-    # convert the various string types to a CommandString
+    # a task always needs a command
+    if command is None:
+        raise MissingCommand(f"Task {task.label} is missing a command")
+
     return command
 
 
-def task_args(task: Task) -> list[CommandString]:
+def task_args(task: Task) -> list[CommandStringConfig]:
     """
     Given a task, return the arguments to pass to the command.
     """
@@ -124,36 +130,37 @@ def task_subprocess_command(
     """
     Given a task and extra arguments, return the command to run the task.
     """
+    # deal with mutable defaults
     if extra_args is None:
         extra_args = []
 
-    if task.type_enum == TaskType.process:
-        command = task_command(task)
+    command = task_command(task)
+    args = task_args(task)
 
-        subprocess_command = [which_resolver(command)]
-        for arg in task_args(task) + extra_args:
-            # the args must be strings too
-            subprocess_command.append(arg)
+    if task.type_enum == TaskTypeEnum.process:
+        # turn into raw string
+        command_value = csc_value(command)
+
+        # resolve to a path
+        subprocess_command = [which_resolver(command_value)]
+
+        # convert the args into string as well
+        subprocess_command.extend(csc_value(arg) for arg in args + extra_args)
 
         return subprocess_command
 
-    elif task.type_enum == TaskType.shell:
+    elif task.type_enum == TaskTypeEnum.shell:
+        # shell conversion
+        command = task_configuration.shell_string(command)
+        args = [task_configuration.shell_string(arg) for arg in args]
+
+        # figure out shell config
         shell_config = task_shell(task)
 
-        if shell_config.args is None:
-            shell_config.args = []
-
         # build the shell quoting options
-        vscode_task_runner2.terminal_task_system.get_quoting_options(
-            shell_type, shell_config
-        )
-        assert shell_config.quoting is not None
+        shell_config.quoting = terminal_task_system.get_quoting_options(shell_config)
 
         # figure out how to tack on extra args
-        command = self.command
-        assert command is not None
-        args = self.args
-
         if extra_args:
             # if we have args, tack it on to that
             if args:
@@ -167,18 +174,22 @@ def task_subprocess_command(
                 else:
                     command.value += extra_text
 
-        return [
-            shell_config.executable
-        ] + vscode_task_runner2.terminal_task_system.create_shell_launch_config(
-            shell_type,
-            shell_config.args,
-            vscode_task_runner2.terminal_task_system.build_shell_command_line(
-                shell_type,
-                shell_config.quoting,
-                command,
-                args,
+        # no situation in which shell executable is not set by this point
+        shell_executable = shell_config.executable
+        assert shell_executable is not None
+
+        return [shell_executable] + terminal_task_system.create_shell_launch_config(
+            shell_config,
+            terminal_task_system.build_shell_command_line(
+                shell_type=shell_config.type_,
+                shell_quoting_options=shell_config.quoting,
+                command=command,
+                args=args,
             ),
         )
+    else:
+        # will be caught earlier
+        return []  # pragma: nocover
 
 
 def collect_levels(tasks: list[Task]) -> list[ExecutionLevel]:
@@ -213,7 +224,9 @@ def _collect_levels_recursive(task: Task) -> list[ExecutionLevel]:
             )
 
     # Add the current task to the execution levels
-    execution_levels.append(ExecutionLevel(order=DependsOrder.sequence, tasks=[task]))
+    execution_levels.append(
+        ExecutionLevel(order=DependsOrderEnum.sequence, tasks=[task])
+    )
     return execution_levels
 
 

@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 from vscode_task_runner2.constants import PLATFORM_KEY
 from vscode_task_runner2.models.shell import ShellConfiguration
 from vscode_task_runner2.models.strings import (
-    CommandString,
+    CommandStringConfig,
 )
 
 
@@ -30,7 +30,7 @@ class CommandOptions(BaseModel):
     env: Dict[str, str] = {}
     """
     The environment of the executed program or shell.
-    If omitted, the current environment is used.
+    If omitted, the parent process' environment is used.
     """
 
     @field_validator("env", mode="before")
@@ -58,7 +58,7 @@ class BaseCommandProperties(BaseModel):
 
     # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L245-L263
 
-    command: Optional[CommandString] = None
+    command: Optional[CommandStringConfig] = None
     """
     Command that the task will run. This allows a single string, list of strings, or a quoted string
     """
@@ -66,11 +66,11 @@ class BaseCommandProperties(BaseModel):
     """
     Options for this task.
     """
-    args: list[CommandString] = Field(default_factory=list)
+    args: list[CommandStringConfig] = Field(default_factory=list)
     """
     Arguments passed to the command. This allows a list of strings or a list of quoted strings
     """
-    # a default empty list makes things a lot easier
+    # https://github.com/microsoft/vscode/blob/52592e3ca8f6c18d612907245e809ddd24f76291/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L1135-L1136
 
 
 class CommandProperties(BaseModel):

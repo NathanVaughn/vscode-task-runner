@@ -5,7 +5,7 @@ from typing import List
 from vscode_task_runner2 import executor, printer
 from vscode_task_runner2.exceptions import TasksFileNotFound
 from vscode_task_runner2.models.parser import ParseResult
-from vscode_task_runner2.models.task import TaskType
+from vscode_task_runner2.models.task import TaskTypeEnum
 from vscode_task_runner2.parser import load_tasks
 
 
@@ -20,10 +20,10 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ParseResult:
         epilog="When running a single task, extra args can be appended only to that task."
         + " If a single task is requested, but has dependent tasks, only the top-level"
         + " task will be given the extra arguments."
-        + f' If the task is a "{TaskType.process.value}" type, then this will be added to "args".'
-        + f' If the task is a "{TaskType.process.value}" type with only a "command" then this will'
+        + f' If the task is a "{TaskTypeEnum.process.value}" type, then this will be added to "args".'
+        + f' If the task is a "{TaskTypeEnum.process.value}" type with only a "command" then this will'
         + " be tacked on to the end and joined by spaces."
-        + f' If the task is a "{TaskType.process.value}" type with '
+        + f' If the task is a "{TaskTypeEnum.process.value}" type with '
         + ' a "command" and "args", then this will be appended to "args".',
     )
     parser.add_argument(

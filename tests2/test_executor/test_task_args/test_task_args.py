@@ -6,7 +6,10 @@ def test_full(linux: None) -> None:
     task = task_obj(__file__, "arg-test")
 
     # os-specific
-    assert executor.task_args(task) == ["arg7", "arg8"]
+    assert executor.task_args(task) == [
+        "arg7",
+        "arg8",
+    ]
 
 
 def test_partial1(linux: None) -> None:
@@ -14,7 +17,10 @@ def test_partial1(linux: None) -> None:
     task.linux = None
 
     # task-specific
-    assert executor.task_args(task) == ["arg5", "arg6"]
+    assert executor.task_args(task) == [
+        "arg5",
+        "arg6",
+    ]
 
 
 def test_partial2(linux: None) -> None:
@@ -41,7 +47,10 @@ def test_partial4(linux: None) -> None:
     task._tasks.linux = None
 
     # check inheritance of task os-specific
-    assert executor.task_args(task) == ["arg7", "arg8"]
+    assert executor.task_args(task) == [
+        "arg7",
+        "arg8",
+    ]
 
 
 def test_partial5(linux: None) -> None:
@@ -50,7 +59,10 @@ def test_partial5(linux: None) -> None:
     task.linux = None
 
     # check task inheritance
-    assert executor.task_args(task) == ["arg5", "arg6"]
+    assert executor.task_args(task) == [
+        "arg5",
+        "arg6",
+    ]
 
 
 def test_partial6(linux: None) -> None:
@@ -77,7 +89,12 @@ def test_partial8(linux: None) -> None:
     task.command = None
 
     # when task has no command, combine args
-    assert executor.task_args(task) == ["arg3", "arg4", "arg7", "arg8"]
+    assert executor.task_args(task) == [
+        "arg3",
+        "arg4",
+        "arg7",
+        "arg8",
+    ]
 
 
 def test_partial9(linux: None) -> None:
@@ -87,4 +104,7 @@ def test_partial9(linux: None) -> None:
     task.linux = None
 
     # when task has no command, no args, use global
-    assert executor.task_args(task) == ["arg3", "arg4"]
+    assert executor.task_args(task) == [
+        "arg3",
+        "arg4",
+    ]

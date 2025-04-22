@@ -32,3 +32,15 @@ class ExecutableNotFound(Exception):
     """
     When a binary file could not be found
     """
+
+
+class MissingCommand(Exception):
+    """
+    When a task does not have a command defined but should (process)
+    """
+
+
+class UnsupportedTaskType(Exception):
+    """
+    Raised when a task type is not supported
+    """

@@ -4,10 +4,15 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
+from vscode_task_runner2.exceptions import UnsupportedTaskType
 from vscode_task_runner2.models.config import BaseCommandProperties, CommandProperties
-from vscode_task_runner2.models.enums import DependsOrder, GroupKindEnum, TaskType
+from vscode_task_runner2.models.enums import (
+    DependsOrderEnum,
+    GroupKindEnum,
+    TaskTypeEnum,
+)
 from vscode_task_runner2.models.shell import ShellConfiguration
-from vscode_task_runner2.models.strings import CommandString
+from vscode_task_runner2.models.strings import CommandStringConfig
 
 if TYPE_CHECKING:
     from vscode_task_runner2.models.tasks import Tasks
@@ -32,7 +37,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
 
     model_config = ConfigDict(extra="allow")
 
-    type_: str = Field(alias="type", default=TaskType.process.value)
+    type_: str = Field(alias="type", default=TaskTypeEnum.process.value)
     group: Optional[Union[GroupKindEnum, GroupKind]] = None
     """
     Group of the task
@@ -43,8 +48,11 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
     """
 
     @property
-    def type_enum(self) -> TaskType:
-        return TaskType(self.type_)
+    def type_enum(self) -> TaskTypeEnum:
+        try:
+            return TaskTypeEnum(self.type_)
+        except ValueError as e:
+            raise UnsupportedTaskType(f"Unsupported task type {self.type_}") from e
 
     def new_env_computed(self) -> dict[str, str]:
         """
@@ -73,7 +81,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
 
         return cwd
 
-    def command_computed(self) -> Optional[CommandString]:
+    def command_computed(self) -> Optional[CommandStringConfig]:
         """
         Computed command for this task.
         Does not take into account the global command.
@@ -86,7 +94,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
 
         return command
 
-    def args_computed(self) -> list[CommandString]:
+    def args_computed(self) -> list[CommandStringConfig]:
         """
         Computed args for this task.
         Does not take into account the global args.
@@ -127,8 +135,8 @@ class Task(TaskProperties):
     """
     List of task labels that this task depends on.
     """
-    depends_order: DependsOrder = Field(
-        alias="dependsOrder", default=DependsOrder.parallel
+    depends_order: DependsOrderEnum = Field(
+        alias="dependsOrder", default=DependsOrderEnum.parallel
     )
     """
     Order in which child tasks are executed.
@@ -181,7 +189,7 @@ class Task(TaskProperties):
 
         try:
             self.type_enum
-        except ValueError:
+        except UnsupportedTaskType:
             # unsupported task type
             return False
 

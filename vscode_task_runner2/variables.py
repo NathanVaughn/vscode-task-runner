@@ -4,7 +4,7 @@ from typing import Union
 import questionary
 
 from vscode_task_runner2.exceptions import ResponseNotProvided, UnsupportedInput
-from vscode_task_runner2.models.input import Input, InputChoice, InputType
+from vscode_task_runner2.models.input import Input, InputChoice, InputTypeEnum
 
 
 def get_input_value(input_: Input) -> str:
@@ -16,7 +16,7 @@ def get_input_value(input_: Input) -> str:
         return env_value
 
     # otherwise, obtain from user input
-    if input_.type_ == InputType.promptString:
+    if input_.type_ == InputTypeEnum.promptString:
         asker_type = questionary.text
 
         if input_.password is True:
@@ -24,7 +24,7 @@ def get_input_value(input_: Input) -> str:
 
         asker = asker_type(input_.description, default=input_.default)
 
-    elif input_.type_ == InputType.pickString:
+    elif input_.type_ == InputTypeEnum.pickString:
         # if the value should be picked from options
         choices: list[Union[str, questionary.Choice]] = []
 

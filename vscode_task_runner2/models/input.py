@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from vscode_task_runner2.models.enums import InputType
+from vscode_task_runner2.models.enums import InputTypeEnum
 
 
 class InputChoice(BaseModel):
@@ -17,7 +17,7 @@ class Input(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    type_: InputType = Field(alias="type")
+    type_: InputTypeEnum = Field(alias="type")
     """
     Type of the input
     """
@@ -47,7 +47,7 @@ class Input(BaseModel):
         """
         Ensure the list of options is at least 1
         """
-        if self.type_ == InputType.pickString and not self.options:
+        if self.type_ == InputTypeEnum.pickString and not self.options:
             raise ValueError("pickString input must have at least one option")
 
         return self
@@ -57,7 +57,7 @@ class Input(BaseModel):
         """
         Verify that the default value is in the options
         """
-        if self.type_ != InputType.pickString:
+        if self.type_ != InputTypeEnum.pickString:
             # skip if not a pickString input
             return self
 

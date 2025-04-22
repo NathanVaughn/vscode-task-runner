@@ -144,5 +144,14 @@
             "type": "npm",
             "script": "test"
         },
+        {
+            "label": "Task 5",
+            "type": "process",
+            // quoting for command
+            "command": {
+                "quoting": "escape",
+                "value": ["/bin/", "echo"]
+            },
+        },
     ],
 }
