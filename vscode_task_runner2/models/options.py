@@ -48,6 +48,10 @@ class CommandOptions(BaseModel):
         return response
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables for these command options.
+        """
+
         if self.shell:
             self.shell.resolve_variables()
 

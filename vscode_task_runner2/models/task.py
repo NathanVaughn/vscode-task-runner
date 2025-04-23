@@ -203,8 +203,16 @@ class Task(TaskProperties):
         return True
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables in this Task
+        """
         if self._vars_resolved:
+            # prevent duplicates
             return
 
+        # need to do this because of mixins
         CommandProperties.resolve_variables(self)
         BaseCommandProperties.resolve_variables(self)
+
+        # record what we did
+        self._vars_resolved = True

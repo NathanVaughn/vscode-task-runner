@@ -30,6 +30,10 @@ class BaseCommandProperties(BaseModel):
     # https://github.com/microsoft/vscode/blob/52592e3ca8f6c18d612907245e809ddd24f76291/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L1135-L1136
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables for these base command properties.
+        """
+
         # update command
         if isinstance(self.command, QuotedStringConfig):
             self.command.resolve_variables()
@@ -76,5 +80,9 @@ class CommandProperties(BaseModel):
             return self.osx
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables for these command properties.
+        """
         if self.os:
+            # don't need to do all OS's
             self.os.resolve_variables()

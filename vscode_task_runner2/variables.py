@@ -160,14 +160,18 @@ def resolve_variables_data(data: None) -> None: ...
 def resolve_variables_data(
     data: Union[str, list[str], dict[str, str], None],
 ) -> Union[str, list[str], dict[str, str], None]:
+    """
+    Resolve variables in given data (str, list of strings, dict)
+    """
     if data is None:
         return None
 
     if isinstance(data, str):
-        # main data replacements
+        # checks for unsupported things which could be catastrophic
         check_unsupported_vars(data)
         check_unsupported_prefixes(data)
 
+        # main data replacements
         data = replace_supported_variables(data)
         data = replace_env_variables(data)
         return replace_input_variables(data)

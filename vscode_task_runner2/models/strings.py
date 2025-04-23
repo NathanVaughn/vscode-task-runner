@@ -18,6 +18,9 @@ class QuotedStringConfig(BaseModel):
     quoting: ShellQuotingEnum
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables for this quoted string.
+        """
         self.value = resolve_variables_data(self.value)
 
 

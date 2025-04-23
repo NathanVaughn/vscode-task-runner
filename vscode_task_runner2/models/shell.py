@@ -14,6 +14,10 @@ class ShellQuotingOptionsEscape(BaseModel):
     characters_to_escape: list[str] = Field(alias="charsToEscape")
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables for this shell quoting options escape.
+        """
+
         self.escape_character = resolve_variables_data(self.escape_character)
         self.characters_to_escape = resolve_variables_data(self.characters_to_escape)
 
@@ -39,6 +43,10 @@ class ShellQuotingOptions(BaseModel):
     """
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables for this shell quoting options.
+        """
+
         self.strong = resolve_variables_data(self.strong)
 
         if isinstance(self.escape, ShellQuotingOptionsEscape):
@@ -100,6 +108,9 @@ class ShellConfiguration(BaseModel):
         return ShellTypeEnum.Unknown
 
     def resolve_variables(self) -> None:
+        """
+        Resolve variables for this shell config.
+        """
         self.executable = resolve_variables_data(self.executable)
         self.args = resolve_variables_data(self.args)
 
