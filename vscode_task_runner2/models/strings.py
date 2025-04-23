@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from vscode_task_runner2.models.enums import ShellQuotingEnum
 from vscode_task_runner2.utils.strings import joiner
-from vscode_task_runner2.variables import resolve_variables_data
+from vscode_task_runner2.variables.resolve import resolve_variables_data
 
 
 class QuotedStringConfig(BaseModel):

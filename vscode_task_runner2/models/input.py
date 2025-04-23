@@ -29,7 +29,7 @@ class Input(BaseModel):
     """
     Description of the input. Not allowed for command input type.
     """
-    default: str = ""
+    default: Optional[str] = None
     """
     Default value of the input.
     """
@@ -61,7 +61,7 @@ class Input(BaseModel):
             # skip if not a pickString input
             return self
 
-        if not self.default:
+        if self.default is None:
             # if no default value is set, skip the check
             return self
 

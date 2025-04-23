@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from vscode_task_runner2.constants import PLATFORM_KEY
 from vscode_task_runner2.models.options import CommandOptions
 from vscode_task_runner2.models.strings import CommandStringConfig, QuotedStringConfig
-from vscode_task_runner2.variables import resolve_variables_data
+from vscode_task_runner2.variables.resolve import resolve_variables_data
 
 
 class BaseCommandProperties(BaseModel):

@@ -4,12 +4,12 @@ from typing import List
 
 from vscode_task_runner2 import executor, printer
 from vscode_task_runner2.exceptions import TasksFileNotFound
-from vscode_task_runner2.models.parser import ParseResult
+from vscode_task_runner2.models.arg_parser import ArgParseResult
 from vscode_task_runner2.models.task import TaskTypeEnum
 from vscode_task_runner2.parser import load_tasks
 
 
-def parse_args(sys_argv: List[str], task_choices: List[str]) -> ParseResult:
+def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     """
     Parse arguments from the command line. Split out as seperate function for testing.
     Returns an object with a list of tasks selected, and extra arguments.
@@ -53,7 +53,7 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ParseResult:
     if len(args.task_labels) > 1 and extra_args:
         parser.error("Extra arguments can only be used with a single task.")
 
-    return ParseResult(task_labels=args.task_labels, extra_args=extra_args)
+    return ArgParseResult(task_labels=args.task_labels, extra_args=extra_args)
 
 
 def run() -> None:

@@ -11,7 +11,7 @@ from vscode_task_runner2.exceptions import (
     UnsupportedVariable,
 )
 from vscode_task_runner2.models.input import InputChoice, InputTypeEnum
-from vscode_task_runner2.parser import INPUTS, RUNTIME_VARIABLES
+from vscode_task_runner2.variables.runtime import INPUTS, RUNTIME_VARIABLES
 
 # https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables
 SUPPORTED_PREDEFINED_VARIABLES = {
@@ -58,6 +58,10 @@ def get_input_value(input_id: str) -> str:
 
         if input_.password is True:
             asker_type = questionary.password
+
+        # for prompt string, default cannot be none, but an empty string
+        if input_.default is None:
+            input_.default = ""
 
         asker = asker_type(input_.description, default=input_.default)
 
@@ -132,7 +136,7 @@ def replace_input_variables(data: str) -> str:
     pattern = "\\${input:(.+?)}"
     matches = re.findall(pattern, data)
     for match in matches:
-        data = data.replace(f"${{input:{match}}}", os.environ[match])
+        data = data.replace(f"${{input:{match}}}", get_input_value(input_id=match))
 
     return data
 
@@ -144,7 +148,7 @@ def replace_env_variables(data: str) -> str:
     pattern = "\\${env:(.+?)}"
     matches = re.findall(pattern, data)
     for match in matches:
-        data = data.replace(f"${{env:{match}}}", get_input_value(input_id=match))
+        data = data.replace(f"${{env:{match}}}", os.environ[match])
 
     return data
 
