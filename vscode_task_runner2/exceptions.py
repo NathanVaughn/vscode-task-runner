@@ -4,6 +4,18 @@ class UnsupportedInput(Exception):
     """
 
 
+class UnsupportedVariable(Exception):
+    """
+    Exception raised when a referenced variable is unsupported
+    """
+
+
+class UnsupportedTaskType(Exception):
+    """
+    Raised when a task type is not supported
+    """
+
+
 class ResponseNotProvided(Exception):
     """
     When an input is cancelled by the user.
@@ -37,12 +49,6 @@ class ExecutableNotFound(Exception):
 class MissingCommand(Exception):
     """
     When a task does not have a command defined but should (process)
-    """
-
-
-class UnsupportedTaskType(Exception):
-    """
-    Raised when a task type is not supported
     """
 
 

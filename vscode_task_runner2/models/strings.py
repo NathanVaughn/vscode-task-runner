@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from vscode_task_runner2.models.enums import ShellQuotingEnum
 from vscode_task_runner2.utils.strings import joiner
+from vscode_task_runner2.variables import resolve_variables_data
 
 
 class QuotedStringConfig(BaseModel):
@@ -15,6 +16,9 @@ class QuotedStringConfig(BaseModel):
 
     value: Union[str, list[str]]
     quoting: ShellQuotingEnum
+
+    def resolve_variables(self) -> None:
+        self.value = resolve_variables_data(self.value)
 
 
 CommandStringConfig = Union[QuotedStringConfig, list[str], str]

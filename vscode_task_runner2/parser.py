@@ -1,4 +1,5 @@
 import os
+from typing import TYPE_CHECKING
 
 import pydantic
 import pyjson5
@@ -6,6 +7,12 @@ import pyjson5
 from vscode_task_runner2.constants import TASKS_FILE
 from vscode_task_runner2.exceptions import TasksFileInvalid, TasksFileNotFound
 from vscode_task_runner2.models.tasks import Tasks
+
+if TYPE_CHECKING:
+    from vscode_task_runner2.models.input import Input
+
+RUNTIME_VARIABLES: dict[str, str] = {}
+INPUTS: dict[str, Input] = {}
 
 
 def load_vscode_json(path: str) -> dict:
@@ -32,5 +39,12 @@ def load_tasks(path: str = os.getcwd()) -> Tasks:
         tasks = Tasks(**tasks_json)
     except pydantic.ValidationError as e:
         raise TasksFileInvalid(f"Tasks file not valid: {e}")
+
+    # update global variables
+    if tasks.default_build_task:
+        RUNTIME_VARIABLES["${defaultBuildTask}"] = tasks.default_build_task.label
+
+    for input_ in tasks.inputs:
+        INPUTS[input_.id] = input_
 
     return tasks

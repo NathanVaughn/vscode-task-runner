@@ -256,6 +256,9 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
     # task count
     task_count = sum(len(level.tasks) for level in levels)
 
+    # resolve all variables in all tasks
+    [task.resolve_variables() for level in levels for task in level.tasks]
+
     # iterate through all tasks
     index = 0
     for level in levels:

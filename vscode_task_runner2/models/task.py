@@ -5,11 +5,14 @@ from typing import TYPE_CHECKING, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
 from vscode_task_runner2.exceptions import UnsupportedTaskType
-from vscode_task_runner2.models.config import BaseCommandProperties, CommandProperties
 from vscode_task_runner2.models.enums import (
     DependsOrderEnum,
     GroupKindEnum,
     TaskTypeEnum,
+)
+from vscode_task_runner2.models.properties import (
+    BaseCommandProperties,
+    CommandProperties,
 )
 from vscode_task_runner2.models.shell import ShellConfiguration
 from vscode_task_runner2.models.strings import CommandStringConfig
@@ -154,6 +157,10 @@ class Task(TaskProperties):
     This will be set by the parent Tasks object after initialization.
     Must have an underscore to be a private attribute.
     """
+    _vars_resolved: bool = PrivateAttr(default=False)
+    """
+    Keep track if this item has already had variables resolved.
+    """
 
     @field_validator("depends_on_labels", mode="before")
     def convert_depends_on_labels(cls, value: Union[str, list[str]]) -> list[str]:
@@ -194,3 +201,10 @@ class Task(TaskProperties):
             return False
 
         return True
+
+    def resolve_variables(self) -> None:
+        if self._vars_resolved:
+            return
+
+        CommandProperties.resolve_variables(self)
+        BaseCommandProperties.resolve_variables(self)

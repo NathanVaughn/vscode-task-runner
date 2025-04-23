@@ -1,54 +1,11 @@
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 from vscode_task_runner2.constants import PLATFORM_KEY
-from vscode_task_runner2.models.shell import ShellConfiguration
-from vscode_task_runner2.models.strings import (
-    CommandStringConfig,
-)
-
-
-class CommandOptions(BaseModel):
-    """
-    Regular options
-    """
-
-    # https://github.com/microsoft/vscode/blob/eef30e7165e19b33daa1e15e92fa34ff4a5df0d3/src/vs/workbench/contrib/tasks/common/tasks.ts#L102-L120
-
-    shell: Optional[ShellConfiguration] = None
-    """
-    The shell to use if the task is a shell command.
-    """
-    cwd: Optional[str] = None
-    """
-    The current working directory of the executed program or shell.
-    If omitted, the current working directory is used.
-    Uses a string instead of DirectoryPath to allow for paths that may not exist
-    on certain platforms.
-    """
-    env: Dict[str, str] = {}
-    """
-    The environment of the executed program or shell.
-    If omitted, the parent process' environment is used.
-    """
-
-    @field_validator("env", mode="before")
-    def stringify_env(cls, value: Dict[str, str]) -> Dict[str, str]:
-        """
-        Convert all values in the env dictionary to strings.
-        Vscode tends to be pretty lax about only allowing strings,
-        so replicate that behavior. `null` is not allowed.
-        """
-        response = {}
-        for k, v in value.items():
-            if v is None:
-                raise ValueError(f"Environment variable {k} cannot be null")
-
-            # convert booleans to strings in the same way as JS
-            response[k] = str(v).lower() if isinstance(v, bool) else str(v)
-
-        return response
+from vscode_task_runner2.models.options import CommandOptions
+from vscode_task_runner2.models.strings import CommandStringConfig, QuotedStringConfig
+from vscode_task_runner2.variables import resolve_variables_data
 
 
 class BaseCommandProperties(BaseModel):
@@ -71,6 +28,28 @@ class BaseCommandProperties(BaseModel):
     Arguments passed to the command. This allows a list of strings or a list of quoted strings
     """
     # https://github.com/microsoft/vscode/blob/52592e3ca8f6c18d612907245e809ddd24f76291/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L1135-L1136
+
+    def resolve_variables(self) -> None:
+        # update command
+        if isinstance(self.command, QuotedStringConfig):
+            self.command.resolve_variables()
+        else:
+            self.command = resolve_variables_data(self.command)
+
+        # update options
+        if self.options:
+            self.options.resolve_variables()
+
+        # update args
+        new_args = []
+        for arg in self.args:
+            if isinstance(arg, QuotedStringConfig):
+                arg.resolve_variables()
+            else:
+                arg = resolve_variables_data(arg)
+            new_args.append(arg)
+
+        self.args = new_args
 
 
 class CommandProperties(BaseModel):
@@ -95,3 +74,7 @@ class CommandProperties(BaseModel):
             return self.linux
         elif PLATFORM_KEY == "osx":
             return self.osx
+
+    def resolve_variables(self) -> None:
+        if self.os:
+            self.os.resolve_variables()

@@ -273,6 +273,8 @@ project's virtual environment.
 - Does not load any VS Code settings
 - Extra arguments option
 - `VTR_INPUT_${id}` environment variables
+- If more than one default build task is defined, the first one will be used for
+  `${defaultBuildTask}`
 
 ## Similar Projects
 

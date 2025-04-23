@@ -5,12 +5,17 @@ from pydantic import BaseModel, Field
 
 from vscode_task_runner2.models.enums import ShellTypeEnum
 from vscode_task_runner2.utils.paths import which_resolver
+from vscode_task_runner2.variables import resolve_variables_data
 
 
 class ShellQuotingOptionsEscape(BaseModel):
     # https://github.com/microsoft/vscode/blob/e0c332665ce059efebb4477a90dd62e3aadcd688/src/vs/workbench/contrib/tasks/common/taskConfiguration.ts#L50-L53
     escape_character: str = Field(alias="escapeChar")
     characters_to_escape: list[str] = Field(alias="charsToEscape")
+
+    def resolve_variables(self) -> None:
+        self.escape_character = resolve_variables_data(self.escape_character)
+        self.characters_to_escape = resolve_variables_data(self.characters_to_escape)
 
 
 class ShellQuotingOptions(BaseModel):
@@ -32,6 +37,16 @@ class ShellQuotingOptions(BaseModel):
     """
     The character used for weak quoting.
     """
+
+    def resolve_variables(self) -> None:
+        self.strong = resolve_variables_data(self.strong)
+
+        if isinstance(self.escape, ShellQuotingOptionsEscape):
+            self.escape.resolve_variables()
+        else:
+            self.escape = resolve_variables_data(self.escape)
+
+        self.weak = resolve_variables_data(self.weak)
 
 
 class ShellConfiguration(BaseModel):
@@ -83,3 +98,10 @@ class ShellConfiguration(BaseModel):
             return ShellTypeEnum.SH
 
         return ShellTypeEnum.Unknown
+
+    def resolve_variables(self) -> None:
+        self.executable = resolve_variables_data(self.executable)
+        self.args = resolve_variables_data(self.args)
+
+        if self.quoting:
+            self.quoting.resolve_variables()
