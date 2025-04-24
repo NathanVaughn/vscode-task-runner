@@ -42,4 +42,4 @@ def shell_string(value: Optional[CommandStringConfig]) -> Optional[CommandString
         if result:
             return QuotedString(value=result, quoting=value.quoting)
 
-        return None
+        return None  # pragma: nocover

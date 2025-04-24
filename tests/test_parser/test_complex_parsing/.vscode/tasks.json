@@ -93,6 +93,10 @@
                 "hello",
                 "world"
             ],
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            },
             "linux": {},
             "osx": {},
             "windows": {},
@@ -117,6 +121,7 @@
                 "/bin/echo",
                 "hello"
             ],
+            "group": "build",
             // complex quoting
             "args": [
                 {
@@ -150,7 +155,10 @@
             // quoting for command
             "command": {
                 "quoting": "escape",
-                "value": ["/bin/", "echo"]
+                "value": [
+                    "/bin/",
+                    "echo"
+                ]
             },
         },
     ],

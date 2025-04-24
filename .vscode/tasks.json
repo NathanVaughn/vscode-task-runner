@@ -29,6 +29,11 @@
             "dependsOn": ["install-pkgs"]
         },
         {
+            "label": "tests-report",
+            "command": "uv run python -m http.server --directory htmlcov/",
+            "type": "shell",
+        },
+        {
             "label": "build",
             "command": "uv build",
             "type": "shell",

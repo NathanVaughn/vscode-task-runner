@@ -12,33 +12,10 @@ from vscode_task_runner.exceptions import (
 )
 from vscode_task_runner.models.input import InputChoice, InputTypeEnum
 from vscode_task_runner.variables.runtime import INPUTS, RUNTIME_VARIABLES
-
-# https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables
-SUPPORTED_PREDEFINED_VARIABLES = {
-    "${userHome}": os.path.expanduser("~"),
-    "${workspaceFolder}": os.getcwd(),
-    "${workspaceRoot}": os.getcwd(),
-    "${workspaceFolderBasename}": os.path.basename(os.getcwd()),
-    "${pathSeparator}": os.path.sep,
-    "${/}": os.path.sep,
-    "${cwd}": os.getcwd(),
-}
-
-UNSUPPORTED_PREDEFINED_VARIABLES = {
-    "${file}",
-    "${fileWorkspaceFolder}",
-    "${relativeFile}",
-    "${relativeFileDirname}",
-    "${fileBasename}",
-    "${fileBasenameNoExtension}",
-    "${fileDirname}",
-    "${fileDirnameBasename}",
-    "${fileExtname}",
-    "${lineNumber}",
-    "${selectedText}",
-    "${execPath}",
-    "${extensionInstallFolder}",
-}
+from vscode_task_runner.variables.static import (
+    SUPPORTED_PREDEFINED_VARIABLES,
+    UNSUPPORTED_PREDEFINED_VARIABLES,
+)
 
 
 @cache

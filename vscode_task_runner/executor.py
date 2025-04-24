@@ -263,24 +263,36 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
     index = 0
     for level in levels:
         for task in level.tasks:
-            execute_task(task, index=index, total=task_count)
             index += 1
 
+            # only add extra args to last task
+            # since this function won't get extra args when more than one
+            # top level tasks are run
+            execute_extra_args = []
+            if index == task_count:
+                execute_extra_args = extra_args
 
-def execute_task(task: Task, index: int, total: int) -> None:
-    i = index + 1
+            execute_task(
+                task, index=index, total=task_count, extra_args=execute_extra_args
+            )
 
+
+def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> None:
+    """
+    Actually exexcute the task. Takes the task object, current index, total number,
+    and any extra args.
+    """
     if is_virtual_task(task):
         printer.info(
-            f"[{i}/{total}] Task {printer.yellow(task.label)} has no direct command to execute"
+            f"[{index}/{total}] Task {printer.yellow(task.label)} has no direct command to execute"
         )
         return
 
-    cmd = task_subprocess_command(task)
+    cmd = task_subprocess_command(task, extra_args=extra_args)
 
     with printer.group(f"Task {task.label}"):
         printer.info(
-            f"[{i}/{total}] Executing task {printer.yellow(task.label)}: {printer.blue(joiner(cmd))}"
+            f"[{index}/{total}] Executing task {printer.yellow(task.label)}: {printer.blue(joiner(cmd))}"
         )
         proc = subprocess.run(
             cmd,

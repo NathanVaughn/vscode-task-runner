@@ -17,7 +17,7 @@ else:
     FALLBACK_SHELL = "/bin/sh"
 
 
-def get_parent_shell() -> ShellConfiguration:  # pragma: no cover
+def get_parent_shell() -> ShellConfiguration:
     """
     Returns the full path to the parent shell, and the arguments needed
     to launch a command.

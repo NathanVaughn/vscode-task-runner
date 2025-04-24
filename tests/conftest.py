@@ -1,4 +1,6 @@
 import os
+import pathlib
+from typing import Any, Generator
 
 import pytest
 from pytest_mock import MockerFixture
@@ -27,6 +29,35 @@ def osx(mocker: MockerFixture) -> None:
 @pytest.fixture
 def shutil_which_patch(mocker: MockerFixture) -> None:
     mocker.patch("shutil.which", new=lambda x: x)
+
+
+@pytest.fixture
+def environment_variable(request: Any) -> Generator:
+    variable = request.param[0]
+    value = request.param[1]
+
+    # grab the current environment variable
+    original_value = os.environ.get(variable)
+
+    # set it to the desired value
+    os.environ[variable] = value
+
+    # run test
+    yield
+
+    # reset
+    if original_value is not None:
+        os.environ[variable] = original_value
+    else:
+        del os.environ[variable]
+
+
+@pytest.fixture
+def pathlib_is_dir_true(monkeypatch: pytest.MonkeyPatch) -> None:
+    def always_true(*args: Any, **kwargs: Any) -> bool:
+        return True
+
+    monkeypatch.setattr(pathlib.Path, "is_dir", always_true)
 
 
 def tasks_obj(path: str) -> Tasks:
