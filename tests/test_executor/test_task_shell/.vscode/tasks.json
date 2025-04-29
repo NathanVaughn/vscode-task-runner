@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "shell": {
+            "executable": "cmd"
+        }
+    },
+    "linux": {
+        "options": {
+            "shell": {
+                "executable": "pwsh"
+            }
+        }
+    },
+    "tasks": [
+        {
+            "label": "shell-test",
+            "command": "command1",
+            "options": {
+                "shell": {
+                    "executable": "python"
+                }
+            },
+            "linux": {
+                "options": {
+                    "shell": {
+                        "executable": "bash"
+                    }
+                }
+            }
+        },
+    ]
+}

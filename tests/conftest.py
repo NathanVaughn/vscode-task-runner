@@ -32,6 +32,11 @@ def shutil_which_patch(mocker: MockerFixture) -> None:
 
 
 @pytest.fixture
+def subprocess_run_patch(mocker: MockerFixture) -> None:
+    mocker.patch("subprocess.run", new=lambda x: x)
+
+
+@pytest.fixture
 def environment_variable(request: Any) -> Generator:
     variable = request.param[0]
     value = request.param[1]

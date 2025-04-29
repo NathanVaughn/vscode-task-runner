@@ -18,7 +18,7 @@ from vscode_task_runner.models.shell import ShellConfiguration
 from vscode_task_runner.models.strings import CommandStringConfig
 
 if TYPE_CHECKING:
-    from vscode_task_runner.models.tasks import Tasks
+    from vscode_task_runner.models.tasks import Tasks  # pragma: no cover
 
 
 class GroupKind(BaseModel):

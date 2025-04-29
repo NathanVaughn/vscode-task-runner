@@ -27,10 +27,12 @@ from vscode_task_runner.vscode import terminal_task_system
             DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
         ),
         (ShellConfiguration(executable="/bin/bash"), DEFAULT_OS_QUOTING["linux"]),
+        (ShellConfiguration(executable="notreablah"), DEFAULT_OS_QUOTING["linux"]),
     ],
 )
 def test_get_quoting_options(
     linux: None,
+    shutil_which_patch: None,
     shell_config: ShellConfiguration,
     shell_quoting: ShellConfiguration,
 ) -> None:
