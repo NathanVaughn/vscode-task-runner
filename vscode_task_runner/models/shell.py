@@ -1,7 +1,7 @@
 import os
 from typing import Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from vscode_task_runner.models.enums import ShellTypeEnum
 from vscode_task_runner.utils.paths import which_resolver
@@ -78,34 +78,47 @@ class ShellConfiguration(BaseModel):
     Which kind of quotes the shell supports.
     """
 
+    _type: Optional[ShellTypeEnum] = PrivateAttr(default=None)
+    """
+    Private attribute to cache the shell type.
+    """
+
     @property
     def type_(self) -> ShellTypeEnum:
         """
         Try to identify what type of shell it is based on the executable.
         """
+        if self._type is not None:
+            return self._type
+
         assert self.executable is not None
         shell_executable = which_resolver(self.executable)
 
         # https://stackoverflow.com/a/41659825
         shell_basename = os.path.basename(shell_executable.replace("\\", os.path.sep))
-        shell_basename.removesuffix(".exe")
+        shell_basename = shell_basename.removesuffix(".exe")
 
         # don't check for .exe because it could be running powershell
         # core on Linux
         if shell_basename in ["pwsh", "powershell"]:
-            return ShellTypeEnum.PowerShell
+            self._type = ShellTypeEnum.PowerShell
 
         elif shell_basename == "cmd":
-            return ShellTypeEnum.CMD
+            self._type = ShellTypeEnum.CMD
 
         elif shell_basename == "wsl":
-            return ShellTypeEnum.WSL
+            self._type = ShellTypeEnum.WSL
 
         # bash.exe is a thing on Windows too
         elif shell_basename.endswith("sh"):
-            return ShellTypeEnum.SH
+            # this should get zsh, fish, etc
+            self._type = ShellTypeEnum.SH
 
-        return ShellTypeEnum.Unknown
+        # anything else
+        else:
+            self._type = ShellTypeEnum.Unknown
+
+        return self._type
 
     def resolve_variables(self) -> None:
         """

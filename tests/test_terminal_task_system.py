@@ -13,39 +13,28 @@ from vscode_task_runner.vscode import terminal_task_system
 
 
 @pytest.mark.parametrize(
-    "shell_config_input, shell_config_output",
+    "shell_config, shell_quoting",
     [
         (
             ShellConfiguration(
                 executable="/bin/bash",
                 quoting=ShellQuotingOptions(strong="abc", weak="def"),
             ),
-            ShellConfiguration(
-                executable="/bin/bash",
-                quoting=ShellQuotingOptions(strong="abc", weak="def"),
-            ),
+            ShellQuotingOptions(strong="abc", weak="def"),
         ),
         (
             ShellConfiguration(executable="/bin/bash"),
-            ShellConfiguration(
-                executable="/bin/bash", quoting=DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH]
-            ),
+            DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
         ),
-        (
-            ShellConfiguration(executable="/bin/bash"),
-            ShellConfiguration(
-                executable="/bin/bash", quoting=DEFAULT_OS_QUOTING["linux"]
-            ),
-        ),
+        (ShellConfiguration(executable="/bin/bash"), DEFAULT_OS_QUOTING["linux"]),
     ],
 )
 def test_get_quoting_options(
     linux: None,
-    shell_config_input: ShellConfiguration,
-    shell_config_output: ShellConfiguration,
+    shell_config: ShellConfiguration,
+    shell_quoting: ShellConfiguration,
 ) -> None:
-    terminal_task_system.get_quoting_options(shell_config_input)
-    assert shell_config_input == shell_config_output
+    assert terminal_task_system.get_quoting_options(shell_config) == shell_quoting
 
 
 @pytest.mark.parametrize(
@@ -116,6 +105,7 @@ def test__add_all_argument(
 )
 def test_create_shell_launch_config_windows(
     windows: None,
+    shutil_which_patch: None,
     shell_config: ShellConfiguration,
     command_line: str,
     expected: List[str],
@@ -143,6 +133,7 @@ def test_create_shell_launch_config_windows(
 )
 def test_create_shell_launch_config_linux(
     linux: None,
+    shutil_which_patch: None,
     shell_config: ShellConfiguration,
     command_line: str,
     expected: List[str],
