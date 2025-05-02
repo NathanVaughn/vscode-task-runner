@@ -137,10 +137,7 @@ def build_shell_command_line(
             elif ch == shell_quoting_options.escape:
                 # Skip the next character
                 skip = True
-            elif ch in [
-                shell_quoting_options.strong,
-                shell_quoting_options.weak,
-            ]:
+            elif ch in (shell_quoting_options.strong, shell_quoting_options.weak):
                 quote = ch
             elif ch == " ":
                 return True

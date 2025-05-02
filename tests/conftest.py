@@ -6,24 +6,40 @@ import pytest
 from pytest_mock import MockerFixture
 
 import vscode_task_runner.constants
+import vscode_task_runner.utils.shell
+import vscode_task_runner.vscode.terminal_task_system
 from vscode_task_runner.models.task import Task
 from vscode_task_runner.models.tasks import Tasks
 from vscode_task_runner.parser import load_tasks
 
+PLATFORM_SOURCES = (
+    vscode_task_runner.constants,
+    vscode_task_runner.vscode.terminal_task_system,
+    vscode_task_runner.utils.shell,
+)
+"""
+Sources where the platform key is used. Need to patch each one.
+"""
+
+
+def _patch_platform(mocker: MockerFixture, platform: str) -> None:
+    for source in PLATFORM_SOURCES:
+        mocker.patch.object(source, "PLATFORM_KEY", platform)
+
 
 @pytest.fixture
 def windows(mocker: MockerFixture) -> None:
-    mocker.patch.object(vscode_task_runner.constants, "PLATFORM_KEY", "windows")
+    _patch_platform(mocker, "windows")
 
 
 @pytest.fixture
 def linux(mocker: MockerFixture) -> None:
-    mocker.patch.object(vscode_task_runner.constants, "PLATFORM_KEY", "linux")
+    _patch_platform(mocker, "linux")
 
 
 @pytest.fixture
 def osx(mocker: MockerFixture) -> None:
-    mocker.patch.object(vscode_task_runner.constants, "PLATFORM_KEY", "osx")
+    _patch_platform(mocker, "osx")
 
 
 @pytest.fixture

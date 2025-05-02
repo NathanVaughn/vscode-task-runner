@@ -249,3 +249,49 @@ def test_build_shell_command_line_windows(
         )
         == expected
     )
+
+
+@pytest.mark.parametrize(
+    "shell_type, shell_quoting_options, task_command, args, expected",
+    [
+        (
+            ShellTypeEnum.PowerShell,
+            DEFAULT_SHELL_QUOTING[ShellTypeEnum.PowerShell],
+            "command one",
+            ["arg"],
+            "'command one' arg",
+        ),
+        (
+            ShellTypeEnum.SH,
+            DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
+            "command1",
+            ["\\'hello world\\'"],
+            "command1 \\'hello world\\'",
+        ),
+        (
+            ShellTypeEnum.SH,
+            ShellQuotingOptions(
+                escape="\\",  # test with a single string escape
+                strong="'",
+                weak='"',
+            ),
+            "command1",
+            ["\\'hello world\\'"],
+            "command1 '\\'hello world\\''",
+        ),
+    ],
+)
+def test_build_shell_command_line_linux(
+    linux: None,
+    shell_type: ShellTypeEnum,
+    shell_quoting_options: ShellQuotingOptions,
+    task_command: CommandString,
+    args: List[CommandString],
+    expected: str,
+) -> None:
+    assert (
+        terminal_task_system.build_shell_command_line(
+            shell_type, shell_quoting_options, task_command, args
+        )
+        == expected
+    )

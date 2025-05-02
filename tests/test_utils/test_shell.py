@@ -3,6 +3,7 @@ import shellingham
 from pytest_mock import MockerFixture
 
 from vscode_task_runner.models.shell import ShellConfiguration
+from vscode_task_runner.utils import shell
 
 
 @pytest.fixture
@@ -40,9 +41,6 @@ def test_get_parent_shell_windows_comspec(
     """
     Test that the COMSPEC environment variable is used
     """
-    # needs to be imported here so patches are applied
-    from vscode_task_runner.utils import shell
-
     assert shell.get_parent_shell() == ShellConfiguration(executable="shell.exe")
 
 
@@ -60,7 +58,4 @@ def test_get_parent_shell_linux_shell(
     """
     Test that the SHELL environment variable is used
     """
-    # needs to be imported here so patches are applied
-    from vscode_task_runner.utils import shell
-
     assert shell.get_parent_shell() == ShellConfiguration(executable="/bin/shell")
