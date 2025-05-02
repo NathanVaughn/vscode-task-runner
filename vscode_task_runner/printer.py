@@ -4,18 +4,18 @@ from typing import Generator
 
 import colorama
 
-IS_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
-IS_AZURE_PIPELINES = os.getenv("TF_BUILD") == "true"
+IS_GITHUB_ACTIONS = bool(os.getenv("GITHUB_ACTIONS"))
+IS_AZURE_PIPELINES = bool(os.getenv("TF_BUILD"))
 
 
-def _print_flush(msg: str) -> None:
+def _print_flush(msg: str) -> None:  # pragma: no cover
     """
     Prints a message, but flushes the output for CI/CD.
     """
     print(msg, flush=True)
 
 
-def _color_string(msg: str, color: str) -> str:
+def _color_string(msg: str, color: str) -> str:  # pragma: no cover
     """
     Returns a colored string. Respects existing colors.
     """
@@ -23,14 +23,14 @@ def _color_string(msg: str, color: str) -> str:
     return color + msg + colorama.Style.RESET_ALL
 
 
-def info(msg: str) -> None:
+def info(msg: str) -> None:  # pragma: no cover
     """
     Prints a standard message.
     """
     _print_flush(msg)
 
 
-def error(msg: str) -> None:
+def error(msg: str) -> None:  # pragma: no cover
     """
     Prints an error to the console.
     """
@@ -42,28 +42,28 @@ def error(msg: str) -> None:
         _print_flush(f"{red(msg)}")
 
 
-def blue(msg: str) -> str:
+def blue(msg: str) -> str:  # pragma: no cover
     """
     Returns a blue-colored string. Respects existing colors.
     """
     return _color_string(msg, colorama.Fore.BLUE)
 
 
-def yellow(msg: str) -> str:
+def yellow(msg: str) -> str:  # pragma: no cover
     """
     Returns a yellow-colored string. Respects existing colors.
     """
     return _color_string(msg, colorama.Fore.YELLOW)
 
 
-def red(msg: str) -> str:
+def red(msg: str) -> str:  # pragma: no cover
     """
     Returns a red-colored string. Respects existing colors.
     """
     return _color_string(msg, colorama.Fore.RED)
 
 
-def start_group(name: str) -> None:
+def start_group(name: str) -> None:  # pragma: no cover
     """
     Creates a new group in the GitHub Actions output.
     """
@@ -73,7 +73,7 @@ def start_group(name: str) -> None:
         _print_flush(f"##[group]{name}")
 
 
-def end_group() -> None:
+def end_group() -> None:  # pragma: no cover
     """
     Ends a group in the GitHub Actions output.
     """
@@ -84,7 +84,7 @@ def end_group() -> None:
 
 
 @contextmanager
-def group(name: str) -> Generator[None, None, None]:
+def group(name: str) -> Generator[None, None, None]:  # pragma: no cover
     """
     Context manager for creating a group in the GitHub Actions output.
     Does nothing outside GitHub Actions.
