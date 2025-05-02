@@ -10,11 +10,11 @@ from vscode_task_runner.utils.paths import which_resolver
 
 # shell of last resort
 if PLATFORM_KEY == "windows":
-    FALLBACK_SHELL = os.path.join(
+    FALLBACK_SHELL = os.path.join(  # pragma: no cover
         os.environ.get("SystemRoot", "C:\\Windows"), "System32", "cmd.exe"
     )
 else:
-    FALLBACK_SHELL = "/bin/sh"
+    FALLBACK_SHELL = "/bin/sh"  # pragma: no cover
 
 
 def get_parent_shell() -> ShellConfiguration:
