@@ -49,7 +49,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
     """
     Group of the task
     """
-    is_background: bool = Field(alias="isBackground", default=False)
+    is_background: Optional[bool] = Field(alias="isBackground", default=None)
     """
     If the task is a background task
     """
@@ -184,8 +184,13 @@ class Task(TaskProperties):
         """
         return self._depends_on
 
-    @property
+    # =======
+    # Computed items
+
     def is_default_build_task(self) -> bool:
+        """
+        Check if this task is the default build task.
+        """
         group = self.group_use()
         return (
             isinstance(group, GroupKind)
@@ -193,13 +198,12 @@ class Task(TaskProperties):
             and group.is_default is True
         )
 
-    @property
     def is_supported(self) -> bool:
         """
-        Check if the task is supported by VTR.
+        Check if the task is supported.
         """
         if self.is_background_use():
-            # bakground tasks are not supported
+            # background tasks are not supported
             return False
 
         try:
@@ -210,20 +214,17 @@ class Task(TaskProperties):
 
         return True
 
-    # =======
-    # Computed items
-
     def is_background_use(self) -> bool:
         # sourcery skip: assign-if-exp, boolean-if-exp-identity, reintroduce-else
         """
         Return if this task is a background task.
         """
-        # if this task explicitly sets it, then return True
-        if self.is_background:
-            return True
+        # if this task explicitly sets it, then return that value
+        if self.is_background is not None:
+            return self.is_background
 
-        # if this task uses the global command (by not having one), and the global command is
-        # set to background, then return True
+        # if this task uses the global command (by not having one),
+        # and the global command is set to background, then return True
         if self.command_os() is None and self._tasks.is_background:
             return True
 

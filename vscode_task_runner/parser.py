@@ -35,8 +35,8 @@ def load_tasks(path: str = os.getcwd()) -> Tasks:
         raise TasksFileInvalid(f"Tasks file not valid: {e}")
 
     # update global variables
-    if tasks.default_build_task:
-        RUNTIME_VARIABLES["${defaultBuildTask}"] = tasks.default_build_task.label
+    if default_build_task := tasks.default_build_task():
+        RUNTIME_VARIABLES["${defaultBuildTask}"] = default_build_task.label
 
     for input_ in tasks.inputs:
         INPUTS[input_.id] = input_

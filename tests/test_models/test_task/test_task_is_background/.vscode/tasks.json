@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "command": "echo",
+    "isBackground": true,
+    "tasks": [
+
+        {
+            "label": "Task1",
+            "isBackground": true
+        },
+        {
+            "label": "Task2",
+            "isBackground": false
+        },
+        {
+            "label": "Task3",
+            "command": "echo",
+            "isBackground": true
+        },
+        {
+            "label": "Task4",
+            "command": "echo",
+            "isBackground": false
+        },
+        {
+            "label": "Task5"
+        },
+        {
+            "label": "Task6",
+            "command": "echo",
+        },
+        {
+            "label": "Task7",
+            "command": "cat",
+        }
+    ]
+}

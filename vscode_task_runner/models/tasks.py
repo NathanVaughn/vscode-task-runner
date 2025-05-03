@@ -21,12 +21,11 @@ class Tasks(TaskProperties):
         """
         return {task.label: task for task in self.tasks}
 
-    @property
     def default_build_task(self) -> Optional[Task]:
         """
         Get the default build task.
         """
-        options = [task for task in self.tasks if task.is_default_build_task]
+        options = [task for task in self.tasks if task.is_default_build_task()]
 
         if len(options) > 1:
             # vscode allows you to pick the default build task

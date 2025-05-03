@@ -29,16 +29,6 @@ def test_task_depends_on():
     assert task_3.depends_on == [task_1, task_2]
 
 
-def test_task_is_supported():
-    """
-    Test is_supported method.
-    """
-    assert Task(label="Task1").is_supported
-
-    assert not Task(label="Task2", type="npm").is_supported
-    assert not Task(label="Task3", isBackground=True).is_supported
-
-
 def test_task_resolve_variables(default_build_task_patch: None):
     """
     Test resolve_variables method.
