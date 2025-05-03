@@ -279,7 +279,7 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
 
 def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> None:
     """
-    Actually exexcute the task. Takes the task object, current index, total number,
+    Actually execute the task. Takes the task object, current index, total number,
     and any extra args.
     """
     if is_virtual_task(task):

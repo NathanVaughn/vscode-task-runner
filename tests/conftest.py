@@ -61,14 +61,6 @@ def shutil_which_patch(mocker: MockerFixture) -> None:
 
 
 @pytest.fixture
-def subprocess_run_patch(mocker: MockerFixture) -> None:
-    """
-    Make subprocess.run return the command instead of executing it.
-    """
-    mocker.patch("subprocess.run", new=lambda x: x)
-
-
-@pytest.fixture
 def default_build_task_patch(mocker: MockerFixture) -> None:
     """
     Create a default build task for testing in the runtime variables.
