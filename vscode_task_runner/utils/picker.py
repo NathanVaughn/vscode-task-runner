@@ -11,10 +11,10 @@ from vscode_task_runner.exceptions import (
 )
 
 if TYPE_CHECKING:
-    from vscode_task_runner.models.tasks import Task
+    from vscode_task_runner.models.tasks import Task  # pragma: no cover
 
 
-def check_env_with_options(env_value: str, options: list[str]) -> None:
+def check_item_with_options(env_value: str, options: list[str]) -> None:
     """
     Given an environment variable value, check if it matches any of the options.
     Otherwise, raise an exception.
@@ -34,10 +34,7 @@ def determine_default_build_task(tasks: list[Task]) -> Optional[Task]:
     # allow the user to provide the input value via environment variable
     if env_value := os.environ.get("VTR_DEFAULT_BUILD_TASK"):
         # ensure the environment variable matches one of the tasks
-        check_env_with_options(
-            env_value,
-            task_labels,
-        )
+        check_item_with_options(env_value, task_labels)
 
         # match task label to task object
         # just use the first item in the list, they all have a reference

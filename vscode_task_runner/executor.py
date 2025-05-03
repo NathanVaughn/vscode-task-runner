@@ -139,6 +139,13 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
     # collect all tasks to execute
     levels = collect_levels(tasks)
 
+    # ensure all tasks are supported
+    for level in levels:
+        for task in level.tasks:
+            if not task.is_supported():
+                printer.error(f"Task {printer.yellow(task.label)} is not supported")
+                sys.exit(1)
+
     # resolve all variables in all tasks
     # and count all
     task_count = len(
@@ -181,7 +188,7 @@ def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> N
             f"[{index}/{total}] Executing task {printer.yellow(task.label)}: {printer.blue(joiner(cmd))}"
         )
         proc = subprocess.run(
-            cmd,
+            args=cmd,
             shell=False,
             cwd=task.cwd_use(),
             env=task.env_use(),

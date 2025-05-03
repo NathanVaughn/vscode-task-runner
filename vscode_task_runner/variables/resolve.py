@@ -11,7 +11,7 @@ from vscode_task_runner.exceptions import (
     UnsupportedVariable,
 )
 from vscode_task_runner.models.input import InputChoice, InputTypeEnum
-from vscode_task_runner.utils.picker import check_env_with_options
+from vscode_task_runner.utils.picker import check_item_with_options
 from vscode_task_runner.variables.runtime import INPUTS, RUNTIME_VARIABLES
 from vscode_task_runner.variables.static import (
     SUPPORTED_PREDEFINED_VARIABLES,
@@ -37,12 +37,12 @@ def get_input_value(input_id: str) -> str:
             options = []
             for option in input_.options:
                 if isinstance(option, InputChoice):
-                    options.append(option.label)
+                    options.append(option.value)
                 else:
                     options.append(option)
 
             # ensure the environment variable matches one of the options
-            check_env_with_options(env_value, options)
+            check_item_with_options(env_value, options)
             return env_value
 
     # otherwise, obtain from user input

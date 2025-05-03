@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from vscode_task_runner.exceptions import UnsupportedInput, UnsupportedVariable
 from vscode_task_runner.models.enums import InputTypeEnum
-from vscode_task_runner.models.input import Input
+from vscode_task_runner.models.input import Input, InputChoice
 from vscode_task_runner.variables import resolve
 
 
@@ -34,7 +34,7 @@ def test_replace_input_variables(mocker: MockerFixture) -> None:
     assert resolve.replace_input_variables("abc ${input:TEST1} def") == "abc value1 def"
 
 
-def test_replace_supported_variables(default_build_task_patch: None) -> None:
+def test_replace_supported_variables(default_build_task_mock: None) -> None:
     """
     Test that supported variables are replaced
     """
@@ -171,9 +171,11 @@ def test_get_input_value_unsupported(mocker: MockerFixture) -> None:
     [("VTR_INPUT_TEST5", "value5")],
     indirect=True,
 )
-def test_get_input_value_env(environment_variable: None, mocker: MockerFixture) -> None:
+def test_get_input_value_env_promptstring(
+    environment_variable: None, mocker: MockerFixture
+) -> None:
     """
-    Test that input variables can be set via env
+    Test that input variables can be set via env for promptstring
     """
     mocker.patch.object(
         resolve,
@@ -191,6 +193,33 @@ def test_get_input_value_env(environment_variable: None, mocker: MockerFixture) 
 
 
 @pytest.mark.parametrize(
+    "environment_variable",
+    [("VTR_INPUT_TEST6", "option1")],
+    indirect=True,
+)
+def test_get_input_value_env_pickstring(
+    environment_variable: None, mocker: MockerFixture
+) -> None:
+    """
+    Test that input variables can be set via env for pickstring
+    """
+    mocker.patch.object(
+        resolve,
+        "INPUTS",
+        new={
+            "TEST6": Input(
+                id="TEST6",
+                description="Description5",
+                type=InputTypeEnum.pickString,
+                options=[InputChoice(label="Option 1", value="option1"), "option2"],
+            )
+        },
+    )
+
+    assert resolve.get_input_value("TEST6") == "option1"
+
+
+@pytest.mark.parametrize(
     "data, expected",
     (
         ("${defaultBuildTask}", "task1"),
@@ -203,7 +232,7 @@ def test_get_input_value_env(environment_variable: None, mocker: MockerFixture) 
 def test_resolve_variables_data(
     data: Union[str, list[str], dict[str, str], None],
     expected: Any,
-    default_build_task_patch: None,
+    default_build_task_mock: None,
 ) -> None:
     """
     Full end-to-end test of the resolve_variables function

@@ -34,7 +34,7 @@ def test_type_detection(
     assert shell_config.type_ == expected_shell_type
 
 
-def test_shell_configuration_resolve_variables(default_build_task_patch: None) -> None:
+def test_shell_configuration_resolve_variables(default_build_task_mock: None) -> None:
     s = ShellConfiguration(
         executable="${defaultBuildTask}", args=["${defaultBuildTask}"]
     )

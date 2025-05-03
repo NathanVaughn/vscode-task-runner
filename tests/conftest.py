@@ -1,5 +1,6 @@
 import os
 import pathlib
+import subprocess
 from typing import Any, Generator
 
 import pytest
@@ -57,13 +58,33 @@ def osx(mocker: MockerFixture) -> None:
 @pytest.fixture
 def shutil_which_patch(mocker: MockerFixture) -> None:
     """
-    Make shutil.which return the command instead of executing it.
+    Make shutil.which return the path instead of resolving it
     """
     mocker.patch("shutil.which", new=lambda x: x)
 
 
 @pytest.fixture
-def default_build_task_patch(mocker: MockerFixture) -> None:
+def subprocess_run_mock(mocker: MockerFixture) -> None:
+    """
+    Make subprocess.run return a fake result instead of executing the command
+    """
+    mocked_process = mocker.MagicMock()
+    mocked_process.returncode = 0
+    mocker.patch.object(subprocess, "run", return_value=mocked_process)
+
+
+@pytest.fixture
+def subprocess_run_mock_fail(mocker: MockerFixture) -> None:
+    """
+    Make subprocess.run return a fake failed result instead of executing the command
+    """
+    mocked_process = mocker.MagicMock()
+    mocked_process.returncode = 1
+    mocker.patch.object(subprocess, "run", return_value=mocked_process)
+
+
+@pytest.fixture
+def default_build_task_mock(mocker: MockerFixture) -> None:
     """
     Create a default build task for testing in the runtime variables.
     """

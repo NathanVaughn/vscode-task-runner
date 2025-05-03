@@ -23,10 +23,14 @@ def load_vscode_json(path: str) -> dict:
         return pyjson5.decode(fp.read())
 
 
-def load_tasks(path: str = os.getcwd()) -> Tasks:
+def load_tasks(path: str = "") -> Tasks:
     """
     Load the model from the tasks.json file.
     """
+    if not path:
+        # this makes things easier for testing
+        path = os.getcwd()
+
     tasks_json = load_vscode_json(path)
 
     try:

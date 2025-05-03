@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Task1"
+        },
+        {
+            "label": "Task2",
+            "dependsOn": [
+                "Task1",
+                "Task1"
+            ]
+        }
+    ]
+}

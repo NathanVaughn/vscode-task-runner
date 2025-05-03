@@ -29,7 +29,7 @@ def test_task_depends_on():
     assert task_3.depends_on == [task_1, task_2]
 
 
-def test_task_resolve_variables(default_build_task_patch: None):
+def test_task_resolve_variables(default_build_task_mock: None):
     """
     Test resolve_variables method.
     """

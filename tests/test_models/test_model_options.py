@@ -24,7 +24,7 @@ def test_stringify_env() -> None:
     }
 
 
-def test_resolve_variables(default_build_task_patch: None) -> None:
+def test_resolve_variables(default_build_task_mock: None) -> None:
     """
     Test resolving variables
     """

@@ -49,7 +49,7 @@ def test_command_properties_os_osx(
 
 
 def test_command_properties_resolve_variables(
-    linux: None, default_build_task_patch: None
+    linux: None, default_build_task_mock: None
 ) -> None:
     """
     Ensure resolve variables works for command properties.
@@ -64,7 +64,7 @@ def test_command_properties_resolve_variables(
 
 
 def test_base_command_properties_resolve_variables(
-    default_build_task_patch: None,
+    default_build_task_mock: None,
 ) -> None:
     """
     Ensure resolve variables works for base command properties.

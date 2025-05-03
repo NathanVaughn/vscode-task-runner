@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Task1",
+            "type": "npm",
+        },
+        {
+            "label": "Task2",
+            "isBackground": true
+        },
+        {
+            "label": "Task3",
+            "dependsOn": ["Task1", "Task2"],
+        }
+    ]
+}

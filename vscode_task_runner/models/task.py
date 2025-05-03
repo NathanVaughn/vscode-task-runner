@@ -4,7 +4,14 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    field_validator,
+    model_validator,
+)
 
 from vscode_task_runner.exceptions import UnsupportedTaskType, WorkingDirectoryNotFound
 from vscode_task_runner.models.enums import (
@@ -167,12 +174,25 @@ class Task(TaskProperties):
     """
 
     @field_validator("depends_on_labels", mode="before")
-    def convert_depends_on_labels(cls, value: Union[str, list[str]]) -> list[str]:
+    def process_depends_on_labels(cls, value: Union[str, list[str]]) -> list[str]:
         """
         Convert the depends_on_labels to a list of strings.
-        Technically putting a single string is valid.
+        Putting a single string is valid.
+        Additionally, make sure that the list is unique and preserve the order.
         """
-        return [value] if isinstance(value, str) else value
+        new_value = [value] if isinstance(value, str) else value
+        return list(dict.fromkeys(new_value))
+
+    @model_validator(mode="after")
+    def check_depends_on_labels(self) -> Task:
+        """
+        Ensure the depends_on_labels are unique and not self-referencing.
+        """
+        # check for self-reference
+        if self.label in self.depends_on_labels:
+            raise ValueError("Task cannot depend on itself")
+
+        return self
 
     # =======
     # Properties
@@ -202,14 +222,14 @@ class Task(TaskProperties):
         """
         Check if the task is supported.
         """
-        if self.is_background_use():
-            # background tasks are not supported
-            return False
-
         try:
             self.type_enum
         except UnsupportedTaskType:
             # unsupported task type
+            return False
+
+        if self.is_background_use():
+            # background tasks are not supported
             return False
 
         return True

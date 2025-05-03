@@ -60,7 +60,7 @@ def test_cs_value(input_: CommandString, output: str) -> None:
     ),
 )
 def test_quoted_string_config_resolve_variables(
-    default_build_task_patch: None,
+    default_build_task_mock: None,
     input_: QuotedStringConfig,
     output: QuotedStringConfig,
 ) -> None:

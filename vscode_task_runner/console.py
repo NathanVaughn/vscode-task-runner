@@ -3,6 +3,7 @@ import sys
 from typing import List
 
 from vscode_task_runner import executor, printer
+from vscode_task_runner.constants import TASKS_FILE
 from vscode_task_runner.exceptions import TasksFileNotFound
 from vscode_task_runner.models.arg_parser import ArgParseResult
 from vscode_task_runner.models.task import TaskTypeEnum
@@ -56,7 +57,7 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     return ArgParseResult(task_labels=args.task_labels, extra_args=extra_args)
 
 
-def run() -> None:
+def run() -> int:
     """
     Run the console application.
     This is the entry point for the console application.
@@ -68,30 +69,24 @@ def run() -> None:
         printer.error(
             (
                 "Invoke this command inside a directory with a"
-                + f" {TasksFileNotFound} file to see and run tasks."
+                + f" {TASKS_FILE} file to see and run tasks."
             )
         )
-        return
+        return 1
 
     # build a list of possible task labels
-    task_choices = [task.label for task in tasks.tasks if task.is_supported]
+    task_choices = [task.label for task in tasks.tasks if task.is_supported()]
 
     # parse the command line arguments
     parse_result = parse_args(sys.argv[1:], task_choices)
 
     # convert task labels to task objects
-    tasks_to_run = [tasks.tasks_dict[label] for label in parse_result.task_labels]
-
-    # ensure the tasks are valid
-    for task in tasks_to_run:
-        if not task.is_supported:
-            printer.error(
-                f"Selected task(s) depend on task {task.label} which is not supported.",
-            )
-            return
+    tasks = [tasks.tasks_dict[label] for label in parse_result.task_labels]
 
     # run
     executor.execute_tasks(
-        tasks=tasks_to_run,
+        tasks=tasks,
         extra_args=parse_result.extra_args,
     )
+
+    return 0  # pragma: no cover
