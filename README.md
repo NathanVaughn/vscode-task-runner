@@ -144,6 +144,10 @@ Then in GitHub Actions:
       VTR_INPUT_report_format: html
 ```
 
+Similarly, if more than one default build task is defined, the
+`VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one
+to use. Otherwise, you will be interactively prompted to select one.
+
 The `dependsOn` key is also supported:
 
 ```json
@@ -274,8 +278,7 @@ project's virtual environment.
 - Does not load any VS Code settings
 - Extra arguments option
 - `VTR_INPUT_${id}` environment variables
-- If more than one default build task is defined, the first one will be used for
-  `${defaultBuildTask}`
+- `VTR_DEFAULT_BUILD_TASK` environment variable
 
 ## Similar Projects
 

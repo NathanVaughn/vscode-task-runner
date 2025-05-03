@@ -1,130 +1,16 @@
-import os
 import subprocess
 import sys
-from pathlib import Path
 from typing import Optional
 
 from vscode_task_runner import printer
-from vscode_task_runner.exceptions import MissingCommand, WorkingDirectoryNotFound
+from vscode_task_runner.exceptions import MissingCommand
 from vscode_task_runner.models.enums import TaskTypeEnum
 from vscode_task_runner.models.execution_level import ExecutionLevel
-from vscode_task_runner.models.shell import ShellConfiguration
-from vscode_task_runner.models.strings import CommandStringConfig, csc_value
+from vscode_task_runner.models.strings import csc_value
 from vscode_task_runner.models.task import DependsOrderEnum, Task
 from vscode_task_runner.utils.paths import which_resolver
-from vscode_task_runner.utils.shell import get_parent_shell
 from vscode_task_runner.utils.strings import joiner
 from vscode_task_runner.vscode import task_configuration, terminal_task_system
-
-
-def _new_task_env(task: Task) -> dict[str, str]:
-    """
-    Given a task, return the environment variables to set.
-    """
-
-    # VSCode will merge environment variables for os-independent options
-    # and os-specific options. It will not merge the environment variables
-    # from the global configuration to the task-specific configuration.
-    # if the task defines options.
-
-    global_tasks_env = task._tasks.new_env_os()
-    task_env = task.new_env_os()
-
-    # if the task defined any of its own options, discard global
-    # otherwise, return the global task environment
-    return task_env or global_tasks_env
-
-
-def task_env(task: Task) -> dict[str, str]:
-    """
-    Given a task, return the environment variables to set.
-    """
-    task_env = _new_task_env(task)
-    # combine with a copy of the current environment
-    return {**os.environ.copy(), **task_env}
-
-
-def task_cwd(task: Task) -> Path:
-    """
-    Given a task, return the current working directory.
-    """
-    cwd = Path(os.getcwd())
-
-    # vscode treats cwd as an absolute path
-    # this works as well on windows to define the root directory
-    # this still works because an absolute joined to an absolute path
-    # will yield the joined absolute path
-    # pathlib.Path("/tmp").joinpath("/var") -> Path("/var/")
-    base = Path("/")
-
-    # task settings
-    if task_cwd := task.cwd_os():
-        cwd = base.joinpath(task_cwd)
-
-    # global settings
-    elif global_cwd := task._tasks.cwd_os():
-        cwd = base.joinpath(global_cwd)
-
-    if not cwd.is_dir():
-        raise WorkingDirectoryNotFound(f"Working directory {cwd} does not exist")
-
-    return cwd
-
-
-def task_command(task: Task) -> Optional[CommandStringConfig]:
-    """
-    Given a task, return the command.
-    """
-    command = None
-
-    # task settings
-    if task_command := task.command_os():
-        command = task_command
-
-    # global settings
-    elif global_command := task._tasks.command_os():
-        command = global_command
-
-    return command
-
-
-def task_args(task: Task) -> list[CommandStringConfig]:
-    """
-    Given a task, return the arguments to pass to the command.
-    """
-    global_args = task._tasks.args_os()
-    task_args = task.args_os()
-
-    # in the case that there is a global command defined, but not a task
-    # command, tack on the task args to the global args
-    task_command = task.command_os()
-    return global_args + task_args if task_command is None else task_args
-
-
-def task_shell(task: Task) -> ShellConfiguration:
-    """
-    Given a task, return the current shell configuration.
-    """
-    shell = ShellConfiguration()
-
-    # task settings
-    if task_shell := task.shell_os():
-        shell = task_shell
-
-    # global settings
-    elif global_shell := task._tasks.shell_os():
-        shell = global_shell
-
-    if not shell.executable:
-        # if no shell binary defined, use the parent shell
-        shell = get_parent_shell()
-
-    # make sure shell executable exists and is absolute
-    assert shell.executable is not None
-    shell.executable = which_resolver(shell.executable)
-
-    # return the shell config
-    return shell
 
 
 def is_virtual_task(task: Task) -> bool:
@@ -132,7 +18,7 @@ def is_virtual_task(task: Task) -> bool:
     Returns if a task is a virtual task. This is the case
     if the task does not define a command, and depends on other tasks
     """
-    return not bool(task_command(task)) and bool(task.depends_on)
+    return not bool(task.command_use()) and bool(task.depends_on)
 
 
 def task_subprocess_command(
@@ -145,11 +31,11 @@ def task_subprocess_command(
     if extra_args is None:
         extra_args = []
 
-    command = task_command(task)
+    command = task.command_use()
     if command is None:
         raise MissingCommand(f"Task '{task.label}' does not define a command")
 
-    args = task_args(task)
+    args = task.args_use()
 
     if task.type_enum == TaskTypeEnum.process:
         # turn into raw string
@@ -169,7 +55,7 @@ def task_subprocess_command(
         args = [task_configuration.shell_string(arg) for arg in args]
 
         # figure out shell config
-        shell_config = task_shell(task)
+        shell_config = task.shell_use()
 
         # build the shell quoting options
         shell_config.quoting = terminal_task_system.get_quoting_options(shell_config)
@@ -297,8 +183,8 @@ def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> N
         proc = subprocess.run(
             cmd,
             shell=False,
-            cwd=task_cwd(task),
-            env=task_env(task),
+            cwd=task.cwd_use(),
+            env=task.env_use(),
             stdout=sys.stdout,
             stderr=sys.stderr,
         )

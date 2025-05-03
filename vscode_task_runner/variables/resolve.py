@@ -1,7 +1,7 @@
 import os
 import re
 from functools import cache
-from typing import Union, overload
+from typing import Optional, Union, overload
 
 import questionary
 
@@ -11,6 +11,7 @@ from vscode_task_runner.exceptions import (
     UnsupportedVariable,
 )
 from vscode_task_runner.models.input import InputChoice, InputTypeEnum
+from vscode_task_runner.utils.picker import check_env_with_options
 from vscode_task_runner.variables.runtime import INPUTS, RUNTIME_VARIABLES
 from vscode_task_runner.variables.static import (
     SUPPORTED_PREDEFINED_VARIABLES,
@@ -27,7 +28,22 @@ def get_input_value(input_id: str) -> str:
 
     # allow the user to provide the input value via environment variable
     if env_value := os.environ.get(f"VTR_INPUT_{input_.id}"):
-        return env_value
+        if input_.type_ == InputTypeEnum.promptString:
+            # if just a prompt string, return the value
+            return env_value
+        elif input_.type_ == InputTypeEnum.pickString:
+            # if a pickstring, make sure the value is one of the options
+            # convert options to strings
+            options = []
+            for option in input_.options:
+                if isinstance(option, InputChoice):
+                    options.append(option.label)
+                else:
+                    options.append(option)
+
+            # ensure the environment variable matches one of the options
+            check_env_with_options(env_value, options)
+            return env_value
 
     # otherwise, obtain from user input
     if input_.type_ == InputTypeEnum.promptString:
@@ -66,7 +82,7 @@ def get_input_value(input_id: str) -> str:
     else:
         raise UnsupportedInput(f"Unsupported input variable type '{input_.type_}'")
 
-    output = question.ask()
+    output: Optional[str] = question.ask()
     if output is None:
         raise ResponseNotProvided("No response provided")  # pragma: no cover
 

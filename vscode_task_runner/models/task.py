@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
-from vscode_task_runner.exceptions import UnsupportedTaskType
+from vscode_task_runner.exceptions import UnsupportedTaskType, WorkingDirectoryNotFound
 from vscode_task_runner.models.enums import (
     DependsOrderEnum,
     GroupKindEnum,
@@ -16,6 +18,8 @@ from vscode_task_runner.models.properties import (
 )
 from vscode_task_runner.models.shell import ShellConfiguration
 from vscode_task_runner.models.strings import CommandStringConfig
+from vscode_task_runner.utils.paths import which_resolver
+from vscode_task_runner.utils.shell import get_parent_shell
 
 if TYPE_CHECKING:
     from vscode_task_runner.models.tasks import Tasks  # pragma: no cover
@@ -170,6 +174,9 @@ class Task(TaskProperties):
         """
         return [value] if isinstance(value, str) else value
 
+    # =======
+    # Properties
+
     @property
     def depends_on(self) -> list[Task]:
         """
@@ -179,10 +186,11 @@ class Task(TaskProperties):
 
     @property
     def is_default_build_task(self) -> bool:
+        group = self.group_use()
         return (
-            isinstance(self.group, GroupKind)
-            and self.group.kind == GroupKindEnum.build
-            and self.group.is_default is True
+            isinstance(group, GroupKind)
+            and group.kind == GroupKindEnum.build
+            and group.is_default is True
         )
 
     @property
@@ -190,8 +198,7 @@ class Task(TaskProperties):
         """
         Check if the task is supported by VTR.
         """
-        # TODO!!!! not accurate, need to take into account global setting
-        if self.is_background:
+        if self.is_background_use():
             # bakground tasks are not supported
             return False
 
@@ -202,6 +209,147 @@ class Task(TaskProperties):
             return False
 
         return True
+
+    # =======
+    # Computed items
+
+    def is_background_use(self) -> bool:
+        # sourcery skip: assign-if-exp, boolean-if-exp-identity, reintroduce-else
+        """
+        Return if this task is a background task.
+        """
+        # if this task explicitly sets it, then return True
+        if self.is_background:
+            return True
+
+        # if this task uses the global command (by not having one), and the global command is
+        # set to background, then return True
+        if self.command_os() is None and self._tasks.is_background:
+            return True
+
+        return False
+
+    def group_use(self) -> Optional[Union[GroupKindEnum, GroupKind]]:
+        """
+        Return the group for this task.
+        """
+        group = None
+
+        # task settings
+        if self.group:
+            group = self.group
+
+        # global settings
+        elif global_group := self._tasks.group:
+            group = global_group
+
+        return group
+
+    def _new_env(self) -> dict[str, str]:
+        """
+        Return the explicitly defined environment variables for this task.
+        """
+        # VSCode will merge environment variables for os-independent options
+        # and os-specific options. It will not merge the environment variables
+        # from the global configuration to the task-specific configuration.
+        # if the task defines options.
+
+        global_tasks_env = self._tasks.new_env_os()
+        task_env = self.new_env_os()
+
+        # if the task defined any of its own options, discard global
+        # otherwise, return the global task environment
+        return task_env or global_tasks_env
+
+    def env_use(self) -> dict[str, str]:
+        """
+        Rreturn the environment variables to set for this task.
+        """
+        task_env = self._new_env()
+        # combine with a copy of the current environment
+        return {**os.environ.copy(), **task_env}
+
+    def cwd_use(self) -> Path:
+        """
+        Return the working directory to to use for this task.
+        """
+        cwd = Path(os.getcwd())
+
+        # vscode treats cwd as an absolute path
+        # this works as well on windows to define the root directory
+        # this still works because an absolute joined to an absolute path
+        # will yield the joined absolute path
+        # pathlib.Path("/tmp").joinpath("/var") -> Path("/var/")
+        base = Path("/")
+
+        # task settings
+        if task_cwd := self.cwd_os():
+            cwd = base.joinpath(task_cwd)
+
+        # global settings
+        elif global_cwd := self._tasks.cwd_os():
+            cwd = base.joinpath(global_cwd)
+
+        if not cwd.is_dir():
+            raise WorkingDirectoryNotFound(f"Working directory {cwd} does not exist")
+
+        return cwd
+
+    def command_use(self) -> Optional[CommandStringConfig]:
+        """
+        Return the command to use for this task.
+        """
+        command = None
+
+        # task settings
+        if task_command := self.command_os():
+            command = task_command
+
+        # global settings
+        elif global_command := self._tasks.command_os():
+            command = global_command
+
+        return command
+
+    def args_use(self) -> list[CommandStringConfig]:
+        """
+        Return the arguments to pass to the command for this task.
+        """
+        global_args = self._tasks.args_os()
+        task_args = self.args_os()
+
+        # in the case that there is a global command defined, but not a task
+        # command, tack on the task args to the global args
+        task_command = self.command_os()
+        return global_args + task_args if task_command is None else task_args
+
+    def shell_use(self) -> ShellConfiguration:
+        """
+        Return the shell configuration to use for this task.
+        """
+        shell = ShellConfiguration()
+
+        # task settings
+        if task_shell := self.shell_os():
+            shell = task_shell
+
+        # global settings
+        elif global_shell := self._tasks.shell_os():
+            shell = global_shell
+
+        if not shell.executable:
+            # if no shell binary defined, use the parent shell
+            shell = get_parent_shell()
+
+        # make sure shell executable exists and is absolute
+        assert shell.executable is not None
+        shell.executable = which_resolver(shell.executable)
+
+        # return the shell config
+        return shell
+
+    # =======
+    # variables
 
     def resolve_variables(self) -> None:
         """

@@ -1,9 +1,10 @@
-from typing import Any, Literal, Union
+from typing import Any, Literal, Optional
 
 from pydantic import Field
 
 from vscode_task_runner.models.input import Input
 from vscode_task_runner.models.task import Task, TaskProperties
+from vscode_task_runner.utils.picker import determine_default_build_task
 
 
 class Tasks(TaskProperties):
@@ -21,12 +22,19 @@ class Tasks(TaskProperties):
         return {task.label: task for task in self.tasks}
 
     @property
-    def default_build_task(self) -> Union[Task, None]:
+    def default_build_task(self) -> Optional[Task]:
         """
         Get the default build task.
         """
-        # TODO!!!, need to take into account the global group
-        return next((task for task in self.tasks if task.is_default_build_task), None)
+        options = [task for task in self.tasks if task.is_default_build_task]
+
+        if len(options) > 1:
+            # vscode allows you to pick the default build task
+            return determine_default_build_task(options)
+        elif not options:
+            return None
+        else:
+            return options[0]
 
     def model_post_init(self, context: Any) -> None:
         """

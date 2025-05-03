@@ -56,3 +56,10 @@ class WorkingDirectoryNotFound(Exception):
     """
     Raised when a defined working directory does not exist
     """
+
+
+class BadInputEnvironmentVariable(Exception):
+    """
+    Raised when a task input provided by an environment variable is not one
+    of the selections.
+    """
