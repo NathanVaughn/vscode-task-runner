@@ -7,6 +7,7 @@ from pytest_mock import MockerFixture
 
 import vscode_task_runner.constants
 import vscode_task_runner.utils.shell
+import vscode_task_runner.variables.resolve
 import vscode_task_runner.vscode.terminal_task_system
 from vscode_task_runner.models.task import Task
 from vscode_task_runner.models.tasks import Tasks
@@ -29,27 +30,54 @@ def _patch_platform(mocker: MockerFixture, platform: str) -> None:
 
 @pytest.fixture
 def windows(mocker: MockerFixture) -> None:
+    """
+    Pretend we are on Windows.
+    """
     _patch_platform(mocker, "windows")
 
 
 @pytest.fixture
 def linux(mocker: MockerFixture) -> None:
+    """
+    Pretend we are on Linux.
+    """
     _patch_platform(mocker, "linux")
 
 
 @pytest.fixture
 def osx(mocker: MockerFixture) -> None:
+    """
+    Pretend we are on OSX.
+    """
     _patch_platform(mocker, "osx")
 
 
 @pytest.fixture
 def shutil_which_patch(mocker: MockerFixture) -> None:
+    """
+    Make shutil.which return the command instead of executing it.
+    """
     mocker.patch("shutil.which", new=lambda x: x)
 
 
 @pytest.fixture
 def subprocess_run_patch(mocker: MockerFixture) -> None:
+    """
+    Make subprocess.run return the command instead of executing it.
+    """
     mocker.patch("subprocess.run", new=lambda x: x)
+
+
+@pytest.fixture
+def default_build_task_patch(mocker: MockerFixture) -> None:
+    """
+    Create a default build task for testing in the runtime variables.
+    """
+    mocker.patch.object(
+        vscode_task_runner.variables.resolve,
+        "RUNTIME_VARIABLES",
+        new={"${defaultBuildTask}": "task1"},
+    )
 
 
 @pytest.fixture
@@ -75,6 +103,10 @@ def environment_variable(request: Any) -> Generator:
 
 @pytest.fixture
 def pathlib_is_dir_true(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Make pathlib.Path.is_dir always return True.
+    """
+
     def always_true(*args: Any, **kwargs: Any) -> bool:
         return True
 

@@ -1,4 +1,4 @@
-import os
+# import os
 
 import pytest
 
@@ -46,31 +46,27 @@ def test_cs_value(input_: CommandString, output: str) -> None:
     "input_, output",
     (
         (
-            QuotedStringConfig(value="${env:TEST1}", quoting=ShellQuotingEnum.escape),
-            QuotedStringConfig(value="result1", quoting=ShellQuotingEnum.escape),
+            QuotedStringConfig(
+                value="${defaultBuildTask}", quoting=ShellQuotingEnum.escape
+            ),
+            QuotedStringConfig(value="task1", quoting=ShellQuotingEnum.escape),
         ),
         (
             QuotedStringConfig(
-                value=["${env:TEST1}", "${env:TEST2}"], quoting=ShellQuotingEnum.weak
+                value=["${defaultBuildTask}"], quoting=ShellQuotingEnum.weak
             ),
-            QuotedStringConfig(
-                value=["result1", "result2"], quoting=ShellQuotingEnum.weak
-            ),
+            QuotedStringConfig(value=["task1"], quoting=ShellQuotingEnum.weak),
         ),
     ),
 )
-def test_wsc_resolving(input_: QuotedStringConfig, output: str) -> None:
-    # test resolving variables for a QuotedStringConfig
-
-    # set temp variables to test
-    os.environ["TEST1"] = "result1"
-    os.environ["TEST2"] = "result2"
-
+def test_quoted_string_config_resolve_variables(
+    default_build_task_patch: None,
+    input_: QuotedStringConfig,
+    output: QuotedStringConfig,
+) -> None:
+    """
+    Test resolving variables for a QuotedStringConfig
+    """
     # variables resolve in place
     input_.resolve_variables()
-
-    # test equivalency
     assert input_ == output
-
-    del os.environ["TEST1"]
-    del os.environ["TEST2"]

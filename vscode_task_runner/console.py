@@ -95,7 +95,3 @@ def run() -> None:
         tasks=tasks_to_run,
         extra_args=parse_result.extra_args,
     )
-
-
-if __name__ == "__main__":
-    run()

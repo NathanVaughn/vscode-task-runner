@@ -31,16 +31,16 @@ def get_input_value(input_id: str) -> str:
 
     # otherwise, obtain from user input
     if input_.type_ == InputTypeEnum.promptString:
-        asker_type = questionary.text
+        question_type = questionary.text
 
         if input_.password is True:
-            asker_type = questionary.password
+            question_type = questionary.password
 
         # for prompt string, default cannot be none, but an empty string
         if input_.default is None:
             input_.default = ""
 
-        asker = asker_type(input_.description, default=input_.default)
+        question = question_type(input_.description, default=input_.default)
 
     elif input_.type_ == InputTypeEnum.pickString:
         # if the value should be picked from options
@@ -50,13 +50,14 @@ def get_input_value(input_id: str) -> str:
         # otherwise, add them as questionary.Choice
         for option in input_.options:
             if isinstance(option, InputChoice):
-                choices.append(
+                # hard to test since memory addresses will be different
+                choices.append(  # pragma: no cover
                     questionary.Choice(title=option.label, value=option.value)
                 )
             else:
                 choices.append(option)
 
-        asker = questionary.select(
+        question = questionary.select(
             input_.description,
             choices=choices,
             default=input_.default,
@@ -65,7 +66,7 @@ def get_input_value(input_id: str) -> str:
     else:
         raise UnsupportedInput(f"Unsupported input variable type '{input_.type_}'")
 
-    output = asker.ask()
+    output = question.ask()
     if output is None:
         raise ResponseNotProvided("No response provided")  # pragma: no cover
 
