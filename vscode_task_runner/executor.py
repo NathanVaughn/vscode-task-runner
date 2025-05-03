@@ -27,8 +27,8 @@ def _new_task_env(task: Task) -> dict[str, str]:
     # from the global configuration to the task-specific configuration.
     # if the task defines options.
 
-    global_tasks_env = task._tasks.new_env_computed()
-    task_env = task.new_env_computed()
+    global_tasks_env = task._tasks.new_env_os()
+    task_env = task.new_env_os()
 
     # if the task defined any of its own options, discard global
     # otherwise, return the global task environment
@@ -58,11 +58,11 @@ def task_cwd(task: Task) -> Path:
     base = Path("/")
 
     # task settings
-    if task_cwd := task.cwd_computed():
+    if task_cwd := task.cwd_os():
         cwd = base.joinpath(task_cwd)
 
     # global settings
-    elif global_cwd := task._tasks.cwd_computed():
+    elif global_cwd := task._tasks.cwd_os():
         cwd = base.joinpath(global_cwd)
 
     if not cwd.is_dir():
@@ -78,11 +78,11 @@ def task_command(task: Task) -> Optional[CommandStringConfig]:
     command = None
 
     # task settings
-    if task_command := task.command_computed():
+    if task_command := task.command_os():
         command = task_command
 
     # global settings
-    elif global_command := task._tasks.command_computed():
+    elif global_command := task._tasks.command_os():
         command = global_command
 
     return command
@@ -92,12 +92,12 @@ def task_args(task: Task) -> list[CommandStringConfig]:
     """
     Given a task, return the arguments to pass to the command.
     """
-    global_args = task._tasks.args_computed()
-    task_args = task.args_computed()
+    global_args = task._tasks.args_os()
+    task_args = task.args_os()
 
     # in the case that there is a global command defined, but not a task
     # command, tack on the task args to the global args
-    task_command = task.command_computed()
+    task_command = task.command_os()
     return global_args + task_args if task_command is None else task_args
 
 
@@ -108,11 +108,11 @@ def task_shell(task: Task) -> ShellConfiguration:
     shell = ShellConfiguration()
 
     # task settings
-    if task_shell := task.shell_computed():
+    if task_shell := task.shell_os():
         shell = task_shell
 
     # global settings
-    elif global_shell := task._tasks.shell_computed():
+    elif global_shell := task._tasks.shell_os():
         shell = global_shell
 
     if not shell.executable:

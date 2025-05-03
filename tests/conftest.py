@@ -6,6 +6,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 import vscode_task_runner.constants
+import vscode_task_runner.models.properties
 import vscode_task_runner.utils.shell
 import vscode_task_runner.variables.resolve
 import vscode_task_runner.vscode.terminal_task_system
@@ -17,6 +18,7 @@ PLATFORM_SOURCES = (
     vscode_task_runner.constants,
     vscode_task_runner.vscode.terminal_task_system,
     vscode_task_runner.utils.shell,
+    vscode_task_runner.models.properties,
 )
 """
 Sources where the platform key is used. Need to patch each one.

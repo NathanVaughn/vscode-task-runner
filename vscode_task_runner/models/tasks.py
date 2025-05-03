@@ -25,6 +25,7 @@ class Tasks(TaskProperties):
         """
         Get the default build task.
         """
+        # TODO!!!, need to take into account the global group
         return next((task for task in self.tasks if task.is_default_build_task), None)
 
     def model_post_init(self, context: Any) -> None:

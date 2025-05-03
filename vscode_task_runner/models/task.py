@@ -57,7 +57,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
         except ValueError as e:
             raise UnsupportedTaskType(f"Unsupported task type {self.type_}") from e
 
-    def new_env_computed(self) -> dict[str, str]:
+    def new_env_os(self) -> dict[str, str]:
         """
         Computed explicitly defined environment variables for this task.
         Does not take into account the global environment variables.
@@ -71,7 +71,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
 
         return task_env
 
-    def cwd_computed(self) -> Optional[str]:
+    def cwd_os(self) -> Optional[str]:
         """
         Computed working directoy for this task.
         Does not take into account the global working directory.
@@ -84,7 +84,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
 
         return cwd
 
-    def command_computed(self) -> Optional[CommandStringConfig]:
+    def command_os(self) -> Optional[CommandStringConfig]:
         """
         Computed command for this task.
         Does not take into account the global command.
@@ -97,7 +97,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
 
         return command
 
-    def args_computed(self) -> list[CommandStringConfig]:
+    def args_os(self) -> list[CommandStringConfig]:
         """
         Computed args for this task.
         Does not take into account the global args.
@@ -110,7 +110,7 @@ class TaskProperties(CommandProperties, BaseCommandProperties):
 
         return args
 
-    def shell_computed(self) -> Optional[ShellConfiguration]:
+    def shell_os(self) -> Optional[ShellConfiguration]:
         """
         Computed shell for this task.
         Does not take into account the global shell.
@@ -190,6 +190,7 @@ class Task(TaskProperties):
         """
         Check if the task is supported by VTR.
         """
+        # TODO!!!! not accurate, need to take into account global setting
         if self.is_background:
             # bakground tasks are not supported
             return False

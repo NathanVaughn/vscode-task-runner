@@ -27,7 +27,10 @@ def get_quoting_options(shell_config: ShellConfiguration) -> ShellQuotingOptions
 
     if shell_config.quoting:
         # return already defined options
-        return shell_config.quoting
+        # there is no situation where this is already set
+        # The user cannot specify this as an input
+        # Appears to be dead code
+        return shell_config.quoting  # pragma: no cover
 
     if shell_config.type_ in DEFAULT_SHELL_QUOTING:
         # otherwise return default for shell

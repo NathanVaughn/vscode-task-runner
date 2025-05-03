@@ -16,13 +16,6 @@ from vscode_task_runner.vscode import terminal_task_system
     "shell_config, shell_quoting",
     [
         (
-            ShellConfiguration(
-                executable="/bin/bash",
-                quoting=ShellQuotingOptions(strong="abc", weak="def"),
-            ),
-            ShellQuotingOptions(strong="abc", weak="def"),
-        ),
-        (
             ShellConfiguration(executable="/bin/bash"),
             DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
         ),

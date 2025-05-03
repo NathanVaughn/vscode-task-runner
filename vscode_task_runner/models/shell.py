@@ -13,14 +13,6 @@ class ShellQuotingOptionsEscape(BaseModel):
     escape_character: str = Field(alias="escapeChar")
     characters_to_escape: list[str] = Field(alias="charsToEscape")
 
-    def resolve_variables(self) -> None:
-        """
-        Resolve variables for this shell quoting options escape.
-        """
-
-        self.escape_character = resolve_variables_data(self.escape_character)
-        self.characters_to_escape = resolve_variables_data(self.characters_to_escape)
-
 
 class ShellQuotingOptions(BaseModel):
     """
@@ -42,20 +34,6 @@ class ShellQuotingOptions(BaseModel):
     The character used for weak quoting.
     """
 
-    def resolve_variables(self) -> None:
-        """
-        Resolve variables for this shell quoting options.
-        """
-
-        self.strong = resolve_variables_data(self.strong)
-
-        if isinstance(self.escape, ShellQuotingOptionsEscape):
-            self.escape.resolve_variables()
-        else:
-            self.escape = resolve_variables_data(self.escape)
-
-        self.weak = resolve_variables_data(self.weak)
-
 
 class ShellConfiguration(BaseModel):
     """
@@ -73,11 +51,12 @@ class ShellConfiguration(BaseModel):
     """
     The args to be passed to the shell executable.
     """
-    quoting: Optional[ShellQuotingOptions] = None
-    """
-    Which kind of quotes the shell supports.
-    """
 
+    # https://github.com/microsoft/vscode/blob/f4fb3e71208ebe861a00581c47d2a98bf23f68a2/src/vs/workbench/contrib/tasks/common/jsonSchemaCommon.ts#L58-L75
+    _quoting: Optional[ShellQuotingOptions] = PrivateAttr(default=None)
+    """
+    while appearing in the interface, not something the user can specify
+    """
     _type: Optional[ShellTypeEnum] = PrivateAttr(default=None)
     """
     Private attribute to cache the shell type.
@@ -120,12 +99,23 @@ class ShellConfiguration(BaseModel):
 
         return self._type
 
+    @property
+    def quoting(self) -> Optional[ShellQuotingOptions]:
+        """
+        Which kind of quotes the shell supports.
+        """
+        return self._quoting
+
+    @quoting.setter
+    def quoting(self, value: Optional[ShellQuotingOptions]) -> None:
+        """
+        Which kind of quotes the shell supports.
+        """
+        self._quoting = value
+
     def resolve_variables(self) -> None:
         """
         Resolve variables for this shell config.
         """
         self.executable = resolve_variables_data(self.executable)
         self.args = resolve_variables_data(self.args)
-
-        if self.quoting:
-            self.quoting.resolve_variables()

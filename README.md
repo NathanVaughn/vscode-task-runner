@@ -269,6 +269,7 @@ project's virtual environment.
   shell will be used
 - Only schema version 2.0.0 is supported
 - If no `cwd` is specified, the current working directory is used for the task instead
+- Does not support deprecated options (`isShellCommand`, `isBuildCommand`)
 - Does not support any extensions that add extra options/functionality
 - Does not load any VS Code settings
 - Extra arguments option
