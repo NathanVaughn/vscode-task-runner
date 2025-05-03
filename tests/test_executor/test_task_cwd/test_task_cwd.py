@@ -1,7 +1,10 @@
 from pathlib import Path
 
+import pytest
+
 from tests.conftest import task_obj
 from vscode_task_runner import executor
+from vscode_task_runner.exceptions import WorkingDirectoryNotFound
 
 
 def test_full(linux: None, pathlib_is_dir_true: None) -> None:
@@ -38,3 +41,10 @@ def test_partial5(linux: None, pathlib_is_dir_true: None) -> None:
     task.linux = None
 
     assert executor.task_cwd(task) == Path("/value2")
+
+
+def test_directroy_not_found() -> None:
+    task = task_obj(__file__, "cwd-test")
+
+    with pytest.raises(WorkingDirectoryNotFound):
+        executor.task_cwd(task)
