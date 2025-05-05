@@ -181,6 +181,34 @@ Building vscode-task-runner (0.1.1)
   - Built vscode_task_runner-0.1.1-py3-none-any.whl
 ```
 
+Tasks can also be executed in parallel using the `dependsOrder` property:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "npm run lint"
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "npm run test"
+    },
+    {
+      "label": "validate",
+      "dependsOn": ["lint", "test"],
+      "dependsOrder": "parallel"
+    }
+  ]
+}
+```
+
+When you run `vtr validate`, both the lint and test tasks will execute
+in parallel, rather than sequentially.
+
 You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
 
 ```yaml
@@ -260,7 +288,6 @@ project's virtual environment.
 - Problem matchers
 - Background tasks
 - UNC path conversion
-- Parallel `dependsOn` task execution
 - Task types other than `"process"` or `"shell"` (such as `"npm"`, `"docker"`, etc.)
 
 ## Differences from VS Code

@@ -1,18 +1,23 @@
+"""Main entry point for the VS Code Task Runner command-line interface."""
+
 import argparse
 import dataclasses
 import os
 import sys
 from typing import Dict, List
 
-import vscode_task_runner.executor
 import vscode_task_runner.parser
+import vscode_task_runner.printer
 import vscode_task_runner.variables
 from vscode_task_runner.exceptions import TasksFileNotFound
 from vscode_task_runner.task import Task
+from vscode_task_runner.task_executor import TaskExecutor
 
 
 @dataclasses.dataclass
 class ParseResult:
+    """Result of command-line argument parsing."""
+
     task_labels: List[str]
     extra_args: List[str]
 
@@ -21,10 +26,16 @@ def parse_args(
     sys_argv: List[str], task_choices: List[str], help_text: str
 ) -> ParseResult:
     """
-    Parse arguments from the command line. Split out as seperate function for testing.
-    Returns an object with a list of tasks selected, and extra arguments.
-    """
+    Parse arguments from the command line.
 
+    Args:
+        sys_argv: Command line arguments to parse
+        task_choices: List of available task labels
+        help_text: Help text to display
+
+    Returns:
+        ParseResult with task labels and extra arguments
+    """
     parser = argparse.ArgumentParser(
         description="VS Code Task Runner",
         epilog="When running a single task, extra args can be appended only to that task."
@@ -67,6 +78,12 @@ def parse_args(
 
 
 def run() -> None:
+    """
+    Main entry point for the VS Code Task Runner.
+
+    Parses tasks from tasks.json and executes requested tasks respecting
+    dependencies and execution order.
+    """
     task_label_help_text = "One or more task labels to run. This is case sensitive."
 
     # parse the tasks.json
@@ -82,8 +99,15 @@ def run() -> None:
             for t in all_tasks_data["tasks"]
             if t.get("type", "process") in ["process", "shell"]
         }
+
+        # Get inputs data in the correct format
+        inputs_data = all_tasks_data.get("inputs", [])
+        if not isinstance(inputs_data, list):
+            inputs_data = []
+
     except TasksFileNotFound:
         all_tasks = {}
+        inputs_data = []
         task_label_help_text += (
             " Invoke this command inside a directory with a"
             + f" {os.path.join('.vscode', 'tasks.json')} file to see and run tasks."
@@ -96,41 +120,19 @@ def run() -> None:
     # filter to tasks explicitly asked for
     top_level_tasks = [all_tasks[t] for t in parse_result.task_labels]
 
-    # get all tasks, following dependencies
-    tasks_to_execute: List[Task] = []
-    for task in top_level_tasks:
-        tasks_to_execute.extend(vscode_task_runner.executor.collect_task(task))
+    # Create task executor
+    task_executor = TaskExecutor()
 
-    # build list of commands
-    # filter out virtual tasks
-    all_commands = [
-        t.subprocess_command() for t in tasks_to_execute if not t.is_virtual
-    ]
+    # Process each top-level task separately
+    for top_task in top_level_tasks:
+        # Build the dependency tree for the task
+        task_tree = task_executor.build_dependency_tree(top_task)
 
-    # get dict of input variables and values
-    input_vars_values = vscode_task_runner.variables.get_input_variables_values(
-        all_commands, all_tasks_data.get("inputs")
-    )
-
-    # find the default build task
-    default_build_task = next(
-        (t.label for t in tasks_to_execute if t.is_default_build_task), None
-    )
-
-    # start executing
-    for i, task in enumerate(tasks_to_execute):
-        i_extra_args = []
-        # top-level task will always be the last one
-        if i + 1 == len(tasks_to_execute):
-            i_extra_args = parse_result.extra_args
-
-        vscode_task_runner.executor.execute_task(
-            task,
-            index=i + 1,
-            total=len(tasks_to_execute),
-            input_vars_values=input_vars_values,
-            default_build_task=default_build_task,
-            extra_args=i_extra_args,
+        # Execute the task tree
+        task_executor.execute_tree(
+            task_tree,
+            inputs_data,
+            parse_result.extra_args if len(top_level_tasks) == 1 else None,
         )
 
 

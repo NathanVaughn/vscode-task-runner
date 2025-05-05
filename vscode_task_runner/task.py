@@ -328,3 +328,15 @@ class Task:
 
         # create task objects depending on the label
         return [Task(self.all_task_data, label) for label in depends_on_setting]
+
+    @property
+    def depends_order(self) -> Literal["sequence", "parallel"]:
+        """
+        Gets the dependsOrder setting for the task.
+        Returns "sequence" by default if not specified.
+        """
+        order = self._get_task_setting("dependsOrder")
+        if order not in ("sequence", "parallel"):
+            # Default to sequence for compatibility
+            return "sequence"
+        return order
