@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "value1"
+    },
+    "linux": {
+        "options": {
+            "cwd": "value2"
+        }
+    },
+    "tasks": [
+        {
+            "label": "cwd-test",
+            "command": "echo $PWD",
+            "type": "shell",
+            "options": {
+                "cwd": "value3"
+            },
+            "linux": {
+                "options": {
+                    "cwd": "value4"
+                }
+            },
+        },
+    ]
+}

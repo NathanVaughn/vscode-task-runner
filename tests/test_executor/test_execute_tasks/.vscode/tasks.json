@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Task1",
+            "type": "process",
+            "command": "echo",
+            "args": ["hello world"],
+            "dependsOn": "Task2",
+        },
+        {
+            "label": "Task2",
+            "type": "process",
+            "command": "echo",
+            "args": ["I come first"],
+        },
+        {
+            "label": "Task3",
+            "dependsOn": ["Task1"],
+        }
+    ]
+}

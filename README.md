@@ -144,6 +144,10 @@ Then in GitHub Actions:
       VTR_INPUT_report_format: html
 ```
 
+Similarly, if more than one default build task is defined, the
+`VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one
+to use. Otherwise, you will be interactively prompted to select one.
+
 The `dependsOn` key is also supported:
 
 ```json
@@ -217,7 +221,7 @@ project's virtual environment.
 
 ## Implemented Features
 
-- [Predefined variables](https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables):
+- [Predefined variables](https://code.visualstudio.com/docs/reference/variables-reference#_predefined-variables):
   - `${userHome}`
   - `${workspaceRoot}`
   - `${workspaceFolder}`
@@ -269,10 +273,12 @@ project's virtual environment.
   shell will be used
 - Only schema version 2.0.0 is supported
 - If no `cwd` is specified, the current working directory is used for the task instead
+- Does not support deprecated options (`isShellCommand`, `isBuildCommand`)
 - Does not support any extensions that add extra options/functionality
 - Does not load any VS Code settings
 - Extra arguments option
 - `VTR_INPUT_${id}` environment variables
+- `VTR_DEFAULT_BUILD_TASK` environment variable
 
 ## Similar Projects
 

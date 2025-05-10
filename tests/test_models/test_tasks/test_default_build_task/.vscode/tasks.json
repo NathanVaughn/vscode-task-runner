@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "group": {
+        "kind": "build",
+        "isDefault": true
+    },
+    "tasks": [
+        {
+            "label": "Task1"
+        },
+        {
+            "label": "Task2",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

@@ -19,20 +19,22 @@
         {
             "label": "pre-commit",
             "command": "uv run pre-commit run --all-files",
-            "type": "shell",
-            "dependsOn": ["install-pkgs"]
+            "type": "shell"
         },
         {
             "label": "tests",
             "command": "uv run pytest --cov=vscode_task_runner/ --cov-report html",
+            "type": "shell"
+        },
+        {
+            "label": "tests-report",
+            "command": "uv run python -m http.server --directory htmlcov/",
             "type": "shell",
-            "dependsOn": ["install-pkgs"]
         },
         {
             "label": "build",
             "command": "uv build",
-            "type": "shell",
-            "dependsOn": ["install-pkgs"]
+            "type": "shell"
         }
     ]
 }

@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "1",
+            "type": "process",
+            "command": "echo",
+            "args": ["hello world"]
+        },
+        {
+            "label": "2",
+            "type": "shell",
+            "command": "echo 'hello world'",
+            "options": {"shell": {
+                "executable": "bash",
+                "args": ["-c"]
+            }}
+        },
+        {
+            "label": "3",
+            "type": "shell",
+            "command": "echo",
+            "args": ["hello world"],
+            "options": {"shell": {
+                "executable": "bash",
+                "args": ["-c"]
+            }}
+        },
+        {
+            "label": "4",
+            "type": "shell",
+            "command": {"value": "echo 'hello world'", "quoting": "weak"},
+            "options": {"shell": {
+                "executable": "bash",
+                "args": ["-c"]
+            }}
+        },
+        {
+            "label": "5",
+        },
+    ]
+}

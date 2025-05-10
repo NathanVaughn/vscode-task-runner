@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "test",
+            "type": "pickString",
+            "description": "TEST",
+            "options": ["option1", "option2"],
+            "default": "option3"
+        }
+    ]
+}

@@ -1,3 +1,5 @@
+import sys
+
 from vscode_task_runner import console
 
-console.run()
+sys.exit(console.run())
