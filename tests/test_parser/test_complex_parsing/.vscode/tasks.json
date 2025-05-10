@@ -1,0 +1,165 @@
+{
+    "version": "2.0.0",
+    // global options
+    "args": [
+        "hello",
+        "world",
+    ],
+    "echoCommand": true,
+    "command": "python",
+    "group": "none",
+    "inputs": [
+        {
+            // input type we don't support
+            "id": "input1",
+            "type": "command",
+            "command": "vscode.command",
+        },
+        {
+            "id": "input2",
+            "type": "promptString",
+            "description": "Input 2",
+            "default": "default value",
+            "password": false,
+        },
+        {
+            "id": "input3",
+            "type": "pickString",
+            "description": "Input 3",
+            "default": "value1",
+            // list of option objects
+            "options": [
+                {
+                    "label": "Option 1",
+                    "value": "value1"
+                },
+                {
+                    "label": "Option 2",
+                    "value": "value2"
+                }
+            ],
+        },
+        {
+            "id": "input4",
+            "type": "pickString",
+            "description": "Input 4",
+            // no default
+            "options": [
+                "value1",
+                "value2"
+            ],
+        },
+    ],
+    // more global options
+    "isBackground": false,
+    "linux": {},
+    "osx": {},
+    "windows": {},
+    "options": {
+        // every option
+        "cwd": "${workspaceFolder}",
+        "env": {
+            "TEST": "test"
+        },
+        "shell": {
+            "executable": "/bin/bash",
+            "args": [
+                "-c"
+            ]
+        }
+    },
+    "problemMatcher": [],
+    "promptOnClose": false,
+    "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+    },
+    "type": "shell",
+    "tasks": [
+        {
+            "label": "Task 1",
+            "type": "process",
+            // quoting for command
+            "command": {
+                "quoting": "escape",
+                "value": "/bin/echo"
+            },
+            // list of string
+            "args": [
+                "hello",
+                "world"
+            ],
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            },
+            "linux": {},
+            "osx": {},
+            "windows": {},
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "TEST": "test"
+                },
+                "shell": {
+                    "executable": "/bin/bash",
+                    "args": [
+                        "-c"
+                    ]
+                }
+            },
+        },
+        {
+            "label": "Task 2",
+            "type": "shell",
+            // list of string
+            "command": [
+                "/bin/echo",
+                "hello"
+            ],
+            "group": "build",
+            // complex quoting
+            "args": [
+                {
+                    "value": "hello",
+                    "quoting": "strong"
+                },
+                {
+                    "value": "world",
+                    "quoting": "weak"
+                }
+            ]
+        },
+        {
+            "label": "Task 3",
+            "type": "shell",
+            // single string for command
+            "command": "/bin/echo",
+            // single depends on
+            "dependsOn": "Task 1",
+            "dependsOrder": "sequence",
+        },
+        {
+            "label": "Task4",
+            // taks type we don't support
+            "type": "npm",
+            "script": "test"
+        },
+        {
+            "label": "Task 5",
+            "type": "process",
+            // quoting for command
+            "command": {
+                "quoting": "escape",
+                "value": [
+                    "/bin/",
+                    "echo"
+                ]
+            },
+        },
+    ],
+}

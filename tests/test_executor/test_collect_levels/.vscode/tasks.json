@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Task_3_1"
+        },
+        {
+            "label": "Task_3_2"
+        },
+        {
+            "label": "Task_3_3"
+        },
+        {
+            "label": "Task_2_1",
+            "dependsOn": [
+                "Task_3_1",
+                "Task_3_2"
+            ]
+        },
+        {
+            "label": "Task_2_2",
+            "dependsOn": [
+                "Task_3_3"
+            ]
+        },
+        {
+            "label": "Task_2_3"
+        },
+        {
+            "label": "Task_1_1",
+            "dependsOn": [
+                "Task_2_1",
+                "Task_2_2"
+            ]
+        },
+        {
+            "label": "Task_1_2",
+            "dependsOn": [
+                "Task_2_3"
+            ]
+        }
+    ]
+}

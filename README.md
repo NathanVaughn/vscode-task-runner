@@ -55,20 +55,17 @@ if it makes you feel better).
 
 ```shell
 $ vtr pre-commit
-[1/1] Executing task "pre-commit": C:\Program Files\WindowsApps\Microsoft.PowerShell_7.3.4.0_x64__8wekyb3d8bbwe\pwsh.exe -Command poetry run pre-commit run --all-files
-check json...............................................................Passed
+[1/1] Executing task pre-commit: /bin/bash -c uv run pre-commit run --all-files
+check json5..............................................................Passed
 check toml...............................................................Passed
 check yaml...............................................................Passed
 check for case conflicts.................................................Passed
 trim trailing whitespace.................................................Passed
 check for merge conflicts................................................Passed
 mixed line ending........................................................Passed
-poetry-check.............................................................Passed
-poetry-lock..............................................................Passed
-absolufy-imports.........................................................Passed
+uv-lock..................................................................Passed
 ruff.....................................................................Passed
-black....................................................................Passed
-pyleft...................................................................Passed
+ruff-format..............................................................Passed
 pyright..................................................................Passed
 markdownlint.............................................................Passed
 ```
@@ -79,20 +76,17 @@ Continuing the example above:
 
 ```bash
 $ vtr pre-commit --color=always --show-diff-on-failure
-[1/1] Executing task "pre-commit": C:\Program Files\WindowsApps\Microsoft.PowerShell_7.3.4.0_x64__8wekyb3d8bbwe\pwsh.exe -Command poetry run pre-commit run --all-files --color=always --show-diff-on-failure
-check json...............................................................Passed
+[1/1] Executing task pre-commit: /bin/bash -c uv run pre-commit run --all-files --color=always --show-diff-on-failure
+check json5..............................................................Passed
 check toml...............................................................Passed
 check yaml...............................................................Passed
 check for case conflicts.................................................Passed
 trim trailing whitespace.................................................Passed
 check for merge conflicts................................................Passed
 mixed line ending........................................................Passed
-poetry-check.............................................................Passed
-poetry-lock..............................................................Passed
-absolufy-imports.........................................................Passed
+uv-lock..................................................................Passed
 ruff.....................................................................Passed
-black....................................................................Passed
-pyleft...................................................................Passed
+ruff-format..............................................................Passed
 pyright..................................................................Passed
 markdownlint.............................................................Passed
 ```
@@ -144,6 +138,10 @@ Then in GitHub Actions:
       VTR_INPUT_report_format: html
 ```
 
+Similarly, if more than one default build task is defined, the
+`VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one
+to use. Otherwise, you will be interactively prompted to select one.
+
 The `dependsOn` key is also supported:
 
 ```json
@@ -153,12 +151,12 @@ The `dependsOn` key is also supported:
     {
       "label": "install",
       "type": "shell",
-      "command": "poetry install --sync"
+      "command": "uv sync"
     },
     {
       "label": "build",
       "type": "shell",
-      "command": "poetry build",
+      "command": "uv build",
       "dependsOn": ["install"]
     }
   ]
@@ -167,18 +165,14 @@ The `dependsOn` key is also supported:
 
 ```bash
 $ vtr build
-[1/2] Executing task "install": C:\Program Files\WindowsApps\Microsoft.PowerShell_7.3.4.0_x64__8wekyb3d8bbwe\pwsh.exe -Command poetry install --sync
-Installing dependencies from lock file
-
-No dependencies to install or update
-
-Installing the current project: vscode-task-runner (0.1.1)
-[2/2] Executing task "build": C:\Program Files\WindowsApps\Microsoft.PowerShell_7.3.4.0_x64__8wekyb3d8bbwe\pwsh.exe -Command poetry build
-Building vscode-task-runner (0.1.1)
-  - Building sdist
-  - Built vscode_task_runner-0.1.1.tar.gz
-  - Building wheel
-  - Built vscode_task_runner-0.1.1-py3-none-any.whl
+[1/2] Executing task install: /bin/bash -c uv sync
+Resolved 30 packages in 0.52ms
+Audited 28 packages in 0.05ms
+[2/2] Executing task build: /bin/bash -c uv build
+Building source distribution...
+Building wheel from source distribution...
+Successfully built dist/vscode_task_runner-2.0.0.tar.gz
+Successfully built dist/vscode_task_runner-2.0.0-py3-none-any.whl
 ```
 
 You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
@@ -186,7 +180,7 @@ You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
 ```yaml
 repos:
   - repo: https://github.com/NathanVaughn/vscode-task-runner
-    rev: v0.1.7
+    rev: v2.0.0
     hooks:
       - id: vtr
         # Optionally override the hook name here
@@ -217,7 +211,7 @@ project's virtual environment.
 
 ## Implemented Features
 
-- [Predefined variables](https://code.visualstudio.com/docs/editor/variables-reference#_predefined-variables):
+- [Predefined variables](https://code.visualstudio.com/docs/reference/variables-reference#_predefined-variables):
   - `${userHome}`
   - `${workspaceRoot}`
   - `${workspaceFolder}`
@@ -234,16 +228,17 @@ project's virtual environment.
   - Task level settings
   - Task level OS-specific settings
 - Task configuration:
-  - `cwd`
-  - `env`
   - `type`
     - `"process"`
     - `"shell"`
   - `command`
+  - `options`
+    - `shell`
+      - `executable`
+      - `args`
+    - `cwd`
+    - `env`
   - `args`
-  - `shell`
-    - `executable`
-    - `args`
   - `dependsOn`
 - Quoting support:
   - `"escape"`
@@ -260,7 +255,7 @@ project's virtual environment.
 - Problem matchers
 - Background tasks
 - UNC path conversion
-- Parallel `dependsOn` task execution
+- Parallel `dependsOn` task execution (Coming soon!)
 - Task types other than `"process"` or `"shell"` (such as `"npm"`, `"docker"`, etc.)
 
 ## Differences from VS Code
@@ -269,10 +264,12 @@ project's virtual environment.
   shell will be used
 - Only schema version 2.0.0 is supported
 - If no `cwd` is specified, the current working directory is used for the task instead
+- Does not support deprecated options (`isShellCommand`, `isBuildCommand`)
 - Does not support any extensions that add extra options/functionality
 - Does not load any VS Code settings
 - Extra arguments option
 - `VTR_INPUT_${id}` environment variables
+- `VTR_DEFAULT_BUILD_TASK` environment variable
 
 ## Similar Projects
 

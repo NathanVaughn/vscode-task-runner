@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "command": "command1",
+    "args": [
+        "arg1",
+        "arg2"
+    ],
+    "linux": {
+        "args": [
+            "arg3",
+            "arg4"
+        ],
+    },
+    "tasks": [
+        {
+            "label": "arg-test",
+            "command": "command1",
+            "args": [
+                "arg5",
+                "arg6"
+            ],
+            "linux": {
+                "args": [
+                    "arg7",
+                    "arg8"
+                ],
+            },
+        },
+    ]
+}

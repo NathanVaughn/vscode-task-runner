@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "TEST1": "value1"
+        }
+    },
+    "linux": {
+        "options": {
+            "env": {
+                "TEST2": "value2"
+            }
+        }
+    },
+    "tasks": [
+        {
+            "label": "env-test",
+            "command": "echo $TEST1 $TEST2 $TEST3 $TEST4",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "TEST3": "value3"
+                }
+            },
+            "linux": {
+                "options": {
+                    "env": {
+                        "TEST4": "value4"
+                    }
+                }
+            },
+        },
+    ]
+}

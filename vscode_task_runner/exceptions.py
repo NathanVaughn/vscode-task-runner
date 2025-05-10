@@ -1,58 +1,19 @@
-class TasksFileNotFound(Exception):
+class UnsupportedInput(Exception):
     """
-    .vscode/taks.json does not exist.
+    Exception raised when an input is an unsupported type (command)
     """
-
-    pass
-
-
-class FileNotFound(Exception):
-    """
-    When a file does not exist.
-    """
-
-    pass
-
-
-class DirectoryNotFound(Exception):
-    """
-    When a directory like a task working directory does not exist.
-    """
-
-    pass
-
-
-class ShellNotFound(Exception):
-    """
-    A shell could not be located.
-    """
-
-    pass
 
 
 class UnsupportedVariable(Exception):
     """
-    Used when a variable is present that is not supported.
+    Exception raised when a referenced variable is unsupported
     """
 
-    pass
 
-
-class UnsupportedValue(Exception):
+class UnsupportedTaskType(Exception):
     """
-    Used when a selected value is valid but not supported.
+    Raised when a task type is not supported
     """
-
-    pass
-
-
-class InvalidValue(Exception):
-    """
-    Used when an item is invalid, not just unsupported. Like a string that should
-    be a list.
-    """
-
-    pass
 
 
 class ResponseNotProvided(Exception):
@@ -60,4 +21,45 @@ class ResponseNotProvided(Exception):
     When an input is cancelled by the user.
     """
 
-    pass
+
+class TasksFileNotFound(Exception):
+    """
+    .vscode/taks.json does not exist.
+    """
+
+
+class TasksFileInvalid(Exception):
+    """
+    .vscode/tasks.json is invalid.
+    """
+
+
+class ShellNotFound(Exception):
+    """
+    When a usable shell could not be identified
+    """
+
+
+class ExecutableNotFound(Exception):
+    """
+    When a binary file could not be found
+    """
+
+
+class MissingCommand(Exception):
+    """
+    When a task does not have a command defined but should (process)
+    """
+
+
+class WorkingDirectoryNotFound(Exception):
+    """
+    Raised when a defined working directory does not exist
+    """
+
+
+class BadInputEnvironmentVariable(Exception):
+    """
+    Raised when a task input provided by an environment variable is not one
+    of the selections.
+    """
