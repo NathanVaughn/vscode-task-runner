@@ -2,7 +2,7 @@ import os
 import platform
 from typing import Dict, Literal
 
-from vscode_task_runner.models.enums import ShellTypeEnum, TaskTypeEnum
+from vscode_task_runner.models.enums import ShellTypeEnum
 from vscode_task_runner.models.shell import (
     ShellQuotingOptions,
     ShellQuotingOptionsEscape,
@@ -19,11 +19,14 @@ PLATFORM_KEYS: Dict[_PY_PLATFORM_LITERAL, _VSC_PLATFORM_LITERAL] = {
     "Linux": "linux",
     "Darwin": "osx",
 }
+"""
+Conversion of Python platform.system() to VS Code platform key.
+"""
 
 PLATFORM_KEY = PLATFORM_KEYS[platform.system()]  # type: ignore
-
-
-OPTIONS_KEY = "options"
+"""
+Current VS Code platform key
+"""
 
 # https://github.com/microsoft/vscode/blob/ab7c32a5b5275c3fa9552675b6b6035888068fd7/src/vs/workbench/contrib/tasks/browser/terminalTaskSystem.ts#L163-L191
 DEFAULT_SHELL_QUOTING = {
@@ -44,11 +47,15 @@ DEFAULT_SHELL_QUOTING = {
         weak='"',
     ),
 }
+"""
+Shell quoting settings that are used for each shell type.
+"""
 
 DEFAULT_OS_QUOTING: Dict[_VSC_PLATFORM_LITERAL, ShellQuotingOptions] = {
     "linux": DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
     "osx": DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
     "windows": DEFAULT_SHELL_QUOTING[ShellTypeEnum.PowerShell],
 }
-
-DEFAULT_TASK_TYPE = TaskTypeEnum.process
+"""
+Shell quoting settings that are used by default for each OS.
+"""
