@@ -22,9 +22,9 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
         + " If a single task is requested, but has dependent tasks, only the top-level"
         + " task will be given the extra arguments."
         + f' If the task is a "{TaskTypeEnum.process.value}" type, then this will be added to "args".'
-        + f' If the task is a "{TaskTypeEnum.process.value}" type with only a "command" then this will'
+        + f' If the task is a "{TaskTypeEnum.shell.value}" type with only a "command" then this will'
         + " be tacked on to the end and joined by spaces."
-        + f' If the task is a "{TaskTypeEnum.process.value}" type with '
+        + f' If the task is a "{TaskTypeEnum.shell.value}" type with '
         + ' a "command" and "args", then this will be appended to "args".',
     )
     parser.add_argument(
