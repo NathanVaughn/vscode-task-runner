@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "test",
+            "command": "echo",
+            "type": "shell"
+            // https://github.com/NathanVaughn/vscode-task-runner/pull/98
+            // "ō"
+        },
+    ]
+}
