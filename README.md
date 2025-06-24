@@ -39,8 +39,7 @@ if it makes you feel better).
 
 Tasks will be searched for in the following order in the current working directory:
 
-- A `.vscode/tasks.json` file
-- A `.code-workspace` file
+- The `.vscode/tasks.json` file
 - The alphabetically first file with the suffix `.code-workspace`
 
 ## Examples

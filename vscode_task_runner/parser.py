@@ -20,19 +20,13 @@ def load_vscode_json(path: str) -> dict:
 
     # possible paths
     tasks_json = os.path.join(path, TASKS_FILE)
-    code_workspace_json = os.path.join(path, CODE_WORKSPACE_SUFFIX)
     code_workspace_jsons = sorted(pathlib.Path(path).glob(f"*{CODE_WORKSPACE_SUFFIX}"))
 
     # prefer the tasks.json file
     if os.path.isfile(tasks_json):
         file_to_use = tasks_json
 
-    # fallback to the code workspace file if it exists
-    elif os.path.isfile(code_workspace_json):
-        file_to_use = code_workspace_json
-        tasks_key = True
-
-    # last resort, open first file that ends with .code-workspace
+    # fallback to first file that ends with .code-workspace
     else:
         for file in code_workspace_jsons:
             if file.is_file():
@@ -51,7 +45,10 @@ def load_vscode_json(path: str) -> dict:
     if tasks_key:
         # if we are using a code workspace file, we need to get the tasks key
         if "tasks" not in data:
-            raise TasksFileInvalid("'tasks' key not found in code-workspace file")
+            raise TasksFileInvalid(
+                f"'tasks' key not found in {CODE_WORKSPACE_SUFFIX} file"
+            )
+
         data = data["tasks"]
 
     return data
