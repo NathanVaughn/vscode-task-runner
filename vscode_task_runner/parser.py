@@ -18,7 +18,7 @@ def load_vscode_json(path: str) -> dict:
     if not os.path.isfile(tasks_json):
         raise TasksFileNotFound(f"Tasks file not found at {tasks_json}")
 
-    with open(tasks_json, "r") as fp:
+    with open(tasks_json, "r", encoding="utf-8") as fp:
         # use pyjson 5 to deal with comments and other bad syntax
         return pyjson5.decode(fp.read())
 

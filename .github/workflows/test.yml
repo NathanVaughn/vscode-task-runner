@@ -38,9 +38,6 @@ jobs:
       # this is done, so the local version of vscode-task-runner is used,
       # not the pypi release
       # https://github.com/NathanVaughn/reusable-actions/blob/main/.github/workflows/python-test-uv.yml
-      - name: Install Dependencies
-        run: uv sync
-
       - name: Run Pre-Commit Hooks
         run: uv run vscode_task_runner pre-commit --color=always --show-diff-on-failure
 
