@@ -51,7 +51,7 @@ def load_vscode_json(path: str) -> dict:
     if tasks_key:
         # if we are using a code workspace file, we need to get the tasks key
         if "tasks" not in data:
-            raise TasksFileInvalid("Tasks key not found in code workspace file")
+            raise TasksFileInvalid("'tasks' key not found in code-workspace file")
         data = data["tasks"]
 
     return data
