@@ -1,0 +1,13 @@
+{
+    "folders": [],
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "test",
+                "command": "echo",
+                "type": "shell"
+            },
+        ]
+    }
+}
