@@ -24,7 +24,7 @@ class ResponseNotProvided(Exception):
 
 class TasksFileNotFound(Exception):
     """
-    .vscode/taks.json does not exist.
+    .vscode/tasks.json does not exist.
     """
 
 

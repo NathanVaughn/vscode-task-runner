@@ -34,9 +34,13 @@ uv tool install vscode-task-runner
 ```
 
 Use the command `vtr` on the command line and provide the label of the task(s).
-There must be a `.vscode/tasks.json` file in the working directory you run the
-command in. (You can also use the `vscode-task-runner` command instead
+(You can also use the `vscode-task-runner` command instead
 if it makes you feel better).
+
+Tasks will be searched for in the following order in the current working directory:
+
+- The `.vscode/tasks.json` file
+- The alphabetically first file with the suffix `.code-workspace`
 
 ## Examples
 
@@ -47,7 +51,7 @@ if it makes you feel better).
     {
       "label": "pre-commit",
       "type": "shell",
-      "command": "poetry run pre-commit run --all-files"
+      "command": "uv run pre-commit run --all-files"
     }
   ]
 }

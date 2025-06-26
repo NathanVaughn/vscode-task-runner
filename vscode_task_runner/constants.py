@@ -9,7 +9,7 @@ from vscode_task_runner.models.shell import (
 )
 
 TASKS_FILE = os.path.join(".vscode", "tasks.json")
-
+CODE_WORKSPACE_SUFFIX = ".code-workspace"
 
 _PY_PLATFORM_LITERAL = Literal["Windows", "Linux", "Darwin"]
 _VSC_PLATFORM_LITERAL = Literal["windows", "linux", "osx"]
