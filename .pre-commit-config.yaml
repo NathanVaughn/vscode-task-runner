@@ -16,14 +16,14 @@ repos:
 -   hooks:
     -   id: uv-lock
     repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.7.15
+    rev: 0.7.17
 -   hooks:
     -   args:
         -   --fix
         id: ruff-check
     -   id: ruff-format
     repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.0
+    rev: v0.12.1
 -   hooks:
     -   id: pyright
     repo: https://github.com/RobertCraigie/pyright-python
