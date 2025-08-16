@@ -1,5 +1,11 @@
 {
     "image": "ghcr.io/nathanvaughn/devcontainers/python:latest",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "username": "automatic",
+            "updateRemoteUserUID": true
+        }
+    },
     "customizations": {
         "vscode": {
             "extensions": [
