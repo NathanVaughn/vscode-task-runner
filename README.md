@@ -213,6 +213,27 @@ to `true`.
 Otherwise, `poetry` may think the `pre-commit` virtual environment is your
 project's virtual environment.
 
+## Options
+
+By default, VS Code Task Runner will create a job summary for supported CI/CD systems
+([GitHub Actions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#adding-a-job-summary)
+and
+[Azure Pipelines](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#uploadsummary-add-some-markdown-content-to-the-build-summary)).
+This can be disabled with the `--skip-summary` argument before the task label(s)
+or the `VTR_SKIP_SUMMARY` environment variable.
+
+```bash
+vtr --skip-summary tests build
+```
+
+Additionally, by default, VS Code Task Runner will immediately exit if a task fails.
+This can be disabled with the `--continue-on-error` argument before the task label(s)
+or the `VTR_CONTINUE_ON_ERROR` environment variable.
+
+```bash
+vtr --continue-on-error tests build
+```
+
 ## Implemented Features
 
 - [Predefined variables](https://code.visualstudio.com/docs/reference/variables-reference#_predefined-variables):

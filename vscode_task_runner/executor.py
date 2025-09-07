@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 from typing import Optional
@@ -132,7 +133,7 @@ def _collect_levels_recursive(task: Task) -> list[ExecutionLevel]:
     return execution_levels
 
 
-def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
+def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
     """
     Execute the tasks in the order they are defined in the tasks.json file.
     """
@@ -152,6 +153,14 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
         [task.resolve_variables() for level in levels for task in level.tasks]
     )
 
+    # build a flat list of all task labels
+    task_label_list = [task.label for level in levels for task in level.tasks]
+
+    # track task results
+    completed: list[str] = []
+    skipped: list[str] = []
+    failed: list[str] = []
+
     # iterate through all tasks
     index = 0
     for level in levels:
@@ -165,12 +174,37 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> None:
             if index == task_count:
                 execute_extra_args = extra_args
 
-            execute_task(
+            return_code = execute_task(
                 task, index=index, total=task_count, extra_args=execute_extra_args
             )
 
+            # track results
+            if return_code == 0:
+                completed.append(task.label)
+            else:
+                failed.append(task.label)
 
-def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> None:
+                if not os.environ.get("VTR_CONTINUE_ON_ERROR"):
+                    skipped = task_label_list[index:]
+
+                    # exit immediately
+                    printer.summary(
+                        completed_tasks=completed,
+                        skipped_tasks=skipped,
+                        failed_tasks=failed,
+                    )
+
+                    return return_code
+
+    # print summary
+    printer.summary(
+        completed_tasks=completed, skipped_tasks=skipped, failed_tasks=failed
+    )
+
+    return int(bool(failed))
+
+
+def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> int:
     """
     Actually execute the task. Takes the task object, current index, total number,
     and any extra args.
@@ -179,7 +213,7 @@ def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> N
         printer.info(
             f"[{index}/{total}] Task {printer.yellow(task.label)} has no direct command to execute"
         )
-        return
+        return 0
 
     cmd = task_subprocess_command(task, extra_args=extra_args)
 
@@ -200,4 +234,5 @@ def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> N
             printer.error(
                 f"Task {printer.yellow(task.label)} returned with exit code {proc.returncode}"
             )
-            sys.exit(proc.returncode)
+
+        return proc.returncode

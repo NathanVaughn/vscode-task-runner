@@ -1,7 +1,5 @@
 import subprocess
 
-import pytest
-
 from tests.conftest import task_obj
 from vscode_task_runner import executor
 
@@ -53,9 +51,7 @@ def test_execute_tasks_fail(
     """
     t1 = task_obj(__file__, "Task1")
 
-    with pytest.raises(SystemExit):
-        executor.execute_tasks([t1], extra_args=[])
-
+    assert executor.execute_tasks([t1], extra_args=[]) == 1
     assert len(subprocess.run.call_args_list) == 1
     assert subprocess.run.call_args_list[0].kwargs.get("args") == [
         "echo",
