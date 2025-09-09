@@ -272,6 +272,13 @@ def test_build_shell_command_line_windows(
             ["\\'hello world\\'"],
             "command1 '\\'hello world\\''",
         ),
+        (
+            ShellTypeEnum.SH,
+            DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
+            "w",  # test signle character command
+            ["kubectl get pods -n authentik"],
+            "w 'kubectl get pods -n authentik'",
+        ),
     ],
 )
 def test_build_shell_command_line_linux(
