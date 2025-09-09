@@ -217,7 +217,7 @@ def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> i
 
     cmd = task_subprocess_command(task, extra_args=extra_args)
 
-    with printer.group(f"Task {task.label}"):
+    def _run_cmd() -> int:
         printer.info(
             f"[{index}/{total}] Executing task {printer.yellow(task.label)}: {printer.blue(joiner(cmd))}"
         )
@@ -236,3 +236,10 @@ def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> i
             )
 
         return proc.returncode
+
+    # if we have more than one task, group the output
+    if total > 1:
+        with printer.group(f"Task {task.label}"):
+            return _run_cmd()
+    else:
+        return _run_cmd()
