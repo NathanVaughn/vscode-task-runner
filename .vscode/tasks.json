@@ -13,7 +13,7 @@
         },
         {
             "label": "tests",
-            "command": "uv run pytest --cov=vscode_task_runner/ --cov-report html",
+            "command": "uv run pytest --cov=vscode_task_runner/ --cov-report html --cov-branch",
             "type": "shell"
         },
         {

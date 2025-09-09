@@ -89,7 +89,7 @@ def create_shell_launch_config(
             to_add.append("-e")
         elif shell_config.type_ == ShellTypeEnum.CMD:
             to_add.extend(["/d", "/c"])
-        elif shell_config.type_ == ShellTypeEnum.Unknown:
+        elif shell_config.type_ == ShellTypeEnum.Unknown:  # pragma: no branch
             # default to a -c, works for most shells
             to_add.append("-c")
 

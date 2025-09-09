@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 from typing import List
 
@@ -28,6 +29,16 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
         + ' a "command" and "args", then this will be appended to "args".',
     )
     parser.add_argument(
+        "--skip-summary",
+        action="store_true",
+        help="Skip creating a CI/CD step summary.",
+    )
+    parser.add_argument(
+        "--continue-on-error",
+        action="store_true",
+        help="Continue executing tasks even if one fails. The final exit code will be 1 if any task failed.",
+    )
+    parser.add_argument(
         "task_labels",
         nargs="+",
         choices=task_choices,
@@ -53,6 +64,13 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
 
     if len(args.task_labels) > 1 and extra_args:
         parser.error("Extra arguments can only be used with a single task.")
+
+    # manually set environment variable for ourself
+    if args.skip_summary:
+        os.environ["VTR_SKIP_SUMMARY"] = "1"
+
+    if args.continue_on_error:
+        os.environ["VTR_CONTINUE_ON_ERROR"] = "1"
 
     return ArgParseResult(task_labels=args.task_labels, extra_args=extra_args)
 
@@ -84,9 +102,7 @@ def run() -> int:
     tasks = [tasks.tasks_dict[label] for label in parse_result.task_labels]
 
     # run
-    executor.execute_tasks(
+    return executor.execute_tasks(
         tasks=tasks,
         extra_args=parse_result.extra_args,
     )
-
-    return 0  # pragma: no cover
