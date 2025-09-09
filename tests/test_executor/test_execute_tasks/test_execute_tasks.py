@@ -24,6 +24,22 @@ def test_execute_tasks(subprocess_run_mock: None, shutil_which_patch: None) -> N
     ]
 
 
+def test_execute_tasks_single_ask(
+    subprocess_run_mock: None, shutil_which_patch: None
+) -> None:
+    """
+    Test general execution of tasks, with a single task.
+    """
+    t2 = task_obj(__file__, "Task2")
+
+    executor.execute_tasks([t2], extra_args=[])
+
+    assert subprocess.run.call_args_list[0].kwargs.get("args") == [
+        "echo",
+        "I come first",
+    ]
+
+
 def test_execute_virtual_tasks(
     subprocess_run_mock: None, shutil_which_patch: None
 ) -> None:
