@@ -1,4 +1,5 @@
 import os
+import tempfile
 from contextlib import contextmanager
 from typing import Generator
 
@@ -61,6 +62,47 @@ def red(msg: str) -> str:  # pragma: no cover
     Returns a red-colored string. Respects existing colors.
     """
     return _color_string(msg, colorama.Fore.RED)
+
+
+def summary(
+    completed_tasks: list[str], skipped_tasks: list[str], failed_tasks: list[str]
+) -> None:  # pragma: no cover
+    """
+    Uploads a step summary in GitHub Actions/Azure Pipelines.
+    """
+    if os.environ.get("VTR_SKIP_SUMMARY"):
+        return
+
+    msg = ""
+
+    # completed
+    if completed_tasks:
+        msg += f"## {len(completed_tasks)} Task{'s' * (len(completed_tasks) > 1)} Completed ✅\n\n"
+        msg += "\n".join(f"- `{task}`" for task in completed_tasks) + "\n\n"
+
+    # skipped
+    if skipped_tasks:
+        msg += f"## {len(skipped_tasks)} Task{'s' * (len(skipped_tasks) > 1)} Skipped ⏩\n\n"
+        msg += "\n".join(f"- `{task}`" for task in skipped_tasks) + "\n\n"
+
+    # failed
+    if failed_tasks:
+        msg += (
+            f"## {len(failed_tasks)} Task{'s' * (len(failed_tasks) > 1)} Failed ❌\n\n"
+        )
+        msg += "\n".join(f"- `{task}`" for task in failed_tasks) + "\n\n"
+
+    if IS_GITHUB_ACTIONS:
+        summary_file = os.environ["GITHUB_STEP_SUMMARY"]
+        with open(summary_file, "w", encoding="utf-8") as fp:
+            fp.write(msg + "\n")
+
+    elif IS_AZURE_PIPELINES:
+        temp_file_fd, temp_file_name = tempfile.mkstemp(suffix=".md", text=True)
+        with os.fdopen(temp_file_fd, "w", encoding="utf-8") as fp:
+            fp.write(msg + "\n")
+
+        _print_flush(f"##vso[task.uploadsummary]{temp_file_name}")
 
 
 def start_group(name: str) -> None:  # pragma: no cover

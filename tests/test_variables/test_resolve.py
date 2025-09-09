@@ -168,6 +168,33 @@ def test_get_input_value_unsupported(mocker: MockerFixture) -> None:
 
 @pytest.mark.parametrize(
     "environment_variable",
+    [("VTR_INPUT_TEST4", "value4")],
+    indirect=True,
+)
+def test_get_input_value_unsupported2(
+    environment_variable: None, mocker: MockerFixture
+) -> None:
+    """
+    Test what happens when a command input is provided, with an envrionment variable set
+    """
+    mocker.patch.object(
+        resolve,
+        "INPUTS",
+        new={
+            "TEST4": Input(
+                id="TEST4",
+                description="Description4",
+                type=InputTypeEnum.command,
+            )
+        },
+    )
+
+    with pytest.raises(UnsupportedInput):
+        resolve.get_input_value("TEST4")
+
+
+@pytest.mark.parametrize(
+    "environment_variable",
     [("VTR_INPUT_TEST5", "value5")],
     indirect=True,
 )
@@ -217,6 +244,28 @@ def test_get_input_value_env_pickstring(
     )
 
     assert resolve.get_input_value("TEST6") == "option1"
+
+
+def test_get_input_value_text_default(mocker: MockerFixture) -> None:
+    """
+    Test that input variables that are of type text are requested, with default value
+    """
+    mocker.patch.object(questionary, attribute="text")
+    mocker.patch.object(
+        resolve,
+        "INPUTS",
+        new={
+            "TEST7": Input(
+                id="TEST7",
+                description="Description7",
+                type=InputTypeEnum.promptString,
+                default="default7",
+            )
+        },
+    )
+
+    resolve.get_input_value("TEST7")
+    questionary.text.assert_called_once_with("Description7", default="default7")
 
 
 @pytest.mark.parametrize(

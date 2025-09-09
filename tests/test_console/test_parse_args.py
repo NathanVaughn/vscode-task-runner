@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from vscode_task_runner import console
@@ -54,3 +56,24 @@ def test_parse_args_error(sys_argv: list[str]) -> None:
     """
     with pytest.raises(SystemExit):
         console.parse_args(sys_argv, ["Test1", "Test2", "Test3"])
+
+
+def test_parse_args_env_vars() -> None:
+    """
+    Test the argument parser with options that turn into environment variables
+    """
+
+    # Clear environment variables for the test
+    if "VTR_SKIP_SUMMARY" in os.environ:
+        del os.environ["VTR_SKIP_SUMMARY"]
+    if "VTR_CONTINUE_ON_ERROR" in os.environ:
+        del os.environ["VTR_CONTINUE_ON_ERROR"]
+
+    console.parse_args(["Test1", "--skip-summary", "--continue-on-error"], ["Test1"])
+
+    assert os.environ["VTR_SKIP_SUMMARY"] == "1"
+    assert os.environ["VTR_CONTINUE_ON_ERROR"] == "1"
+
+    # Wipe environment variables after the test
+    del os.environ["VTR_SKIP_SUMMARY"]
+    del os.environ["VTR_CONTINUE_ON_ERROR"]

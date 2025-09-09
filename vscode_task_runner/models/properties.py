@@ -76,7 +76,7 @@ class CommandProperties(BaseModel):
             return self.windows
         elif PLATFORM_KEY == "linux":
             return self.linux
-        elif PLATFORM_KEY == "osx":
+        elif PLATFORM_KEY == "osx":  # pragma: no branch
             return self.osx
 
     def resolve_variables(self) -> None:

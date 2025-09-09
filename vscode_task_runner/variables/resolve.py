@@ -45,6 +45,9 @@ def get_input_value(input_id: str) -> str:
             check_item_with_options(env_value, options)
             return env_value
 
+        else:
+            raise UnsupportedInput(f"Unsupported input variable type '{input_.type_}'")
+
     # otherwise, obtain from user input
     if input_.type_ == InputTypeEnum.promptString:
         question_type = questionary.text
