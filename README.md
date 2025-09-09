@@ -15,7 +15,7 @@ This allows you to write tasks once, and be able to run them in your editor,
 and in CI/CD. Basically, use `.vscode/tasks.json` as a Makefile.
 
 This tool aims to be as feature-complete as possible with what VS Code supports for
-Windows, MacOSX and Linux. Much of the logic is taken directly from the VS Code
+Windows, MacOSX, and Linux. Much of the logic is taken directly from the VS Code
 source code and reimplemented in Python.
 
 This pairs well with VS Code extensions that add buttons to run tasks such as
@@ -33,11 +33,11 @@ pipx install vscode-task-runner
 uv tool install vscode-task-runner
 ```
 
-Use the command `vtr` on the command line and provide the label of the task(s).
-(You can also use the `vscode-task-runner` command instead
-if it makes you feel better).
+Use the command `vtr` on the command line and provide the label of the task(s) you
+want to run. You can also use the `vscode-task-runner` command instead
+if it makes you feel better.
 
-Tasks will be searched for in the following order in the current working directory:
+Tasks will be searched for in the current working directory in the following order:
 
 - The `.vscode/tasks.json` file
 - The alphabetically first file with the suffix `.code-workspace`
@@ -184,7 +184,7 @@ You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
 ```yaml
 repos:
   - repo: https://github.com/NathanVaughn/vscode-task-runner
-    rev: v2.0.0
+    rev: v2.2.0
     hooks:
       - id: vtr
         # Optionally override the hook name here
@@ -220,19 +220,24 @@ By default, VS Code Task Runner will create a job summary for supported CI/CD sy
 and
 [Azure Pipelines](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#uploadsummary-add-some-markdown-content-to-the-build-summary)).
 This can be disabled with the `--skip-summary` argument before the task label(s)
-or the `VTR_SKIP_SUMMARY` environment variable.
+or the `VTR_SKIP_SUMMARY` environment variable being set to any value.
 
 ```bash
 vtr --skip-summary tests build
 ```
 
-Additionally, by default, VS Code Task Runner will immediately exit if a task fails.
+Additionally, by default, VS Code Task Runner will immediately exit if a task fails,
+like VS Code does. However, this can be useful if you want to run multiple tasks
+such as formatting, test, and build tasks, and see all of the results.
+
 This can be disabled with the `--continue-on-error` argument before the task label(s)
-or the `VTR_CONTINUE_ON_ERROR` environment variable.
+or the `VTR_CONTINUE_ON_ERROR` environment variable being set to any value.
 
 ```bash
 vtr --continue-on-error tests build
 ```
+
+Obviously, this will not do anything different if only a single task is being run.
 
 ## Implemented Features
 
@@ -280,7 +285,7 @@ vtr --continue-on-error tests build
 - Problem matchers
 - Background tasks
 - UNC path conversion
-- Parallel `dependsOn` task execution (Coming soon!)
+- Parallel `dependsOn` task execution (coming soon)
 - Task types other than `"process"` or `"shell"` (such as `"npm"`, `"docker"`, etc.)
 
 ## Differences from VS Code
@@ -292,7 +297,8 @@ vtr --continue-on-error tests build
 - Does not support deprecated options (`isShellCommand`, `isBuildCommand`)
 - Does not support any extensions that add extra options/functionality
 - Does not load any VS Code settings
-- Extra arguments option
+- Additional extra arguments option
+- Continue on error functionality
 - `VTR_INPUT_${id}` environment variables
 - `VTR_DEFAULT_BUILD_TASK` environment variable
 
