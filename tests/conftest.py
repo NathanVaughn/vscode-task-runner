@@ -71,6 +71,7 @@ def subprocess_run_mock(mocker: MockerFixture) -> None:
     mocked_process = mocker.MagicMock()
     mocked_process.returncode = 0
     mocker.patch.object(subprocess, "run", return_value=mocked_process)
+    mocker.patch.object(subprocess, "Popen", return_value=mocked_process)
 
 
 @pytest.fixture
@@ -81,6 +82,7 @@ def subprocess_run_mock_fail(mocker: MockerFixture) -> None:
     mocked_process = mocker.MagicMock()
     mocked_process.returncode = 1
     mocker.patch.object(subprocess, "run", return_value=mocked_process)
+    mocker.patch.object(subprocess, "Popen", return_value=mocked_process)
 
 
 @pytest.fixture

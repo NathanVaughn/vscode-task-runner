@@ -43,7 +43,7 @@ def info(msg: str) -> None:  # pragma: no cover
     """
     Prints a standard message.
     """
-    _print_flush(msg)
+    stdout(msg)
 
 
 def error(msg: str) -> None:  # pragma: no cover
@@ -51,11 +51,11 @@ def error(msg: str) -> None:  # pragma: no cover
     Prints an error to the console.
     """
     if IS_GITHUB_ACTIONS:
-        _print_flush(f"::error::{msg}")
+        stderr(f"::error::{msg}")
     elif IS_AZURE_PIPELINES:
-        _print_flush(f"##vso[task.logissue type=error]{msg}")
+        stderr(f"##vso[task.logissue type=error]{msg}")
     else:
-        _print_flush(f"{red(msg)}")
+        stderr(f"{red(msg)}")
 
 
 def blue(msg: str) -> str:  # pragma: no cover
@@ -117,7 +117,7 @@ def summary(
         with os.fdopen(temp_file_fd, "w", encoding="utf-8") as fp:
             fp.write(msg + "\n")
 
-        _print_flush(f"##vso[task.uploadsummary]{temp_file_name}")
+        stdout(f"##vso[task.uploadsummary]{temp_file_name}")
 
 
 def start_group(name: str) -> None:  # pragma: no cover
@@ -125,9 +125,9 @@ def start_group(name: str) -> None:  # pragma: no cover
     Creates a new group in the GitHub Actions output.
     """
     if IS_GITHUB_ACTIONS:
-        _print_flush(f"::group::{name}")
+        stdout(f"::group::{name}")
     elif IS_AZURE_PIPELINES:
-        _print_flush(f"##[group]{name}")
+        stdout(f"##[group]{name}")
 
 
 def end_group() -> None:  # pragma: no cover
@@ -135,9 +135,9 @@ def end_group() -> None:  # pragma: no cover
     Ends a group in the GitHub Actions output.
     """
     if IS_GITHUB_ACTIONS:
-        _print_flush("::endgroup::")
+        stdout("::endgroup::")
     elif IS_AZURE_PIPELINES:
-        _print_flush("##[endgroup]")
+        stdout("##[endgroup]")
 
 
 @contextmanager

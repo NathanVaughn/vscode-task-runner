@@ -13,11 +13,11 @@ def test_execute_tasks(subprocess_run_mock: None, shutil_which_patch: None) -> N
 
     executor.execute_tasks([t1], extra_args=["--help"])
 
-    assert subprocess.run.call_args_list[0].kwargs.get("args") == [
+    assert subprocess.Popen.call_args_list[0].kwargs.get("args") == [  # type: ignore
         "echo",
         "I come first",
     ]
-    assert subprocess.run.call_args_list[1].kwargs.get("args") == [
+    assert subprocess.Popen.call_args_list[1].kwargs.get("args") == [  # type: ignore
         "echo",
         "hello world",
         "--help",
@@ -34,7 +34,7 @@ def test_execute_tasks_single_ask(
 
     executor.execute_tasks([t2], extra_args=[])
 
-    assert subprocess.run.call_args_list[0].kwargs.get("args") == [
+    assert subprocess.Popen.call_args_list[0].kwargs.get("args") == [  # type: ignore
         "echo",
         "I come first",
     ]
@@ -50,11 +50,11 @@ def test_execute_virtual_tasks(
 
     executor.execute_tasks([t3], extra_args=[])
 
-    assert subprocess.run.call_args_list[0].kwargs.get("args") == [
+    assert subprocess.Popen.call_args_list[0].kwargs.get("args") == [  # type: ignore
         "echo",
         "I come first",
     ]
-    assert subprocess.run.call_args_list[1].kwargs.get("args") == [
+    assert subprocess.Popen.call_args_list[1].kwargs.get("args") == [  # type: ignore
         "echo",
         "hello world",
     ]
@@ -70,8 +70,8 @@ def test_execute_tasks_fail(
 
     assert executor.execute_tasks([t1], extra_args=[]) == 1
     # make sure only the first task was attempted
-    assert len(subprocess.run.call_args_list) == 1
-    assert subprocess.run.call_args_list[0].kwargs.get("args") == [
+    assert len(subprocess.Popen.call_args_list) == 1  # type: ignore
+    assert subprocess.Popen.call_args_list[0].kwargs.get("args") == [  # type: ignore
         "echo",
         "I come first",
     ]
@@ -89,12 +89,12 @@ def test_execute_tasks_continue_on_errror(
 
     assert executor.execute_tasks([t1], extra_args=[]) == 1
     # make sure both tasks were attempted
-    assert len(subprocess.run.call_args_list) == 2
-    assert subprocess.run.call_args_list[0].kwargs.get("args") == [
+    assert len(subprocess.Popen.call_args_list) == 2  # type: ignore
+    assert subprocess.Popen.call_args_list[0].kwargs.get("args") == [  # type: ignore
         "echo",
         "I come first",
     ]
-    assert subprocess.run.call_args_list[1].kwargs.get("args") == [
+    assert subprocess.Popen.call_args_list[1].kwargs.get("args") == [  # type: ignore
         "echo",
         "hello world",
     ]
