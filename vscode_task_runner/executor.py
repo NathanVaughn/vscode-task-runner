@@ -1,11 +1,13 @@
+import concurrent.futures
 import os
 import subprocess
 import sys
+import time
 from typing import Optional
 
 from vscode_task_runner import printer
 from vscode_task_runner.exceptions import MissingCommand
-from vscode_task_runner.models.enums import TaskTypeEnum
+from vscode_task_runner.models.enums import TaskExecutionStateEnum, TaskTypeEnum
 from vscode_task_runner.models.execution_level import ExecutionLevel
 from vscode_task_runner.models.strings import csc_value
 from vscode_task_runner.models.task import DependsOrderEnum, Task
@@ -153,61 +155,115 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
         [task.resolve_variables() for level in levels for task in level.tasks]
     )
 
-    # build a flat list of all task labels
-    task_label_list = [task.label for level in levels for task in level.tasks]
-
     # track task results
     completed: list[str] = []
-    skipped: list[str] = []
     failed: list[str] = []
 
-    # iterate through all tasks
+    def should_continue(task: Task) -> bool:
+        """
+        Process the results of a task execution. If a task fails and
+        VTR_CONTINUE_ON_ERROR is not set, exit immediately.
+
+        This returns whether or not to continue execution.
+        """
+        # track results
+        if task._execution_returncode == 0:
+            completed.append(task.label)
+
+        else:
+            failed.append(task.label)
+
+            if not os.environ.get("VTR_CONTINUE_ON_ERROR"):
+                # exit immediately
+                printer.summary(
+                    completed_tasks=completed,
+                    # this is the only situation where we have skipped tasks
+                    skipped_tasks=[
+                        task.label
+                        for level in levels
+                        for task in level.tasks
+                        if task._execution_state == TaskExecutionStateEnum.pending
+                    ],
+                    failed_tasks=failed,
+                )
+
+                return False
+
+        return True
+
+    # this keeps track of which task we are on
+    # for the sake of extra args and printing
     index = 0
+
+    # iterate through all tasks
     for level in levels:
-        for task in level.tasks:
-            index += 1
+        if level.order == DependsOrderEnum.parallel:
+            # parallel execution
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = []
 
-            # only add extra args to last task
-            # since this function won't get extra args when more than one
-            # top level tasks are run
-            execute_extra_args = []
-            if index == task_count:
-                execute_extra_args = extra_args
+                for task in level.tasks:
+                    index += 1
 
-            return_code = execute_task(
-                task, index=index, total=task_count, extra_args=execute_extra_args
-            )
+                    # only add extra args to last task
+                    # since this function won't get extra args when more than one
+                    # top level tasks are run
+                    execute_extra_args = extra_args if index == task_count else []
 
-            # track results
-            if return_code == 0:
-                completed.append(task.label)
-            else:
-                failed.append(task.label)
-
-                if not os.environ.get("VTR_CONTINUE_ON_ERROR"):
-                    skipped = task_label_list[index:]
-
-                    # exit immediately
-                    printer.summary(
-                        completed_tasks=completed,
-                        skipped_tasks=skipped,
-                        failed_tasks=failed,
+                    # submit the task to the executor
+                    futures.append(
+                        executor.submit(
+                            execute_task,
+                            task,
+                            index,
+                            task_count,
+                            True,
+                            execute_extra_args,
+                        )
                     )
 
-                    return return_code
+                # this actually executes the tasks
+                [f.result() for f in futures]
 
-    # print summary
-    printer.summary(
-        completed_tasks=completed, skipped_tasks=skipped, failed_tasks=failed
-    )
+                for task in level.tasks:
+                    if not should_continue(task):
+                        return task._execution_returncode
 
+        else:
+            # sequential execution
+            for task in level.tasks:
+                index += 1
+
+                # only add extra args to last task
+                # since this function won't get extra args when more than one
+                # top level tasks are run
+                execute_extra_args = extra_args if index == task_count else []
+
+                execute_task(
+                    task,
+                    index=index,
+                    total=task_count,
+                    parallel=False,
+                    extra_args=execute_extra_args,
+                )
+
+                if not should_continue(task):
+                    return task._execution_returncode
+
+    # this is reached if all tasks completed successfully or continue on error is set
+    # to True
+    printer.summary(completed_tasks=completed, skipped_tasks=[], failed_tasks=failed)
     return int(bool(failed))
 
 
-def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> int:
+def execute_task(
+    task: Task, index: int, total: int, parallel: bool, extra_args: list[str]
+) -> int:
     """
     Actually execute the task. Takes the task object, current index, total number,
-    and any extra args.
+    whether this is a parallel task, and any extra args.
+
+    Returns the exit code of the task.
     """
     if is_virtual_task(task):
         printer.info(
@@ -221,21 +277,55 @@ def execute_task(task: Task, index: int, total: int, extra_args: list[str]) -> i
         printer.info(
             f"[{index}/{total}] Executing task {printer.yellow(task.label)}: {printer.blue(joiner(cmd))}"
         )
-        proc = subprocess.run(
+
+        subprocess_stdout = sys.stdout
+        subprocess_stderr = sys.stderr
+
+        if parallel:
+            # in parallel mode, we want to provide a prefix to each line
+            # so we need to pipe in the subprocess output
+            subprocess_stdout = subprocess.PIPE
+            subprocess_stderr = subprocess.PIPE
+
+        proc = subprocess.Popen(
             args=cmd,
             shell=False,
             cwd=task.cwd_use(),
             env=task.env_use(),
-            stdout=sys.stdout,
-            stderr=sys.stderr,
+            stdout=subprocess_stdout,
+            stderr=subprocess_stderr,
+            text=True,
         )
 
-        if proc.returncode != 0:
+        # since Popen is non-blocking, we need to wait for it to finish
+        while proc.poll() is None:
+            stdout, stderr = proc.communicate()
+
+            # only print output if in parallel mode
+            # otherwise, it goes directly to the console
+            if parallel:
+                for line in stdout.splitlines():
+                    printer.stdout(f"[{printer.yellow(task.label)}] {line}")
+
+                for line in stderr.splitlines():
+                    printer.stderr(f"[{printer.yellow(task.label)}] {line}")
+
+            # don't eat all the CPU
+            time.sleep(0.001)
+
+        # update task execution state
+        task._execution_returncode = proc.returncode
+        if task._execution_returncode != 0:
+            task._execution_state = TaskExecutionStateEnum.failed
+
+            # warning output if failed
             printer.error(
                 f"Task {printer.yellow(task.label)} returned with exit code {proc.returncode}"
             )
+        else:
+            task._execution_state = TaskExecutionStateEnum.completed
 
-        return proc.returncode
+        return task._execution_returncode
 
     # if we have more than one task, group the output
     if total > 1:

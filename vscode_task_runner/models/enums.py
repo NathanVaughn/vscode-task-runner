@@ -60,3 +60,13 @@ class GroupKindEnum(str, Enum):
     build = "build"
     test = "test"
     none = "none"
+
+
+class TaskExecutionStateEnum(Enum):
+    """
+    Enum for task execution states. Used internally.
+    """
+
+    pending = auto()
+    completed = auto()
+    failed = auto()

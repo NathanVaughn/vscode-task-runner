@@ -270,6 +270,9 @@ Obviously, this will not do anything different if only a single task is being ru
     - `env`
   - `args`
   - `dependsOn`
+  - `dependsOrder`
+    - `"sequence"`
+    - `"parallel"`
 - Quoting support:
   - `"escape"`
   - `"strong"`
@@ -285,7 +288,6 @@ Obviously, this will not do anything different if only a single task is being ru
 - Problem matchers
 - Background tasks
 - UNC path conversion
-- Parallel `dependsOn` task execution (coming soon)
 - Task types other than `"process"` or `"shell"` (such as `"npm"`, `"docker"`, etc.)
 
 ## Differences from VS Code
@@ -294,6 +296,8 @@ Obviously, this will not do anything different if only a single task is being ru
   shell will be used
 - Only schema version 2.0.0 is supported
 - If no `cwd` is specified, the current working directory is used for the task instead
+- If tasks are run in parallel, the output will be interleaved with a task labe
+  prefix applied
 - Does not support deprecated options (`isShellCommand`, `isBuildCommand`)
 - Does not support any extensions that add extra options/functionality
 - Does not load any VS Code settings

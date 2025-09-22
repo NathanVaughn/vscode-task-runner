@@ -1,6 +1,6 @@
 [project]
     name = "vscode-task-runner"
-    version = "2.2.0"
+    version = "2.3.0"
     description = "Task runner for VS Code tasks.json"
     readme = "README.md"
     authors = [{ name = "Nathan Vaughn", email = "nath@nvaughn.email" }]

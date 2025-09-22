@@ -1,7 +1,8 @@
 import os
+import sys
 import tempfile
 from contextlib import contextmanager
-from typing import Generator
+from typing import Generator, TextIO
 
 import colorama
 
@@ -9,11 +10,11 @@ IS_GITHUB_ACTIONS = bool(os.getenv("GITHUB_ACTIONS"))
 IS_AZURE_PIPELINES = bool(os.getenv("TF_BUILD"))
 
 
-def _print_flush(msg: str) -> None:  # pragma: no cover
+def _print_flush(msg: str, output: TextIO = sys.stdout) -> None:  # pragma: no cover
     """
     Prints a message, but flushes the output for CI/CD.
     """
-    print(msg, flush=True)
+    print(msg, flush=True, file=output)
 
 
 def _color_string(msg: str, color: str) -> str:  # pragma: no cover
@@ -22,6 +23,20 @@ def _color_string(msg: str, color: str) -> str:  # pragma: no cover
     """
     msg = msg.replace(colorama.Style.RESET_ALL, colorama.Style.RESET_ALL + color)
     return color + msg + colorama.Style.RESET_ALL
+
+
+def stdout(msg: str) -> None:  # pragma: no cover
+    """
+    Prints a message to standard output.
+    """
+    _print_flush(msg, output=sys.stdout)
+
+
+def stderr(msg: str) -> None:  # pragma: no cover
+    """
+    Prints a message to standard output.
+    """
+    _print_flush(msg, output=sys.stderr)
 
 
 def info(msg: str) -> None:  # pragma: no cover
