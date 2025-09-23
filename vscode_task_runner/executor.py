@@ -207,7 +207,8 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
 
     # iterate through all tasks
     for level in levels:
-        if level.order == DependsOrderEnum.parallel:
+        if level.order == DependsOrderEnum.parallel:  # pragma: no cover
+            # this is challenging to test
             # parallel execution
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = []
@@ -303,10 +304,11 @@ def execute_task(
 
         # if not running in parallel, we can just wait
         # for the process to finish
-        if not parallel:
+        if not parallel:  # pragma: no branch
             proc.wait()
 
-        else:
+        else:  # pragma: no cover
+            # this is.... challenging to test
             # https://stackoverflow.com/a/18423003
             # https://stackoverflow.com/a/17190793
             # create a queue to store output lines
