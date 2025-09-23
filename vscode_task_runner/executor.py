@@ -381,8 +381,12 @@ def execute_task(
 
         return task._execution_returncode
 
-    # if we have more than one task, group the output
-    if total > 1:
+    # if we have more than one task and running sequntially group the output
+    # if this were enabled while tasks were running in parallel, it would be chaos
+
+    # we *could* do something fancy where if in CI/CD and parallel, output is held,
+    # and then printed in groups, but that seems too extra.
+    if total > 1 and not parallel:
         with printer.group(f"Task {task.label}"):
             return run_cmd()
     else:
