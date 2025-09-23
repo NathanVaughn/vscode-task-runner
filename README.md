@@ -146,7 +146,7 @@ Similarly, if more than one default build task is defined, the
 `VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one
 to use. Otherwise, you will be interactively prompted to select one.
 
-The `dependsOn` key is also supported:
+The `dependsOn` key is also supported as well as `dependsOrder`:
 
 ```json
 {

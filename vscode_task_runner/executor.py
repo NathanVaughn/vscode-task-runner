@@ -1,19 +1,29 @@
 import concurrent.futures
 import os
+import queue
 import subprocess
 import sys
-import time
-from typing import Optional
+import threading
+from typing import NamedTuple, Optional, TextIO
 
 from vscode_task_runner import printer
 from vscode_task_runner.exceptions import MissingCommand
-from vscode_task_runner.models.enums import TaskExecutionStateEnum, TaskTypeEnum
+from vscode_task_runner.models.enums import (
+    OutputStreamEnum,
+    TaskExecutionStateEnum,
+    TaskTypeEnum,
+)
 from vscode_task_runner.models.execution_level import ExecutionLevel
 from vscode_task_runner.models.strings import csc_value
 from vscode_task_runner.models.task import DependsOrderEnum, Task
 from vscode_task_runner.utils.paths import which_resolver
 from vscode_task_runner.utils.strings import joiner
 from vscode_task_runner.vscode import task_configuration, terminal_task_system
+
+
+class OutputLine(NamedTuple):
+    text: str
+    stream: OutputStreamEnum
 
 
 def is_virtual_task(task: Task) -> bool:
@@ -273,48 +283,90 @@ def execute_task(
 
     cmd = task_subprocess_command(task, extra_args=extra_args)
 
-    def _run_cmd() -> int:
+    def run_cmd() -> int:
         printer.info(
             f"[{index}/{total}] Executing task {printer.yellow(task.label)}: {printer.blue(joiner(cmd))}"
         )
 
-        subprocess_stdout = sys.stdout
-        subprocess_stderr = sys.stderr
-
-        if parallel:
-            # in parallel mode, we want to provide a prefix to each line
-            # so we need to pipe in the subprocess output
-            subprocess_stdout = subprocess.PIPE
-            subprocess_stderr = subprocess.PIPE
-
+        # in parallel mode, we want to provide a prefix to each line
+        # so we need to pipe in the subprocess output
         proc = subprocess.Popen(
             args=cmd,
             shell=False,
             cwd=task.cwd_use(),
             env=task.env_use(),
-            stdout=subprocess_stdout,
-            stderr=subprocess_stderr,
+            stdout=subprocess.PIPE if parallel else sys.stdout,
+            stderr=subprocess.PIPE if parallel else sys.stderr,
             text=True,
+            bufsize=1,
         )
 
-        # since Popen is non-blocking, we need to wait for it to finish
-        while proc.poll() is None:
-            stdout, stderr = proc.communicate()
+        # if not running in parallel, we can just wait
+        # for the process to finish
+        if not parallel:
+            proc.wait()
 
-            # only print output if in parallel mode
-            # otherwise, it goes directly to the console
-            if parallel:
-                for line in stdout.splitlines():
-                    printer.stdout(f"[{printer.yellow(task.label)}] {line}")
+        else:
+            # https://stackoverflow.com/a/18423003
+            # https://stackoverflow.com/a/17190793
+            # create a queue to store output lines
+            q: queue.Queue[Optional[OutputLine]] = queue.Queue()
 
-                for line in stderr.splitlines():
-                    printer.stderr(f"[{printer.yellow(task.label)}] {line}")
+            def read_stream(pipe: TextIO, stream: OutputStreamEnum) -> None:
+                """
+                This function will continously try to read lines
+                from a stream, and put them in our output queue. Once
+                the stream is empty, it will close.
+                """
+                for line in iter(pipe.readline, ""):
+                    q.put(
+                        OutputLine(
+                            text=f"[{printer.yellow(task.label)}] {line.rstrip()}",
+                            stream=stream,
+                        )
+                    )
+                pipe.close()
 
-            # don't eat all the CPU
-            time.sleep(0.001)
+            def print_output() -> None:
+                """
+                This will try to get items from the queue and print them out.
+                Once an item in the queue that is simply a None, it will exit.
+                """
+                for output_line in iter(q.get, None):
+                    if output_line.stream == OutputStreamEnum.stdout:
+                        printer.stdout(output_line.text)
+                    elif output_line.stream == OutputStreamEnum.stderr:
+                        printer.stderr(output_line.text)
+
+            # start the threads
+            t_stdout = threading.Thread(
+                target=read_stream, args=(proc.stdout, OutputStreamEnum.stdout)
+            )
+            t_stderr = threading.Thread(
+                target=read_stream, args=(proc.stderr, OutputStreamEnum.stderr)
+            )
+            t_print = threading.Thread(target=print_output)
+
+            for t in {t_stdout, t_stderr, t_print}:
+                t.start()
+
+            # wait for the proces to finish
+            proc.wait()
+
+            # wait for the reader threads to finish
+            for t in {t_stdout, t_stderr}:
+                t.join()
+
+            # tell the output thread to stop
+            q.put(None)
+
+            # wait for the output thread to finish
+            t_print.join()
 
         # update task execution state
         task._execution_returncode = proc.returncode
+
+        # handle the two outcomes
         if task._execution_returncode != 0:
             task._execution_state = TaskExecutionStateEnum.failed
 
@@ -330,6 +382,6 @@ def execute_task(
     # if we have more than one task, group the output
     if total > 1:
         with printer.group(f"Task {task.label}"):
-            return _run_cmd()
+            return run_cmd()
     else:
-        return _run_cmd()
+        return run_cmd()

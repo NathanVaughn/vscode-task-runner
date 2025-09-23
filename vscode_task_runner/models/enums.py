@@ -70,3 +70,12 @@ class TaskExecutionStateEnum(Enum):
     pending = auto()
     completed = auto()
     failed = auto()
+
+
+class OutputStreamEnum(Enum):
+    """
+    Enum to record the output stream. Used internally.
+    """
+
+    stdout = auto()
+    stderr = auto()

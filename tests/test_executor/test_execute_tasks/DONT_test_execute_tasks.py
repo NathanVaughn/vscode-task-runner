@@ -4,6 +4,8 @@ import subprocess
 from tests.conftest import task_obj
 from vscode_task_runner import executor
 
+# TODO this currently gets stuck when running as a test
+
 
 def test_execute_tasks(subprocess_run_mock: None, shutil_which_patch: None) -> None:
     """
