@@ -9,13 +9,13 @@ from typing import NamedTuple, Optional, TextIO
 from vscode_task_runner import printer
 from vscode_task_runner.exceptions import MissingCommand
 from vscode_task_runner.models.enums import (
+    DependsOrderEnum,
     OutputStreamEnum,
     TaskExecutionStateEnum,
     TaskTypeEnum,
 )
-from vscode_task_runner.models.execution_level import ExecutionLevel
 from vscode_task_runner.models.strings import csc_value
-from vscode_task_runner.models.task import DependsOrderEnum, Task
+from vscode_task_runner.models.task import Task
 from vscode_task_runner.utils.paths import which_resolver
 from vscode_task_runner.utils.strings import joiner
 from vscode_task_runner.vscode import task_configuration, terminal_task_system
@@ -105,44 +105,49 @@ def task_subprocess_command(
         return []  # pragma: nocover
 
 
-def collect_levels(tasks: list[Task]) -> list[ExecutionLevel]:
+def build_tasks_order(tasks: list[Task]) -> list[list[Task]]:
     """
-    Given a list of task labels, return the task and all child tasks, recursively.
+    Given a list of Tasks, return a 2D list of all
+    tasks that need to be executed.
     """
-    execution_levels: list[ExecutionLevel] = []
+    task_groups: list[list[Task]] = []
 
     for task in tasks:
-        execution_levels.extend(_collect_levels_recursive(task))
+        task_groups.extend(_build_single_task_order(task))
 
-    return execution_levels
+    return task_groups
 
 
-def _collect_levels_recursive(task: Task) -> list[ExecutionLevel]:
+def _build_single_task_order(task: Task) -> list[list[Task]]:
     """
-    Given a task label, return the task and all child tasks, recursively.
+    Given a Task, return a 2D list of all
+    tasks that need to be executed.
     """
-    execution_levels: list[ExecutionLevel] = []
+    # output
+    task_groups: list[list[Task]] = []
 
-    def _walk_tree(tree_task: Task) -> None:
-        child_tasks = tree_task.depends_on
+    # for tasks that can be executed in parallel, create a temp list
+    parallel_temp: list[Task] = []
 
-        # depth first search
-        for child_task in child_tasks:
-            _walk_tree(child_task)
+    # go through each child task
+    for c_task in task.depends_on:
+        if c_task.depends_on:
+            # if this task has children, go another level deeper
+            task_groups.extend(_build_single_task_order(c_task))
+        elif task.depends_order == DependsOrderEnum.sequence:
+            # if the task must be done in sequence, add to output
+            task_groups.append([c_task])
+        else:
+            # if it can be done in parallel, add it to the parallel list
+            parallel_temp.append(c_task)
 
-        # add an execution level for the current task
-        if child_tasks:
-            execution_levels.append(
-                ExecutionLevel(order=tree_task.depends_order, tasks=child_tasks)
-            )
+    # if tasks can be done in parallel, add those
+    if parallel_temp:
+        task_groups.append(parallel_temp)
 
-    _walk_tree(task)
-
-    # Add the current task to the execution levels
-    execution_levels.append(
-        ExecutionLevel(order=DependsOrderEnum.sequence, tasks=[task])
-    )
-    return execution_levels
+    # finally, add current task
+    task_groups.append([task])
+    return task_groups
 
 
 def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
@@ -150,20 +155,18 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
     Execute the tasks in the order they are defined in the tasks.json file.
     """
     # collect all tasks to execute
-    levels = collect_levels(tasks)
+    levels = build_tasks_order(tasks)
 
     # ensure all tasks are supported
     for level in levels:
-        for task in level.tasks:
+        for task in level:
             if not task.is_supported():
                 printer.error(f"Task {printer.yellow(task.label)} is not supported")
                 sys.exit(1)
 
     # resolve all variables in all tasks
     # and count all
-    task_count = len(
-        [task.resolve_variables() for level in levels for task in level.tasks]
-    )
+    task_count = len([task.resolve_variables() for level in levels for task in level])
 
     # track task results
     completed: list[str] = []
@@ -191,7 +194,7 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
                     skipped_tasks=[
                         task.label
                         for level in levels
-                        for task in level.tasks
+                        for task in level
                         if task._execution_state == TaskExecutionStateEnum.pending
                     ],
                     failed_tasks=failed,
@@ -207,13 +210,13 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
 
     # iterate through all tasks
     for level in levels:
-        if level.order == DependsOrderEnum.parallel:  # pragma: no cover
+        if len(level) > 1:  # pragma: no cover
             # this is challenging to test
             # parallel execution
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = []
 
-                for task in level.tasks:
+                for task in level:
                     index += 1
 
                     # only add extra args to last task
@@ -236,30 +239,30 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
                 # this actually executes the tasks
                 [f.result() for f in futures]
 
-                for task in level.tasks:
+                for task in level:
                     if not should_continue(task):
                         return task._execution_returncode
 
         else:
             # sequential execution
-            for task in level.tasks:
-                index += 1
+            task = level[0]
+            index += 1
 
-                # only add extra args to last task
-                # since this function won't get extra args when more than one
-                # top level tasks are run
-                execute_extra_args = extra_args if index == task_count else []
+            # only add extra args to last task
+            # since this function won't get extra args when more than one
+            # top level tasks are run
+            execute_extra_args = extra_args if index == task_count else []
 
-                execute_task(
-                    task,
-                    index=index,
-                    total=task_count,
-                    parallel=False,
-                    extra_args=execute_extra_args,
-                )
+            execute_task(
+                task,
+                index=index,
+                total=task_count,
+                parallel=False,
+                extra_args=execute_extra_args,
+            )
 
-                if not should_continue(task):
-                    return task._execution_returncode
+            if not should_continue(task):
+                return task._execution_returncode
 
     # this is reached if all tasks completed successfully or continue on error is set
     # to True
