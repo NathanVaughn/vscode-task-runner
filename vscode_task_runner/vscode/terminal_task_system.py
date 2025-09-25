@@ -9,11 +9,15 @@ import re
 from typing import List, Optional, Tuple
 
 from vscode_task_runner.constants import (
+    CURRENT_PLATFORM,
     DEFAULT_OS_QUOTING,
     DEFAULT_SHELL_QUOTING,
-    PLATFORM_KEY,
 )
-from vscode_task_runner.models.enums import ShellQuotingEnum, ShellTypeEnum
+from vscode_task_runner.models.enums import (
+    PlatformEnum,
+    ShellQuotingEnum,
+    ShellTypeEnum,
+)
 from vscode_task_runner.models.shell import ShellConfiguration, ShellQuotingOptions
 from vscode_task_runner.models.strings import CommandString
 from vscode_task_runner.utils.strings import joiner
@@ -37,7 +41,7 @@ def get_quoting_options(shell_config: ShellConfiguration) -> ShellQuotingOptions
         return DEFAULT_SHELL_QUOTING[shell_config.type_]
 
     # return default for OS if shell doesn't have defined options
-    return DEFAULT_OS_QUOTING[PLATFORM_KEY]
+    return DEFAULT_OS_QUOTING[CURRENT_PLATFORM]
 
 
 def _add_all_argument(
@@ -203,7 +207,7 @@ def build_shell_command_line(
 
     command_line = joiner(result)
     # There are special rules quoted command line in cmd.exe
-    if PLATFORM_KEY == "windows":
+    if CURRENT_PLATFORM == PlatformEnum.windows:
         if shell_type == ShellTypeEnum.CMD and command_quoted and arg_quoted:
             command_line = f'"{command_line}"'
         elif shell_type == ShellTypeEnum.PowerShell and command_quoted:

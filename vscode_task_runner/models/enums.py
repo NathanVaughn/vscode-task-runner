@@ -79,3 +79,13 @@ class OutputStreamEnum(Enum):
 
     stdout = auto()
     stderr = auto()
+
+
+class PlatformEnum(str, Enum):
+    """
+    Enum for platforms
+    """
+
+    windows = "Windows"
+    linux = "Linux"
+    osx = "Darwin"
