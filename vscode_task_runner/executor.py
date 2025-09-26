@@ -213,7 +213,7 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
         if len(level) > 1:  # pragma: no cover
             # this is challenging to test
             # parallel execution
-            with concurrent.futures.ThreadPoolExecutor() as executor:
+            with concurrent.futures.ThreadPoolExecutor() as thread_pool:
                 futures = []
 
                 for task in level:
@@ -226,7 +226,7 @@ def execute_tasks(tasks: list[Task], extra_args: list[str]) -> int:
 
                     # submit the task to the executor
                     futures.append(
-                        executor.submit(
+                        thread_pool.submit(
                             execute_task,
                             task,
                             index,
@@ -326,7 +326,7 @@ def execute_task(
                 for line in iter(pipe.readline, ""):
                     q.put(
                         OutputLine(
-                            text=f"[{printer.yellow(task.label)}] {line.rstrip()}",
+                            text=f"[{printer.rainbow(task.label, index)}] {line.rstrip()}",
                             stream=stream,
                         )
                     )

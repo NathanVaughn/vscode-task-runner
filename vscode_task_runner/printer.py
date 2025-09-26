@@ -79,6 +79,25 @@ def red(msg: str) -> str:  # pragma: no cover
     return _color_string(msg, colorama.Fore.RED)
 
 
+def rainbow(msg: str, index: int) -> str:  # pragma: no cover
+    """
+    Deterministically pick a color from the rainbow for the given index.
+    This is used for printing output from parallel tasks, kind of like how
+    Docker does.
+    """
+    palette = [
+        colorama.Fore.YELLOW,
+        colorama.Fore.CYAN,
+        colorama.Fore.GREEN,
+        colorama.Fore.BLUE,
+        colorama.Fore.RED,
+        colorama.Fore.MAGENTA,
+    ]
+
+    color = palette[index % len(palette)]
+    return _color_string(msg, color)
+
+
 def summary(
     completed_tasks: list[str], skipped_tasks: list[str], failed_tasks: list[str]
 ) -> None:  # pragma: no cover
