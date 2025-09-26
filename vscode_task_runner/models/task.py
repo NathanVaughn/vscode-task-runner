@@ -17,6 +17,7 @@ from vscode_task_runner.exceptions import UnsupportedTaskType, WorkingDirectoryN
 from vscode_task_runner.models.enums import (
     DependsOrderEnum,
     GroupKindEnum,
+    TaskExecutionStateEnum,
     TaskTypeEnum,
 )
 from vscode_task_runner.models.properties import (
@@ -171,6 +172,16 @@ class Task(TaskProperties):
     _vars_resolved: bool = PrivateAttr(default=False)
     """
     Keep track if this item has already had variables resolved.
+    """
+    _execution_state: TaskExecutionStateEnum = PrivateAttr(
+        default=TaskExecutionStateEnum.pending
+    )
+    """
+    Keep track of the execution state of this task.
+    """
+    _execution_returncode: int = PrivateAttr(default=0)
+    """
+    Record the return code of the task after execution.
     """
 
     @field_validator("depends_on_labels", mode="before")

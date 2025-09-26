@@ -11,6 +11,7 @@ import vscode_task_runner.models.properties
 import vscode_task_runner.utils.shell
 import vscode_task_runner.variables.resolve
 import vscode_task_runner.vscode.terminal_task_system
+from vscode_task_runner.models.enums import PlatformEnum
 from vscode_task_runner.models.task import Task
 from vscode_task_runner.models.tasks import Tasks
 from vscode_task_runner.parser import load_tasks
@@ -26,9 +27,9 @@ Sources where the platform key is used. Need to patch each one.
 """
 
 
-def _patch_platform(mocker: MockerFixture, platform: str) -> None:
+def _patch_platform(mocker: MockerFixture, platform: PlatformEnum) -> None:
     for source in PLATFORM_SOURCES:
-        mocker.patch.object(source, "PLATFORM_KEY", platform)
+        mocker.patch.object(source, "CURRENT_PLATFORM", platform)
 
 
 @pytest.fixture
@@ -36,7 +37,7 @@ def windows(mocker: MockerFixture) -> None:
     """
     Pretend we are on Windows.
     """
-    _patch_platform(mocker, "windows")
+    _patch_platform(mocker, PlatformEnum.windows)
 
 
 @pytest.fixture
@@ -44,7 +45,7 @@ def linux(mocker: MockerFixture) -> None:
     """
     Pretend we are on Linux.
     """
-    _patch_platform(mocker, "linux")
+    _patch_platform(mocker, PlatformEnum.linux)
 
 
 @pytest.fixture
@@ -52,7 +53,7 @@ def osx(mocker: MockerFixture) -> None:
     """
     Pretend we are on OSX.
     """
-    _patch_platform(mocker, "osx")
+    _patch_platform(mocker, PlatformEnum.osx)
 
 
 @pytest.fixture
@@ -71,6 +72,7 @@ def subprocess_run_mock(mocker: MockerFixture) -> None:
     mocked_process = mocker.MagicMock()
     mocked_process.returncode = 0
     mocker.patch.object(subprocess, "run", return_value=mocked_process)
+    mocker.patch.object(subprocess, "Popen", return_value=mocked_process)
 
 
 @pytest.fixture
@@ -81,6 +83,7 @@ def subprocess_run_mock_fail(mocker: MockerFixture) -> None:
     mocked_process = mocker.MagicMock()
     mocked_process.returncode = 1
     mocker.patch.object(subprocess, "run", return_value=mocked_process)
+    mocker.patch.object(subprocess, "Popen", return_value=mocked_process)
 
 
 @pytest.fixture

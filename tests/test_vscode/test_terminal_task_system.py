@@ -3,7 +3,11 @@ from typing import List
 import pytest
 
 from vscode_task_runner.constants import DEFAULT_OS_QUOTING, DEFAULT_SHELL_QUOTING
-from vscode_task_runner.models.enums import ShellQuotingEnum, ShellTypeEnum
+from vscode_task_runner.models.enums import (
+    PlatformEnum,
+    ShellQuotingEnum,
+    ShellTypeEnum,
+)
 from vscode_task_runner.models.shell import (
     ShellConfiguration,
     ShellQuotingOptions,
@@ -19,8 +23,14 @@ from vscode_task_runner.vscode import terminal_task_system
             ShellConfiguration(executable="/bin/bash"),
             DEFAULT_SHELL_QUOTING[ShellTypeEnum.SH],
         ),
-        (ShellConfiguration(executable="/bin/bash"), DEFAULT_OS_QUOTING["linux"]),
-        (ShellConfiguration(executable="notreablah"), DEFAULT_OS_QUOTING["linux"]),
+        (
+            ShellConfiguration(executable="/bin/bash"),
+            DEFAULT_OS_QUOTING[PlatformEnum.linux],
+        ),
+        (
+            ShellConfiguration(executable="notreablah"),
+            DEFAULT_OS_QUOTING[PlatformEnum.linux],
+        ),
     ],
 )
 def test_get_quoting_options(

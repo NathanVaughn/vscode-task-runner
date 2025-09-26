@@ -3,6 +3,8 @@ import os
 import sys
 from typing import List
 
+import colorama
+
 from vscode_task_runner import executor, printer
 from vscode_task_runner.constants import TASKS_FILE
 from vscode_task_runner.exceptions import TasksFileNotFound
@@ -80,6 +82,7 @@ def run() -> int:
     Run the console application.
     This is the entry point for the console application.
     """
+    colorama.just_fix_windows_console()
 
     try:
         tasks = load_tasks()

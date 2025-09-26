@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Parallel 1",
+        },
+        {
+            "label": "Parallel 2",
+        },
+        {
+            "label": "Parallel 3",
+        },
+        {
+            "label": "Sequence 1",
+        },
+        {
+            "label": "Sequence 2",
+        },
+        {
+            "label": "All",
+            "dependsOn": [
+                "Sequence 1",
+                "Sequence 2",
+                "Sequence 3"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Sequence 3",
+            "dependsOn": [
+                "Parallel 1",
+                "Parallel 2",
+                "Parallel 3",
+            ],
+            "dependsOrder": "parallel"
+        },
+    ]
+}

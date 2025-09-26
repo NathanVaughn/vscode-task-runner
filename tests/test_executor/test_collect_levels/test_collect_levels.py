@@ -8,7 +8,9 @@ def test_collect_levels() -> None:
     task_1_1 = task_obj(__file__, "Task_1_1")
     task_1_2 = task_obj(__file__, "Task_1_2")
 
-    levels = executor.collect_levels([task_1_1, task_1_2])
+    levels = executor.build_tasks_order([task_1_1, task_1_2])
+    pp_levels = [[t.label for t in lev] for lev in levels]
+    pprint.pprint(pp_levels)
 
     # Tree looks like
     # - Task_1_1
@@ -20,24 +22,24 @@ def test_collect_levels() -> None:
     # - Task_1_2
     # -- Task_2_3
 
-    pprint.pprint(levels)
-
     # first batch
-    assert levels[0].tasks[0].label == "Task_3_1"
-    assert levels[0].tasks[1].label == "Task_3_2"
+    assert levels[0][0].label == "Task_3_1"
+    assert levels[0][1].label == "Task_3_2"
 
     # second batch
-    assert levels[1].tasks[0].label == "Task_3_3"
+    assert levels[1][0].label == "Task_2_1"
 
     # third batch
-    assert levels[2].tasks[0].label == "Task_2_1"
-    assert levels[2].tasks[1].label == "Task_2_2"
+    assert levels[2][0].label == "Task_3_3"
 
     # fourth batch
-    assert levels[3].tasks[0].label == "Task_1_1"
+    assert levels[3][0].label == "Task_2_2"
 
-    # fifth level
-    assert levels[4].tasks[0].label == "Task_2_3"
+    # fifth batch
+    assert levels[4][0].label == "Task_1_1"
+
+    # sixth batch
+    assert levels[5][0].label == "Task_2_3"
 
     # last level
-    assert levels[5].tasks[0].label == "Task_1_2"
+    assert levels[6][0].label == "Task_1_2"

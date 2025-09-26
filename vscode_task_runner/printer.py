@@ -1,7 +1,8 @@
 import os
+import sys
 import tempfile
 from contextlib import contextmanager
-from typing import Generator
+from typing import Generator, TextIO
 
 import colorama
 
@@ -9,11 +10,11 @@ IS_GITHUB_ACTIONS = bool(os.getenv("GITHUB_ACTIONS"))
 IS_AZURE_PIPELINES = bool(os.getenv("TF_BUILD"))
 
 
-def _print_flush(msg: str) -> None:  # pragma: no cover
+def _print_flush(msg: str, output: TextIO = sys.stdout) -> None:  # pragma: no cover
     """
     Prints a message, but flushes the output for CI/CD.
     """
-    print(msg, flush=True)
+    print(msg, flush=True, file=output)
 
 
 def _color_string(msg: str, color: str) -> str:  # pragma: no cover
@@ -24,11 +25,25 @@ def _color_string(msg: str, color: str) -> str:  # pragma: no cover
     return color + msg + colorama.Style.RESET_ALL
 
 
+def stdout(msg: str) -> None:  # pragma: no cover
+    """
+    Prints a message to standard output.
+    """
+    _print_flush(msg, output=sys.stdout)
+
+
+def stderr(msg: str) -> None:  # pragma: no cover
+    """
+    Prints a message to standard output.
+    """
+    _print_flush(msg, output=sys.stderr)
+
+
 def info(msg: str) -> None:  # pragma: no cover
     """
     Prints a standard message.
     """
-    _print_flush(msg)
+    stdout(msg)
 
 
 def error(msg: str) -> None:  # pragma: no cover
@@ -36,11 +51,11 @@ def error(msg: str) -> None:  # pragma: no cover
     Prints an error to the console.
     """
     if IS_GITHUB_ACTIONS:
-        _print_flush(f"::error::{msg}")
+        stderr(f"::error::{msg}")
     elif IS_AZURE_PIPELINES:
-        _print_flush(f"##vso[task.logissue type=error]{msg}")
+        stderr(f"##vso[task.logissue type=error]{msg}")
     else:
-        _print_flush(f"{red(msg)}")
+        stderr(f"{red(msg)}")
 
 
 def blue(msg: str) -> str:  # pragma: no cover
@@ -62,6 +77,25 @@ def red(msg: str) -> str:  # pragma: no cover
     Returns a red-colored string. Respects existing colors.
     """
     return _color_string(msg, colorama.Fore.RED)
+
+
+def rainbow(msg: str, index: int) -> str:  # pragma: no cover
+    """
+    Deterministically pick a color from the rainbow for the given index.
+    This is used for printing output from parallel tasks, kind of like how
+    Docker does.
+    """
+    palette = [
+        colorama.Fore.YELLOW,
+        colorama.Fore.CYAN,
+        colorama.Fore.GREEN,
+        colorama.Fore.BLUE,
+        colorama.Fore.RED,
+        colorama.Fore.MAGENTA,
+    ]
+
+    color = palette[index % len(palette)]
+    return _color_string(msg, color)
 
 
 def summary(
@@ -102,7 +136,7 @@ def summary(
         with os.fdopen(temp_file_fd, "w", encoding="utf-8") as fp:
             fp.write(msg + "\n")
 
-        _print_flush(f"##vso[task.uploadsummary]{temp_file_name}")
+        stdout(f"##vso[task.uploadsummary]{temp_file_name}")
 
 
 def start_group(name: str) -> None:  # pragma: no cover
@@ -110,9 +144,9 @@ def start_group(name: str) -> None:  # pragma: no cover
     Creates a new group in the GitHub Actions output.
     """
     if IS_GITHUB_ACTIONS:
-        _print_flush(f"::group::{name}")
+        stdout(f"::group::{name}")
     elif IS_AZURE_PIPELINES:
-        _print_flush(f"##[group]{name}")
+        stdout(f"##[group]{name}")
 
 
 def end_group() -> None:  # pragma: no cover
@@ -120,9 +154,9 @@ def end_group() -> None:  # pragma: no cover
     Ends a group in the GitHub Actions output.
     """
     if IS_GITHUB_ACTIONS:
-        _print_flush("::endgroup::")
+        stdout("::endgroup::")
     elif IS_AZURE_PIPELINES:
-        _print_flush("##[endgroup]")
+        stdout("##[endgroup]")
 
 
 @contextmanager
