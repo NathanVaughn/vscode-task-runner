@@ -9,7 +9,7 @@ def test_not_found(capsys: CaptureFixture) -> None:
     """
     Test the not found error
     """
-    # change to some directory that exists but wihtout tasks.json
+    # change to some directory that exists but without tasks.json
     current_cwd = os.getcwd()
     os.chdir(os.path.expanduser("~"))
 
@@ -19,6 +19,6 @@ def test_not_found(capsys: CaptureFixture) -> None:
     # change back to original directory to not break other tests
     os.chdir(current_cwd)
 
-    # doesn't raise an excpetion, but prints error and exits
+    # doesn't raise an exception, but prints error and exits
     captured = capsys.readouterr()
-    assert "tasks.json" in captured.out
+    assert "tasks.json" in captured.err

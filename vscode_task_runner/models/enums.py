@@ -60,3 +60,32 @@ class GroupKindEnum(str, Enum):
     build = "build"
     test = "test"
     none = "none"
+
+
+class TaskExecutionStateEnum(Enum):
+    """
+    Enum for task execution states. Used internally.
+    """
+
+    pending = auto()
+    completed = auto()
+    failed = auto()
+
+
+class OutputStreamEnum(Enum):
+    """
+    Enum to record the output stream. Used internally.
+    """
+
+    stdout = auto()
+    stderr = auto()
+
+
+class PlatformEnum(str, Enum):
+    """
+    Enum for platforms
+    """
+
+    windows = "Windows"
+    linux = "Linux"
+    osx = "Darwin"

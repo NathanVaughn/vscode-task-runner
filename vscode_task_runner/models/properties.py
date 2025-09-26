@@ -2,7 +2,8 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, Field
 
-from vscode_task_runner.constants import PLATFORM_KEY
+from vscode_task_runner.constants import CURRENT_PLATFORM
+from vscode_task_runner.models.enums import PlatformEnum
 from vscode_task_runner.models.options import CommandOptions
 from vscode_task_runner.models.strings import CommandStringConfig, QuotedStringConfig
 from vscode_task_runner.variables.resolve import resolve_variables_data
@@ -72,11 +73,11 @@ class CommandProperties(BaseModel):
         """
         Get the OS option for the current OS
         """
-        if PLATFORM_KEY == "windows":
+        if CURRENT_PLATFORM == PlatformEnum.windows:
             return self.windows
-        elif PLATFORM_KEY == "linux":
+        elif CURRENT_PLATFORM == PlatformEnum.linux:
             return self.linux
-        elif PLATFORM_KEY == "osx":  # pragma: no branch
+        elif CURRENT_PLATFORM == PlatformEnum.osx:  # pragma: no branch
             return self.osx
 
     def resolve_variables(self) -> None:

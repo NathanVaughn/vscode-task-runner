@@ -3,13 +3,14 @@ import shutil
 
 import shellingham
 
-from vscode_task_runner.constants import PLATFORM_KEY
+from vscode_task_runner.constants import CURRENT_PLATFORM
 from vscode_task_runner.exceptions import ShellNotFound
+from vscode_task_runner.models.enums import PlatformEnum
 from vscode_task_runner.models.shell import ShellConfiguration
 from vscode_task_runner.utils.paths import which_resolver
 
 # shell of last resort
-if PLATFORM_KEY == "windows":
+if CURRENT_PLATFORM == PlatformEnum.windows:
     FALLBACK_SHELL = os.path.join(  # pragma: no cover
         os.environ.get("SystemRoot", "C:\\Windows"), "System32", "cmd.exe"
     )
@@ -31,7 +32,7 @@ def get_parent_shell() -> ShellConfiguration:
 
     # if path is none or empty
     if not shell_executable:
-        if PLATFORM_KEY == "windows":
+        if CURRENT_PLATFORM == PlatformEnum.windows:
             # use COMSPEC variable
             shell_executable = os.environ.get("COMSPEC")
         else:
