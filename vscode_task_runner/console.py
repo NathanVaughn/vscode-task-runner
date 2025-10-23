@@ -30,22 +30,41 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
         + f' If the task is a "{TaskTypeEnum.shell.value}" type with '
         + ' a "command" and "args", then this will be appended to "args".',
     )
+
+    _skip_summary_flag = "--skip-summary"
     parser.add_argument(
-        "--skip-summary",
+        _skip_summary_flag,
         action="store_true",
         help="Skip creating a CI/CD step summary.",
     )
+
+    _continue_on_error_flag = "--continue-on-error"
     parser.add_argument(
-        "--continue-on-error",
+        _continue_on_error_flag,
         action="store_true",
         help="Continue executing tasks even if one fails. The final exit code will be 1 if any task failed.",
     )
+
     parser.add_argument(
         "task_labels",
         nargs="+",
         choices=task_choices,
         help="One or more task labels to run. This is case sensitive.",
     )
+
+    # show list of tasks and exit
+    # parse this manually, since normally task labels are required and to make it faster
+    if "--complete" in sys_argv:
+        print(
+            " ".join(
+                [
+                    _skip_summary_flag,
+                    _continue_on_error_flag,
+                ]
+                + task_choices
+            )
+        )
+        sys.exit(0)
 
     # https://stackoverflow.com/a/40686614/9944427
     # https://github.com/NathanVaughn/vscode-task-runner/issues/51
@@ -61,6 +80,7 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
 
     # parse with argparse
     args, extra_args = parser.parse_known_args(sys_argv_to_parse)
+
     # combine with items we parsed beforehand
     extra_args = extra_args + extra_extra_args
 

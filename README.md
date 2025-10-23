@@ -196,6 +196,18 @@ repos:
 
 The pre-commit hook does not match on any file types, and and will always execute.
 
+If you want shell completions for a *sh based shell, add this to your shell profile
+(typically `~/.bashrc`):
+
+```bash
+_vscode_task_runnner_completion() {
+    COMPREPLY=($(compgen -W "$(vtr --complete)" -- "${COMP_WORDS[COMP_CWORD]}"))
+}
+complete -F _vscode_task_runnner_completion vtr
+complete -F _vscode_task_runnner_completion vscode-task-runner
+
+```
+
 If using `pre-commit` and `poetry` is part of your task, you may need to add the
 following
 
