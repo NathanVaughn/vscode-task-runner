@@ -205,7 +205,6 @@ _vscode_task_runnner_completion() {
 }
 complete -F _vscode_task_runnner_completion vtr
 complete -F _vscode_task_runnner_completion vscode-task-runner
-
 ```
 
 If using `pre-commit` and `poetry` is part of your task, you may need to add the
