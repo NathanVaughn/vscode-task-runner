@@ -23,7 +23,7 @@
         "questionary>=2.0.1",
         "colorama>=0.4.6",
         "pydantic>=2.11.3",
-]
+    ]
 
 [dependency-groups]
     dev = [
