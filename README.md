@@ -25,12 +25,12 @@ This pairs well with VS Code extensions that add buttons to run tasks such as
 
 Python 3.9+ is required.
 
-Install with [pipx](https://pipx.pypa.io/stable/) or [uv](https://docs.astral.sh/uv/):
+Install with [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/stable/):
 
 ```bash
-pipx install vscode-task-runner
-# or
 uv tool install vscode-task-runner
+# or
+pipx install vscode-task-runner
 ```
 
 Use the command `vtr` on the command line and provide the label of the task(s) you
@@ -184,7 +184,7 @@ You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
 ```yaml
 repos:
   - repo: https://github.com/NathanVaughn/vscode-task-runner
-    rev: v2.2.0
+    rev: v3.0.1
     hooks:
       - id: vtr
         # Optionally override the hook name here
@@ -196,7 +196,7 @@ repos:
 
 The pre-commit hook does not match on any file types, and and will always execute.
 
-If you want shell completions for a *sh based shell, add this to your shell profile
+If you want shell completions for a \*sh based shell, add this to your shell profile
 (typically `~/.bashrc`):
 
 ```bash
@@ -238,11 +238,11 @@ vtr --skip-summary tests build
 ```
 
 Additionally, by default, VS Code Task Runner will immediately exit if a task fails,
-like VS Code does. However, this can be useful if you want to run multiple tasks
-such as formatting, test, and build tasks, and see all of the results.
-
+like VS Code does.
 This can be disabled with the `--continue-on-error` argument before the task label(s)
 or the `VTR_CONTINUE_ON_ERROR` environment variable being set to any value.
+This can be useful if you want to run multiple tasks
+such as formatting, test, and build tasks, and see all of the results.
 
 ```bash
 vtr --continue-on-error tests build
