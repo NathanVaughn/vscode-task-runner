@@ -56,7 +56,7 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     # parse this manually, since normally task labels are required and to make it faster
     if "--complete" in sys_argv:
         print(
-            " ".join(
+            "\n".join(
                 [
                     _skip_summary_flag,
                     _continue_on_error_flag,

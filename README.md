@@ -201,6 +201,7 @@ If you want shell completions for a \*sh based shell, add this to your shell pro
 
 ```bash
 _vscode_task_runnner_completion() {
+    local IFS=$'\n'
     COMPREPLY=($(compgen -W "$(vtr --complete)" -- "${COMP_WORDS[COMP_CWORD]}"))
 }
 complete -F _vscode_task_runnner_completion vtr
