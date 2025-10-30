@@ -213,8 +213,7 @@ complete -F _vscode_task_runnner_completion vscode-task-runner
 # =========================
 # Zsh, typically ~/.zshrc
 _vscode_task_runnner_completion() {
-    local completions_raw="$(vtr --complete)"
-    local -a completions=("${(f)completions_raw}")
+    local -a completions=("${(f)$(vtr --complete)}")
     compadd -a -- completions
 }
 compdef _vscode_task_runnner_completion vtr
