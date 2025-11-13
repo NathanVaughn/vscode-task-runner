@@ -200,28 +200,66 @@ If you want shell completions, add one of the following segments to your shell p
 
 ```bash
 # =========================
-# Bash, typically ~/.bashrc
+# Bash, typically ~/.bashrc or /etc/bash_completion.d/vscode-task-runner
 # `bash-completion` must be installed for this to work
 # Tasks with a space in the label will get tab-completed, but quotes will need to be added manually
-_vscode_task_runnner_completion() {
+_vscode_task_runner_completion() {
     local IFS=$'\n'
-    COMPREPLY=($(compgen -W "$(vtr --complete)" -- "${COMP_WORDS[COMP_CWORD]}"))
+    COMPREPLY=($(compgen -W "$(vscode-task-runner --complete)" -- "${COMP_WORDS[COMP_CWORD]}"))
 }
-complete -F _vscode_task_runnner_completion vtr
-complete -F _vscode_task_runnner_completion vscode-task-runner
+complete -F _vscode_task_runner_completion vtr
+complete -F _vscode_task_runner_completion vscode-task-runner
 
 # =========================
 # Zsh, typically ~/.zshrc
-_vscode_task_runnner_completion() {
-    local -a completions=("${(f)$(vtr --complete)}")
+_vscode_task_runner_completion() {
+    local -a completions=("${(f)$(vscode-task-runner --complete)}")
     compadd -a -- completions
 }
 compdef _vscode_task_runnner_completion vtr
 compdef _vscode_task_runnner_completion vscode-task-runner
 
+# or /usr/share/zsh/vendor-completions/_vtr
+
+#compdef vtr
+local -a completions=("${(f)$(vtr --complete)}")
+compadd -a -- completions
+
+# or /usr/share/zsh/vendor-completions/_vscode-task-runner
+
+#compdef vscode-task-runner
+local -a completions=("${(f)$(vscode-task-runner --complete)}")
+compadd -a -- completions
+
 # =========================
-# Fish, typically ~/.config/fish/config.fish
-complete -f -c vtr -c vscode-task-runner -a "(vtr --complete)"
+# Fish, typically ~/.config/fish/config.fish or ~/.config/fish/completions/vscode-task-runner.fish
+complete -f -c vtr -c vscode-task-runner -a "(vscode-task-runner --complete)"
+
+# =========================
+# PowerShell, typically ~\Documents\PowerShell\Microsoft.PowerShell_profile.ps1 ($PROFILE)
+$VtrCompletions = {
+    param(
+        $wordToComplete,
+        $commandAst,
+        $cursorPosition
+    )
+    $allOptions = (vscode-task-runner --complete)
+    $matchingOptions = $allOptions | Where-Object { $_ -like "$wordToComplete*" }
+    foreach ($option in $matchingOptions) {
+        $completionText = $option
+        if ($option.Contains(' ')) {
+            $completionText = "'$option'"
+        }
+        [System.Management.Automation.CompletionResult]::new(
+            $completionText,
+            $option,
+            [System.Management.Automation.CompletionResultType]::ParameterValue,
+            "VS Code Task Runner option: $option"
+        )
+    }
+}
+Register-ArgumentCompleter -Native -CommandName 'vtr' -ScriptBlock $VtrCompletions
+Register-ArgumentCompleter -Native -CommandName 'vscode-task-runner' -ScriptBlock $VtrCompletions
 ```
 
 If using `pre-commit` and `poetry` is part of your task, you may need to add the
