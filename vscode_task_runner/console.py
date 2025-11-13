@@ -57,15 +57,7 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     # show list of tasks and exit
     # parse this manually, since normally task labels are required and to make it faster
     if _COMPLETE_FLAG in sys_argv:
-        print(
-            "\n".join(
-                [
-                    _SKIP_SUMMARY_FLAG,
-                    _CONTINUE_ON_ERROR_FLAG,
-                ]
-                + task_choices
-            )
-        )
+        print("\n".join([_SKIP_SUMMARY_FLAG, _CONTINUE_ON_ERROR_FLAG, *task_choices]))
         sys.exit(0)
 
     # https://stackoverflow.com/a/40686614/9944427
