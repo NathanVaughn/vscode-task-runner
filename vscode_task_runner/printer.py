@@ -132,8 +132,9 @@ def summary(
             fp.write(msg + "\n")
 
     elif IS_AZURE_PIPELINES:
-        temp_file_fd, temp_file_name = tempfile.mkstemp(suffix=".md", text=True)
-        with os.fdopen(temp_file_fd, "w", encoding="utf-8") as fp:
+        temp_dir = tempfile.gettempdir()
+        temp_file_name = os.path.join(temp_dir, "TaskSummary.md")
+        with open(temp_file_name, "w", encoding="utf-8") as fp:
             fp.write(msg + "\n")
 
         stdout(f"##vso[task.uploadsummary]{temp_file_name}")
