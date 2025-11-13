@@ -25,12 +25,12 @@ This pairs well with VS Code extensions that add buttons to run tasks such as
 
 Python 3.9+ is required.
 
-Install with [pipx](https://pipx.pypa.io/stable/) or [uv](https://docs.astral.sh/uv/):
+Install with [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/stable/):
 
 ```bash
-pipx install vscode-task-runner
-# or
 uv tool install vscode-task-runner
+# or
+pipx install vscode-task-runner
 ```
 
 Use the command `vtr` on the command line and provide the label of the task(s) you
@@ -184,7 +184,7 @@ You can also use it as a [pre-commit](https://pre-commit.com) hook if desired:
 ```yaml
 repos:
   - repo: https://github.com/NathanVaughn/vscode-task-runner
-    rev: v2.2.0
+    rev: v3.0.1
     hooks:
       - id: vtr
         # Optionally override the hook name here
@@ -195,6 +195,72 @@ repos:
 ```
 
 The pre-commit hook does not match on any file types, and and will always execute.
+
+If you want shell completions, add one of the following segments to your shell profile:
+
+```bash
+# =========================
+# Bash, typically ~/.bashrc or /etc/bash_completion.d/vscode-task-runner
+# `bash-completion` must be installed for this to work
+# Tasks with a space in the label will get tab-completed, but quotes will need to be added manually
+_vscode_task_runner_completion() {
+    local IFS=$'\n'
+    COMPREPLY=($(compgen -W "$(vscode-task-runner --complete)" -- "${COMP_WORDS[COMP_CWORD]}"))
+}
+complete -F _vscode_task_runner_completion vtr
+complete -F _vscode_task_runner_completion vscode-task-runner
+
+# =========================
+# Zsh, typically ~/.zshrc
+_vscode_task_runner_completion() {
+    local -a completions=("${(f)$(vscode-task-runner --complete)}")
+    compadd -a -- completions
+}
+compdef _vscode_task_runnner_completion vtr
+compdef _vscode_task_runnner_completion vscode-task-runner
+
+# or /usr/share/zsh/vendor-completions/_vtr
+
+#compdef vtr
+local -a completions=("${(f)$(vtr --complete)}")
+compadd -a -- completions
+
+# or /usr/share/zsh/vendor-completions/_vscode-task-runner
+
+#compdef vscode-task-runner
+local -a completions=("${(f)$(vscode-task-runner --complete)}")
+compadd -a -- completions
+
+# =========================
+# Fish, typically ~/.config/fish/config.fish or ~/.config/fish/completions/vscode-task-runner.fish
+complete -f -c vtr -c vscode-task-runner -a "(vscode-task-runner --complete)"
+
+# =========================
+# PowerShell, typically ~\Documents\PowerShell\Microsoft.PowerShell_profile.ps1 ($PROFILE)
+$VtrCompletions = {
+    param(
+        $wordToComplete,
+        $commandAst,
+        $cursorPosition
+    )
+    $allOptions = (vscode-task-runner --complete)
+    $matchingOptions = $allOptions | Where-Object { $_ -like "$wordToComplete*" }
+    foreach ($option in $matchingOptions) {
+        $completionText = $option
+        if ($option.Contains(' ')) {
+            $completionText = "'$option'"
+        }
+        [System.Management.Automation.CompletionResult]::new(
+            $completionText,
+            $option,
+            [System.Management.Automation.CompletionResultType]::ParameterValue,
+            "VS Code Task Runner option: $option"
+        )
+    }
+}
+Register-ArgumentCompleter -Native -CommandName 'vtr' -ScriptBlock $VtrCompletions
+Register-ArgumentCompleter -Native -CommandName 'vscode-task-runner' -ScriptBlock $VtrCompletions
+```
 
 If using `pre-commit` and `poetry` is part of your task, you may need to add the
 following
@@ -227,11 +293,11 @@ vtr --skip-summary tests build
 ```
 
 Additionally, by default, VS Code Task Runner will immediately exit if a task fails,
-like VS Code does. However, this can be useful if you want to run multiple tasks
-such as formatting, test, and build tasks, and see all of the results.
-
+like VS Code does.
 This can be disabled with the `--continue-on-error` argument before the task label(s)
 or the `VTR_CONTINUE_ON_ERROR` environment variable being set to any value.
+This can be useful if you want to run multiple tasks
+such as formatting, test, and build tasks, and see all of the results.
 
 ```bash
 vtr --continue-on-error tests build

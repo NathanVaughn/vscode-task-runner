@@ -12,6 +12,10 @@ from vscode_task_runner.models.arg_parser import ArgParseResult
 from vscode_task_runner.models.task import TaskTypeEnum
 from vscode_task_runner.parser import load_tasks
 
+_COMPLETE_FLAG = "--complete"
+_SKIP_SUMMARY_FLAG = "--skip-summary"
+_CONTINUE_ON_ERROR_FLAG = "--continue-on-error"
+
 
 def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     """
@@ -30,22 +34,31 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
         + f' If the task is a "{TaskTypeEnum.shell.value}" type with '
         + ' a "command" and "args", then this will be appended to "args".',
     )
+
     parser.add_argument(
-        "--skip-summary",
+        _SKIP_SUMMARY_FLAG,
         action="store_true",
         help="Skip creating a CI/CD step summary.",
     )
+
     parser.add_argument(
-        "--continue-on-error",
+        _CONTINUE_ON_ERROR_FLAG,
         action="store_true",
         help="Continue executing tasks even if one fails. The final exit code will be 1 if any task failed.",
     )
+
     parser.add_argument(
         "task_labels",
         nargs="+",
         choices=task_choices,
         help="One or more task labels to run. This is case sensitive.",
     )
+
+    # show list of tasks and exit
+    # parse this manually, since normally task labels are required and to make it faster
+    if _COMPLETE_FLAG in sys_argv:
+        print("\n".join([_SKIP_SUMMARY_FLAG, _CONTINUE_ON_ERROR_FLAG, *task_choices]))
+        sys.exit(0)
 
     # https://stackoverflow.com/a/40686614/9944427
     # https://github.com/NathanVaughn/vscode-task-runner/issues/51
@@ -61,6 +74,7 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
 
     # parse with argparse
     args, extra_args = parser.parse_known_args(sys_argv_to_parse)
+
     # combine with items we parsed beforehand
     extra_args = extra_args + extra_extra_args
 
@@ -84,22 +98,26 @@ def run() -> int:
     """
     colorama.just_fix_windows_console()
 
+    sys_argv = sys.argv[1:]
+
     try:
         tasks = load_tasks()
     except TasksFileNotFound:
-        printer.error(
-            (
-                "Invoke this command inside a directory with a"
-                + f" {TASKS_FILE} file to see and run tasks."
+        if _COMPLETE_FLAG not in sys_argv:
+            # don't want to provide any output if just completing
+            printer.error(
+                (
+                    "Invoke this command inside a directory with a "
+                    + f"{TASKS_FILE} file to see and run tasks."
+                )
             )
-        )
         return 1
 
     # build a list of possible task labels
     task_choices = [task.label for task in tasks.tasks if task.is_supported()]
 
     # parse the command line arguments
-    parse_result = parse_args(sys.argv[1:], task_choices)
+    parse_result = parse_args(sys_argv, task_choices)
 
     # convert task labels to task objects
     tasks = [tasks.tasks_dict[label] for label in parse_result.task_labels]
