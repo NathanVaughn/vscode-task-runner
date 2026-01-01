@@ -14,9 +14,9 @@ defined in the `.vscode/tasks.json` file.
 This allows you to write tasks once, and be able to run them in your editor,
 and in CI/CD. Basically, use `.vscode/tasks.json` as a Makefile.
 
-This tool aims to be as feature-complete as possible with what VS Code supports for
-Windows, MacOSX, and Linux. Much of the logic is taken directly from the VS Code
-source code and reimplemented in Python.
+This tool aims to be as feature-complete as possible with what VS Code supports
+for Windows, MacOSX, and Linux. Much of the logic is taken directly
+from the VS Code source code and reimplemented in Python.
 
 This pairs well with VS Code extensions that add buttons to run tasks such as
 [actboy168.tasks](https://marketplace.visualstudio.com/items?itemName=actboy168.tasks).
