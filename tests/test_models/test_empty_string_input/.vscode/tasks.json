@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "testInput",
+            "type": "pickString",
+            "description": "Select an option",
+            "options": ["", "f1"]
+        }
+    ],
+    "tasks": [
+        {
+            "label": "task1",
+            "type": "shell",
+            "command": "echo",
+            "args": ["${input:testInput}"]
+        }
+    ]
+}
