@@ -25,7 +25,9 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
 
     parser = argparse.ArgumentParser(
         description="VS Code Task Runner",
-        epilog="When running a single task, extra args can be appended only to that task."
+        epilog="Input values can be provided via --input-<id>=<value> flags (can be repeated)."
+        + "\n\n"
+        + "When running a single task, extra args can be appended only to that task."
         + " If a single task is requested, but has dependent tasks, only the top-level"
         + " task will be given the extra arguments."
         + f' If the task is a "{TaskTypeEnum.process.value}" type, then this will be added to "args".'
@@ -78,6 +80,25 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     # combine with items we parsed beforehand
     extra_args = extra_args + extra_extra_args
 
+    # parse --input-<id>=<value> flags from extra_args
+    input_values = {}
+    remaining_extra_args = []
+
+    for arg in extra_args:
+        if arg.startswith("--input-"):
+            # Handle --input-id=value
+            if "=" not in arg:
+                parser.error(
+                    f"Invalid input flag format: {arg}. Expected: --input-<id>=<value>"
+                )
+            key_part = arg[8:]  # Remove "--input-" prefix
+            input_id, value = key_part.split("=", 1)
+            input_values[input_id] = value
+        else:
+            remaining_extra_args.append(arg)
+
+    extra_args = remaining_extra_args
+
     if len(args.task_labels) > 1 and extra_args:
         parser.error("Extra arguments can only be used with a single task.")
 
@@ -88,7 +109,23 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     if args.continue_on_error:
         os.environ["VTR_CONTINUE_ON_ERROR"] = "1"
 
-    return ArgParseResult(task_labels=args.task_labels, extra_args=extra_args)
+    return ArgParseResult(
+        task_labels=args.task_labels, extra_args=extra_args, input_values=input_values
+    )
+
+
+def set_input_environment_variables(input_values: dict[str, str]) -> None:
+    """
+    Set VTR_INPUT_* environment variables from CLI arguments.
+
+    CLI arguments take precedence over existing environment variables.
+
+    Args:
+        input_values: Dictionary mapping input IDs to values
+    """
+    for input_id, value in input_values.items():
+        env_var_name = f"VTR_INPUT_{input_id}"
+        os.environ[env_var_name] = value
 
 
 def run() -> int:
@@ -118,6 +155,9 @@ def run() -> int:
 
     # parse the command line arguments
     parse_result = parse_args(sys_argv, task_choices)
+
+    # set input environment variables from CLI args
+    set_input_environment_variables(parse_result.input_values)
 
     # convert task labels to task objects
     tasks = [tasks.tasks_dict[label] for label in parse_result.task_labels]

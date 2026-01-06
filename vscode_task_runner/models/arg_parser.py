@@ -10,3 +10,7 @@ class ArgParseResult(BaseModel):
     """
     Extra arguments provided
     """
+    input_values: dict[str, str] = {}
+    """
+    Input values provided via --input-<id>=<value> CLI flags
+    """
