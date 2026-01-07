@@ -168,6 +168,15 @@ In CI/CD, you can use either approach. For GitHub Actions:
       VTR_INPUT_report_format: html
 ```
 
+To discover what inputs a task requires, use the `--list-inputs` flag:
+
+```bash
+vtr deploy --list-inputs
+```
+
+This will display all inputs required by the task (including inputs from dependencies),
+along with their type, description, default values, and available options for `pickString` inputs.
+
 Similarly, if more than one default build task is defined, the
 `VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one
 to use. Otherwise, you will be interactively prompted to select one.
@@ -396,6 +405,7 @@ Obviously, this will not do anything different if only a single task is being ru
 - Additional extra arguments option
 - Continue on error functionality
 - `--input-<id>=<value>` CLI flags for providing input values
+- `--list-inputs` flag to display all inputs required by a task
 - `VTR_INPUT_${id}` environment variables
 - `VTR_DEFAULT_BUILD_TASK` environment variable
 

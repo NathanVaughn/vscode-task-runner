@@ -9,8 +9,10 @@ from vscode_task_runner import executor, printer
 from vscode_task_runner.constants import TASKS_FILE
 from vscode_task_runner.exceptions import TasksFileNotFound
 from vscode_task_runner.models.arg_parser import ArgParseResult
-from vscode_task_runner.models.task import TaskTypeEnum
+from vscode_task_runner.models.input import Input
+from vscode_task_runner.models.task import Task, TaskTypeEnum
 from vscode_task_runner.parser import load_tasks
+from vscode_task_runner.variables.runtime import INPUTS
 
 _COMPLETE_FLAG = "--complete"
 _SKIP_SUMMARY_FLAG = "--skip-summary"
@@ -47,6 +49,12 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
         _CONTINUE_ON_ERROR_FLAG,
         action="store_true",
         help="Continue executing tasks even if one fails. The final exit code will be 1 if any task failed.",
+    )
+
+    parser.add_argument(
+        "--list-inputs",
+        action="store_true",
+        help="List all inputs required by the specified task(s) and exit.",
     )
 
     parser.add_argument(
@@ -110,7 +118,10 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
         os.environ["VTR_CONTINUE_ON_ERROR"] = "1"
 
     return ArgParseResult(
-        task_labels=args.task_labels, extra_args=extra_args, input_values=input_values
+        task_labels=args.task_labels,
+        extra_args=extra_args,
+        input_values=input_values,
+        list_inputs=args.list_inputs,
     )
 
 
@@ -126,6 +137,96 @@ def set_input_environment_variables(input_values: dict[str, str]) -> None:
     for input_id, value in input_values.items():
         env_var_name = f"VTR_INPUT_{input_id}"
         os.environ[env_var_name] = value
+
+
+def collect_task_inputs(tasks: list[Task]) -> set[str]:
+    """
+    Collect all input IDs referenced in tasks and their dependencies.
+
+    Args:
+        tasks: List of tasks to scan for input references
+
+    Returns:
+        Set of input IDs found in the tasks
+    """
+    import re
+
+    input_ids: set[str] = set()
+
+    # Build the task order to include all dependencies
+    levels = executor.build_tasks_order(tasks)
+    all_tasks = [task for level in levels for task in level]
+
+    # Pattern to match ${input:id}
+    pattern = re.compile(r'\$\{input:([^}]+)\}')
+
+    # Scan all task properties for input references
+    for task in all_tasks:
+        # Convert task to dict to scan all string properties
+        task_dict = task.model_dump()
+
+        # Recursively scan for input references
+        def scan_value(value):
+            if isinstance(value, str):
+                matches = pattern.findall(value)
+                input_ids.update(matches)
+            elif isinstance(value, dict):
+                for v in value.values():
+                    scan_value(v)
+            elif isinstance(value, list):
+                for item in value:
+                    scan_value(item)
+
+        scan_value(task_dict)
+
+    return input_ids
+
+
+def display_inputs(input_ids: set[str]) -> None:
+    """
+    Display information about the specified inputs.
+
+    Args:
+        input_ids: Set of input IDs to display
+    """
+    if not input_ids:
+        printer.info("No inputs required for the specified task(s).")
+        return
+
+    printer.info("Available inputs for the specified task(s):\n")
+
+    sorted_ids = sorted(input_ids)
+    for input_id in sorted_ids:
+        if input_id not in INPUTS:
+            printer.info(f"  {printer.red(input_id)}: (not defined)")
+            continue
+
+        input_obj = INPUTS[input_id]
+
+        # Print input ID and type
+        printer.info(f"  {printer.blue(input_id)}:")
+        printer.info(f"    Type: {input_obj.type_.value}")
+
+        # Print description if available
+        if input_obj.description:
+            printer.info(f"    Description: {input_obj.description}")
+
+        # Print default if available
+        if input_obj.default is not None:
+            printer.info(f"    Default: {input_obj.default}")
+
+        # Print options for pickString
+        if input_obj.options:
+            printer.info("    Options:")
+            for option in input_obj.options:
+                if isinstance(option, str):
+                    printer.info(f"      - {option}")
+                else:
+                    # InputChoice object
+                    printer.info(f"      - {option.value} ({option.label})")
+
+        # Show usage example
+        printer.info(f"    Usage: --input-{input_id}=<value>\n")
 
 
 def run() -> int:
@@ -156,14 +257,20 @@ def run() -> int:
     # parse the command line arguments
     parse_result = parse_args(sys_argv, task_choices)
 
+    # convert task labels to task objects
+    task_objects = [tasks.tasks_dict[label] for label in parse_result.task_labels]
+
+    # if --list-inputs is set, display inputs and exit
+    if parse_result.list_inputs:
+        input_ids = collect_task_inputs(task_objects)
+        display_inputs(input_ids)
+        return 0
+
     # set input environment variables from CLI args
     set_input_environment_variables(parse_result.input_values)
 
-    # convert task labels to task objects
-    tasks = [tasks.tasks_dict[label] for label in parse_result.task_labels]
-
     # run
     return executor.execute_tasks(
-        tasks=tasks,
+        tasks=task_objects,
         extra_args=parse_result.extra_args,
     )

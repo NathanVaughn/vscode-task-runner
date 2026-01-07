@@ -14,3 +14,7 @@ class ArgParseResult(BaseModel):
     """
     Input values provided via --input-<id>=<value> CLI flags
     """
+    list_inputs: bool = False
+    """
+    Whether to list inputs and exit
+    """
