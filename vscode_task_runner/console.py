@@ -100,6 +100,10 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
                 )
             key_part = arg[8:]  # Remove "--input-" prefix
             input_id, value = key_part.split("=", 1)
+            if not input_id:
+                parser.error(
+                    f"Invalid input flag format: {arg}. Input ID cannot be empty."
+                )
             input_values[input_id] = value
         else:
             remaining_extra_args.append(arg)
