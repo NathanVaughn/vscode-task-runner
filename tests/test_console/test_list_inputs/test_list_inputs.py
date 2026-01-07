@@ -1,16 +1,15 @@
 """Test --list-inputs functionality."""
 
-import os
 import sys
-from io import StringIO
 from pathlib import Path
 
-import pytest
+from pytest import CaptureFixture, MonkeyPatch
+
 
 from vscode_task_runner.console import run
 
 
-def test_list_inputs_single_task(monkeypatch, capsys):
+def test_list_inputs_single_task(monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]):
     """
     Test --list-inputs with a single task
     """
@@ -40,7 +39,9 @@ def test_list_inputs_single_task(monkeypatch, capsys):
     assert "--input-region=" in captured.out
 
 
-def test_list_inputs_with_dependencies(monkeypatch, capsys):
+def test_list_inputs_with_dependencies(
+    monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]
+):
     """
     Test --list-inputs with a task that has dependencies
     """
@@ -65,7 +66,9 @@ def test_list_inputs_with_dependencies(monkeypatch, capsys):
     assert "build_type" in captured.out
 
 
-def test_list_inputs_multiple_tasks(monkeypatch, capsys):
+def test_list_inputs_multiple_tasks(
+    monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]
+):
     """
     Test --list-inputs with multiple tasks
     """
@@ -90,7 +93,9 @@ def test_list_inputs_multiple_tasks(monkeypatch, capsys):
     assert "build_type" in captured.out
 
 
-def test_list_inputs_with_options_display(monkeypatch, capsys):
+def test_list_inputs_with_options_display(
+    monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]
+):
     """
     Test that --list-inputs displays options for pickString inputs
     """
@@ -117,7 +122,9 @@ def test_list_inputs_with_options_display(monkeypatch, capsys):
     assert "us-east-1" in captured.out or "US East (Virginia)" in captured.out
 
 
-def test_list_inputs_does_not_execute_task(monkeypatch, capsys):
+def test_list_inputs_does_not_execute_task(
+    monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]
+):
     """
     Test that --list-inputs does not execute the task
     """

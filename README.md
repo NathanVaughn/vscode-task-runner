@@ -103,15 +103,17 @@ $ vtr test -- option1 option2
 # This will run the task "test" with the arguments "option1" and "option2"
 ```
 
-If your task uses an `${input:id}` variable, you can provide the value in three ways
-(in order of precedence):
+If your task uses an `${input:id}` variable, you can provide the value in three
+ways (in order of precedence):
 
 1. **CLI flags** (recommended, cross-platform):
+
    ```bash
    vtr tests --input-report_format=html
    ```
 
 2. **Environment variables** (Linux/macOS):
+
    ```bash
    VTR_INPUT_report_format=html vtr tests
    ```
@@ -175,7 +177,8 @@ vtr deploy --list-inputs
 ```
 
 This will display all inputs required by the task (including inputs from dependencies),
-along with their type, description, default values, and available options for `pickString` inputs.
+along with their type, description, default values,
+and available options for `pickString` inputs.
 
 Similarly, if more than one default build task is defined, the
 `VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one

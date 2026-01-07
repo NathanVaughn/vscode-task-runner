@@ -2,7 +2,6 @@
 
 import os
 
-import pytest
 
 from vscode_task_runner.console import set_input_environment_variables
 

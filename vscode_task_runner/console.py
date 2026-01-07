@@ -9,7 +9,6 @@ from vscode_task_runner import executor, printer
 from vscode_task_runner.constants import TASKS_FILE
 from vscode_task_runner.exceptions import TasksFileNotFound
 from vscode_task_runner.models.arg_parser import ArgParseResult
-from vscode_task_runner.models.input import Input
 from vscode_task_runner.models.task import Task, TaskTypeEnum
 from vscode_task_runner.parser import load_tasks
 from vscode_task_runner.variables.runtime import INPUTS
@@ -158,7 +157,7 @@ def collect_task_inputs(tasks: list[Task]) -> set[str]:
     all_tasks = [task for level in levels for task in level]
 
     # Pattern to match ${input:id}
-    pattern = re.compile(r'\$\{input:([^}]+)\}')
+    pattern = re.compile(r"\$\{input:([^}]+)\}")
 
     # Scan all task properties for input references
     for task in all_tasks:
@@ -166,7 +165,7 @@ def collect_task_inputs(tasks: list[Task]) -> set[str]:
         task_dict = task.model_dump()
 
         # Recursively scan for input references
-        def scan_value(value):
+        def scan_value(value):  # type: ignore
             if isinstance(value, str):
                 matches = pattern.findall(value)
                 input_ids.update(matches)
