@@ -29,6 +29,37 @@ def test_parse_args(sys_argv: list[str], expected: ArgParseResult) -> None:
     """
     assert console.parse_args(sys_argv, ["Test1", "Test2", "Test3"]) == expected
 
+@pytest.mark.parametrize(
+    "sys_argv",
+    (
+        ["--help"],
+        ["-h"],
+        ["-h", "Test1"],
+        ["-h", "Test1", "--extra1"],
+    ),
+)
+def test_show_help(sys_argv: list[str]) -> None:
+    """
+    Test that the help is shown and the program exits when -h or --help is passed
+    """
+    with pytest.raises(SystemExit):
+        console.parse_args(sys_argv, ["Test1", "Test2", "Test3"])
+
+@pytest.mark.parametrize(
+    "sys_argv",
+    (
+        ["--complete"],
+        ["--complete", "Test1"],
+        ["--complete", "Test1", "--extra1"],
+    ),
+)
+def test_show_complete(sys_argv: list[str]) -> None:
+    """
+    Test that the complete message is shown and the program exits when --complete is passed
+    """
+    with pytest.raises(SystemExit):
+        console.parse_args(sys_argv, ["Test1", "Test2", "Test3"])
+
 
 @pytest.mark.parametrize(
     "sys_argv",
@@ -48,6 +79,8 @@ def test_parse_args(sys_argv: list[str], expected: ArgParseResult) -> None:
             "extra1",
             "extra2",
         ],  # extra args with more than one task
+        ["--invalid-option", "Test1"],  # invalid option
+        ["Test1", "InvalidTask"],  # invalid task label
     ),
 )
 def test_parse_args_error(sys_argv: list[str]) -> None:
