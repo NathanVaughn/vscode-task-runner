@@ -109,6 +109,8 @@ options:
             os.environ["VTR_CONTINUE_ON_ERROR"] = "1"
 
         elif option.startswith(_DEFAULT_BUILD_TASK_FLAG_PREFIX):
+            # this is okay if the value is blank
+            # will be handled by determine_default_build_task function
             os.environ["VTR_DEFAULT_BUILD_TASK"] = option.removeprefix(
                 _DEFAULT_BUILD_TASK_FLAG_PREFIX
             )
@@ -120,7 +122,9 @@ options:
 
             data = option.removeprefix(_INPUT_FLAG_PREFIX)
             chunks = data.split("=", maxsplit=1)
-            if len(chunks) != 2:
+            if len(chunks) != 2 or not chunks[1]:
+                # ensure there are 2 items, and the id is not blank
+                # blank value is acceptable
                 printer.error(f"Invalid option: {option}")
                 sys.exit(1)
 

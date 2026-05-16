@@ -1,6 +1,7 @@
+import os
 import subprocess
 import sys
-import os
+
 import pytest
 
 
@@ -16,10 +17,12 @@ def test_complete_errpr() -> None:
     cwd = os.getcwd()
     os.chdir(os.path.dirname(__file__))
 
-    with pytest.raises(subprocess.CalledProcessError):
-        subprocess.run(
-            [sys.executable, "-m", "vscode_task_runner", "--complete"], check=True
-        )
+    try:
+        with pytest.raises(subprocess.CalledProcessError):
+            subprocess.run(
+                [sys.executable, "-m", "vscode_task_runner", "--complete"], check=True
+            )
 
     # rset cwd so it doesn't mess with other tests
-    os.chdir(cwd)
+    finally:
+        os.chdir(cwd)
