@@ -81,7 +81,7 @@ options:
 """
         # last line is the longest, so try to word wrap it to fit in the terminal
         last_line = f'When running a single task, extra args can be appended only to that task. If a single task is requested, but has dependent tasks, only the top-level task will be given the extra arguments. If the task is a "{TaskTypeEnum.process.value}" type, then this will be added to "args". If the task is a "{TaskTypeEnum.shell.value}" type with only a "command" then this will be tacked on to the end and joined by spaces. If the task is a "{TaskTypeEnum.shell.value}" type with a "command" and "args", then this will be appended to "args".'
-        msg = main_msg + "\n" + "\n".join(textwrap.wrap(last_line, width=shutil.get_terminal_size().columns))
+        msg = main_msg + "\n" + textwrap.fill(last_line, width=shutil.get_terminal_size().columns)
 
         print(msg)
         sys.exit(0)
