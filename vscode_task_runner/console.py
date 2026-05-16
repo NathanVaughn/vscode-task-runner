@@ -1,7 +1,6 @@
-import argparse
 import os
-import sys
 import shutil
+import sys
 import textwrap
 from typing import List
 
@@ -17,6 +16,8 @@ from vscode_task_runner.parser import load_tasks
 _COMPLETE_FLAG = "--complete"
 _SKIP_SUMMARY_FLAG = "--skip-summary"
 _CONTINUE_ON_ERROR_FLAG = "--continue-on-error"
+_INPUT_FLAG_PREFIX = "--input="
+_DEFAULT_BUILD_TASK_FLAG_PREFIX = "--default-build-task="
 
 
 def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
@@ -66,7 +67,7 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
         # show help message and exit
         task_labels_str = ",".join(task_choices)
         main_msg = f"""
-usage: vtr [-h] [{_SKIP_SUMMARY_FLAG}] [{_CONTINUE_ON_ERROR_FLAG}] {{{task_labels_str}}} [{{{task_labels_str}}} ...]
+usage: vtr [-h] [{_SKIP_SUMMARY_FLAG}] [{_CONTINUE_ON_ERROR_FLAG}] [{_DEFAULT_BUILD_TASK_FLAG_PREFIX}TASK] [{_INPUT_FLAG_PREFIX}ID=VALUE ...] {{{task_labels_str}}} [{{{task_labels_str}}} ...]
 
 VS Code Task Runner
 
@@ -81,30 +82,53 @@ options:
 """
         # last line is the longest, so try to word wrap it to fit in the terminal
         last_line = f'When running a single task, extra args can be appended only to that task. If a single task is requested, but has dependent tasks, only the top-level task will be given the extra arguments. If the task is a "{TaskTypeEnum.process.value}" type, then this will be added to "args". If the task is a "{TaskTypeEnum.shell.value}" type with only a "command" then this will be tacked on to the end and joined by spaces. If the task is a "{TaskTypeEnum.shell.value}" type with a "command" and "args", then this will be appended to "args".'
-        msg = main_msg + "\n" + textwrap.fill(last_line, width=shutil.get_terminal_size().columns)
+        msg = (
+            main_msg
+            + "\n"
+            + textwrap.fill(last_line, width=shutil.get_terminal_size().columns)
+        )
 
         print(msg)
         sys.exit(0)
 
-    # go through options and make sure they are valid
-    valid_options = {_COMPLETE_FLAG, _SKIP_SUMMARY_FLAG, _CONTINUE_ON_ERROR_FLAG}
+    # parse options
     for option in options:
-        if option not in valid_options:
+        if option == _COMPLETE_FLAG:
+            # show list of tasks and exit
+            # parse this manually, since normally task labels are required and to make it faster
+            print(
+                "\n".join([_SKIP_SUMMARY_FLAG, _CONTINUE_ON_ERROR_FLAG, *task_choices])
+            )
+            sys.exit(0)
+
+        # manually set environment variable for ourself
+        elif option == _SKIP_SUMMARY_FLAG:
+            os.environ["VTR_SKIP_SUMMARY"] = "1"
+
+        elif option == _CONTINUE_ON_ERROR_FLAG:
+            os.environ["VTR_CONTINUE_ON_ERROR"] = "1"
+
+        elif option.startswith(_DEFAULT_BUILD_TASK_FLAG_PREFIX):
+            os.environ["VTR_DEFAULT_BUILD_TASK"] = option.removeprefix(
+                _DEFAULT_BUILD_TASK_FLAG_PREFIX
+            )
+
+        # parse inputs
+        elif option.startswith(_INPUT_FLAG_PREFIX):
+            # should be in format of
+            # --input=TEST1=value
+
+            data = option.removeprefix(_INPUT_FLAG_PREFIX)
+            chunks = data.split("=", maxsplit=1)
+            if len(chunks) != 2:
+                printer.error(f"Invalid option: {option}")
+                sys.exit(1)
+
+            os.environ[f"VTR_INPUT_{chunks[0]}"] = chunks[1]
+
+        else:
             printer.error(f"Invalid option: {option}")
             sys.exit(1)
-
-    # show list of tasks and exit
-    # parse this manually, since normally task labels are required and to make it faster
-    if _COMPLETE_FLAG in options:
-        print("\n".join([_SKIP_SUMMARY_FLAG, _CONTINUE_ON_ERROR_FLAG, *task_choices]))
-        sys.exit(0)
-
-    # manually set environment variable for ourself
-    if _SKIP_SUMMARY_FLAG in options:
-        os.environ["VTR_SKIP_SUMMARY"] = "1"
-
-    if _CONTINUE_ON_ERROR_FLAG in options:
-        os.environ["VTR_CONTINUE_ON_ERROR"] = "1"
 
     # finally, validate that at least one task label is provided, and that extra args are only used with a single task
     if not task_labels:

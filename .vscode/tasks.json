@@ -19,7 +19,7 @@
         {
             "label": "tests-report",
             "command": "uv run python -m http.server --directory htmlcov/",
-            "type": "shell",
+            "type": "shell"
         },
         {
             "label": "build",

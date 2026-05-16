@@ -29,6 +29,7 @@ def test_parse_args(sys_argv: list[str], expected: ArgParseResult) -> None:
     """
     assert console.parse_args(sys_argv, ["Test1", "Test2", "Test3"]) == expected
 
+
 @pytest.mark.parametrize(
     "sys_argv",
     (
@@ -44,6 +45,7 @@ def test_show_help(sys_argv: list[str]) -> None:
     """
     with pytest.raises(SystemExit):
         console.parse_args(sys_argv, ["Test1", "Test2", "Test3"])
+
 
 @pytest.mark.parametrize(
     "sys_argv",
@@ -81,6 +83,7 @@ def test_show_complete(sys_argv: list[str]) -> None:
         ],  # extra args with more than one task
         ["--invalid-option", "Test1"],  # invalid option
         ["Test1", "InvalidTask"],  # invalid task label
+        ["--input=Key1", "Test1"],  # invalid input format
     ),
 )
 def test_parse_args_error(sys_argv: list[str]) -> None:
@@ -96,17 +99,31 @@ def test_parse_args_env_vars() -> None:
     Test the argument parser with options that turn into environment variables
     """
 
+    env = {
+        "VTR_SKIP_SUMMARY": "1",
+        "VTR_CONTINUE_ON_ERROR": "1",
+        "VTR_INPUT_Key1": "Value1=2",  # test equals sign in value
+        "VTR_DEFAULT_BUILD_TASK": "Test1",
+    }
+
     # Clear environment variables for the test
-    if "VTR_SKIP_SUMMARY" in os.environ:
-        del os.environ["VTR_SKIP_SUMMARY"]
-    if "VTR_CONTINUE_ON_ERROR" in os.environ:
-        del os.environ["VTR_CONTINUE_ON_ERROR"]
+    for var in env:
+        if var in os.environ:
+            del os.environ[var]
 
-    console.parse_args(["--skip-summary", "--continue-on-error","Test1"], ["Test1"])
+    console.parse_args(
+        [
+            "--skip-summary",
+            "--continue-on-error",
+            "--input=Key1=Value1=2",
+            "--default-build-task=Test1",
+            "Test1",
+        ],
+        ["Test1"],
+    )
 
-    assert os.environ["VTR_SKIP_SUMMARY"] == "1"
-    assert os.environ["VTR_CONTINUE_ON_ERROR"] == "1"
+    for var, val in env.items():
+        assert os.environ[var] == val
 
-    # Wipe environment variables after the test
-    del os.environ["VTR_SKIP_SUMMARY"]
-    del os.environ["VTR_CONTINUE_ON_ERROR"]
+        # Wipe environment variables after the test
+        del os.environ[var]
