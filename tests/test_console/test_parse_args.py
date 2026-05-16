@@ -69,7 +69,7 @@ def test_parse_args_env_vars() -> None:
     if "VTR_CONTINUE_ON_ERROR" in os.environ:
         del os.environ["VTR_CONTINUE_ON_ERROR"]
 
-    console.parse_args(["Test1", "--skip-summary", "--continue-on-error"], ["Test1"])
+    console.parse_args(["--skip-summary", "--continue-on-error","Test1"], ["Test1"])
 
     assert os.environ["VTR_SKIP_SUMMARY"] == "1"
     assert os.environ["VTR_CONTINUE_ON_ERROR"] == "1"

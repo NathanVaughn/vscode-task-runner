@@ -1,6 +1,8 @@
 import argparse
 import os
 import sys
+import shutil
+import textwrap
 from typing import List
 
 import colorama
@@ -23,72 +25,97 @@ def parse_args(sys_argv: List[str], task_choices: List[str]) -> ArgParseResult:
     Returns an object with a list of tasks selected, and extra arguments.
     """
 
-    parser = argparse.ArgumentParser(
-        description="VS Code Task Runner",
-        epilog="When running a single task, extra args can be appended only to that task."
-        + " If a single task is requested, but has dependent tasks, only the top-level"
-        + " task will be given the extra arguments."
-        + f' If the task is a "{TaskTypeEnum.process.value}" type, then this will be added to "args".'
-        + f' If the task is a "{TaskTypeEnum.shell.value}" type with only a "command" then this will'
-        + " be tacked on to the end and joined by spaces."
-        + f' If the task is a "{TaskTypeEnum.shell.value}" type with '
-        + ' a "command" and "args", then this will be appended to "args".',
+    # structure is:
+    # [options] task1 [task2] [--] [extra args]
+
+    options: list[str] = []
+    task_labels: list[str] = []
+    extra_args: list[str] = []
+
+    # first, go through the args, and find first argument found that is a task label
+    # everything before that is an option, everything after that (except for --) is either a task label or an extra arg
+    task_label_index = next(
+        (i for i, arg in enumerate(sys_argv) if arg in task_choices),
+        None,
     )
 
-    parser.add_argument(
-        _SKIP_SUMMARY_FLAG,
-        action="store_true",
-        help="Skip creating a CI/CD step summary.",
-    )
+    # if no task label is found, then all arguments must be options
+    if task_label_index is None:
+        options = sys_argv
+    else:
+        options = sys_argv[:task_label_index]
+        remaining_args = sys_argv[task_label_index:]
 
-    parser.add_argument(
-        _CONTINUE_ON_ERROR_FLAG,
-        action="store_true",
-        help="Continue executing tasks even if one fails. The final exit code will be 1 if any task failed.",
-    )
+        # go through remaining args until we find an arg that starts with "--"
+        # that is not a task label, this is the start of extra args
+        for i, arg in enumerate(remaining_args):
+            if arg in task_choices:
+                task_labels.append(arg)
+            elif arg.startswith("--"):
+                extra_args = remaining_args[i:]
+                break
+            else:
+                printer.error(f"Invalid task label: {arg}")
+                sys.exit(1)
 
-    parser.add_argument(
-        "task_labels",
-        nargs="+",
-        choices=task_choices,
-        help="One or more task labels to run. This is case sensitive.",
-    )
+    # remove "--" from extra args if it exists
+    if extra_args and extra_args[0] == "--":
+        extra_args = extra_args[1:]
+
+    if "-h" in options or "--help" in options:
+        # show help message and exit
+        task_labels_str = ",".join(task_choices)
+        main_msg = f"""
+usage: vtr [-h] [{_SKIP_SUMMARY_FLAG}] [{_CONTINUE_ON_ERROR_FLAG}] {{{task_labels_str}}} [{{{task_labels_str}}} ...]
+
+VS Code Task Runner
+
+positional arguments:
+{{{task_labels_str}}}
+                      One or more task labels to run. This is case sensitive.
+
+options:
+-h, --help            Show this help message and exit
+{_SKIP_SUMMARY_FLAG}        Skip creating a CI/CD step summary
+{_CONTINUE_ON_ERROR_FLAG}   Continue executing tasks even if one fails. The final exit code will be 1 if any task failed.
+"""
+        # last line is the longest, so try to word wrap it to fit in the terminal
+        last_line = f'When running a single task, extra args can be appended only to that task. If a single task is requested, but has dependent tasks, only the top-level task will be given the extra arguments. If the task is a "{TaskTypeEnum.process.value}" type, then this will be added to "args". If the task is a "{TaskTypeEnum.shell.value}" type with only a "command" then this will be tacked on to the end and joined by spaces. If the task is a "{TaskTypeEnum.shell.value}" type with a "command" and "args", then this will be appended to "args".'
+        msg = main_msg + "\n" + "\n".join(textwrap.wrap(last_line, width=shutil.get_terminal_size().columns))
+
+        print(msg)
+        sys.exit(0)
+
+    # go through options and make sure they are valid
+    valid_options = {_COMPLETE_FLAG, _SKIP_SUMMARY_FLAG, _CONTINUE_ON_ERROR_FLAG}
+    for option in options:
+        if option not in valid_options:
+            printer.error(f"Invalid option: {option}")
+            sys.exit(1)
 
     # show list of tasks and exit
     # parse this manually, since normally task labels are required and to make it faster
-    if _COMPLETE_FLAG in sys_argv:
+    if _COMPLETE_FLAG in options:
         print("\n".join([_SKIP_SUMMARY_FLAG, _CONTINUE_ON_ERROR_FLAG, *task_choices]))
         sys.exit(0)
 
-    # https://stackoverflow.com/a/40686614/9944427
-    # https://github.com/NathanVaughn/vscode-task-runner/issues/51
-    if "--" in sys_argv:
-        break_point = sys_argv.index("--")
-        sys_argv_to_parse, extra_extra_args = (
-            sys_argv[:break_point],
-            sys_argv[break_point + 1 :],
-        )
-    else:
-        sys_argv_to_parse = sys_argv
-        extra_extra_args = []
-
-    # parse with argparse
-    args, extra_args = parser.parse_known_args(sys_argv_to_parse)
-
-    # combine with items we parsed beforehand
-    extra_args = extra_args + extra_extra_args
-
-    if len(args.task_labels) > 1 and extra_args:
-        parser.error("Extra arguments can only be used with a single task.")
-
     # manually set environment variable for ourself
-    if args.skip_summary:
+    if _SKIP_SUMMARY_FLAG in options:
         os.environ["VTR_SKIP_SUMMARY"] = "1"
 
-    if args.continue_on_error:
+    if _CONTINUE_ON_ERROR_FLAG in options:
         os.environ["VTR_CONTINUE_ON_ERROR"] = "1"
 
-    return ArgParseResult(task_labels=args.task_labels, extra_args=extra_args)
+    # finally, validate that at least one task label is provided, and that extra args are only used with a single task
+    if not task_labels:
+        printer.error("At least one task label is required.")
+        sys.exit(1)
+
+    if len(task_labels) > 1 and extra_args:
+        printer.error("Extra arguments can only be used with a single task.")
+        sys.exit(1)
+
+    return ArgParseResult(task_labels=task_labels, extra_args=extra_args)
 
 
 def run() -> int:
