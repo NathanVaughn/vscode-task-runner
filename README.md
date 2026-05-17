@@ -103,8 +103,25 @@ $ vtr test -- option1 option2
 # This will run the task "test" with the arguments "option1" and "option2"
 ```
 
-If your task uses an `${input:id}` variable, you can provide the value for
-this variable as an environment variable named `VTR_INPUT_{id}`. Example:
+If your task uses an `${input:id}` variable, you can provide the value in three
+ways (in order of precedence):
+
+1. **CLI flags** (recommended, cross-platform):
+
+   ```bash
+   vtr tests --input-report_format=html
+   ```
+
+2. **Environment variables** (Linux/macOS):
+
+   ```bash
+   VTR_INPUT_report_format=html vtr tests
+   ```
+
+3. **Interactive prompt** (default):
+   If no value is provided, you'll be prompted to enter one interactively.
+
+Example task definition:
 
 ```json
 {
@@ -133,14 +150,35 @@ this variable as an environment variable named `VTR_INPUT_{id}`. Example:
 }
 ```
 
-Then in GitHub Actions:
+You can provide multiple inputs at once:
+
+```bash
+vtr deploy --input-environment=production --input-region=us-west-2
+```
+
+In CI/CD, you can use either approach. For GitHub Actions:
 
 ```yaml
+  # Using CLI flags (works on all platforms including Windows)
+  - name: Run tests
+    run: vtr tests --input-report_format=html
+
+  # Or using environment variables (Linux/macOS only)
   - name: Run tests
     run: vtr tests
     env:
       VTR_INPUT_report_format: html
 ```
+
+To discover what inputs a task requires, use the `--list-inputs` flag:
+
+```bash
+vtr deploy --list-inputs
+```
+
+This will display all inputs required by the task (including inputs from dependencies),
+along with their type, description, default values,
+and available options for `pickString` inputs.
 
 Similarly, if more than one default build task is defined, the
 `VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one
@@ -369,6 +407,8 @@ Obviously, this will not do anything different if only a single task is being ru
 - Does not load any VS Code settings
 - Additional extra arguments option
 - Continue on error functionality
+- `--input-<id>=<value>` CLI flags for providing input values
+- `--list-inputs` flag to display all inputs required by a task
 - `VTR_INPUT_${id}` environment variables
 - `VTR_DEFAULT_BUILD_TASK` environment variable
 

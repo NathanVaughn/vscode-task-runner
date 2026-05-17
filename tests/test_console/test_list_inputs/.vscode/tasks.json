@@ -1,0 +1,45 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "deploy",
+            "type": "shell",
+            "command": "echo Deploying to ${input:environment} in ${input:region}"
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "echo Building with ${input:build_type}"
+        },
+        {
+            "label": "deploy-with-deps",
+            "dependsOn": ["build", "deploy"],
+            "dependsOrder": "sequence"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "environment",
+            "type": "pickString",
+            "description": "Deployment environment",
+            "default": "staging",
+            "options": ["dev", "staging", "production"]
+        },
+        {
+            "id": "region",
+            "type": "pickString",
+            "description": "AWS region",
+            "options": [
+                {"label": "US West (Oregon)", "value": "us-west-2"},
+                {"label": "US East (Virginia)", "value": "us-east-1"}
+            ]
+        },
+        {
+            "id": "build_type",
+            "type": "pickString",
+            "description": "Build type",
+            "default": "debug",
+            "options": ["debug", "release"]
+        }
+    ]
+}
