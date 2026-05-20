@@ -142,9 +142,21 @@ Then in GitHub Actions:
       VTR_INPUT_report_format: html
 ```
 
+Alternatively, you can pass this in as CLI option in the format of `--input={key}={value}`:
+
+```bash
+vtr --input=report_format=html tests
+```
+
 Similarly, if more than one default build task is defined, the
 `VTR_DEFAULT_BUILD_TASK` environment variable can be used to specify which one
-to use. Otherwise, you will be interactively prompted to select one.
+to use, or as the `--default-build-task` command line option:
+
+```bash
+vtr --default-build-task=build tests
+```
+
+Otherwise, you will be interactively prompted to select one.
 
 The `dependsOn` key is also supported as well as `dependsOrder`:
 
