@@ -46,6 +46,6 @@ jobs:
 
       - name: Upload Test Summary
         if: always()
-        uses: test-summary/action@v2.4
+        uses: test-summary/action@v2.6
         with:
           paths: test_report.xml
