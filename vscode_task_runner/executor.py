@@ -95,7 +95,7 @@ def task_subprocess_command(
             shell_config,
             terminal_task_system.build_shell_command_line(
                 shell_type=shell_config.type_,
-                shell_quoting_options=shell_config.quoting,
+                shell_quoting_options=shell_config.quoting,  # ty:ignore[invalid-argument-type]
                 command=command,
                 args=args,
             ),

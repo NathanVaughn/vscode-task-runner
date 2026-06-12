@@ -27,7 +27,7 @@ def test_type_detection(
     shutil_which_patch: None,
     shell_config: ShellConfiguration,
     expected_shell_type: ShellTypeEnum,
-):
+) -> None:
     """
     Test the type detection of the shell configuration.
     """

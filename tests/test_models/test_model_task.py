@@ -5,7 +5,7 @@ from vscode_task_runner.models.enums import TaskTypeEnum
 from vscode_task_runner.models.task import Task, TaskProperties
 
 
-def test_task_properties_type_enum():
+def test_task_properties_type_enum() -> None:
     """
     Test parsing of task type to enum.
     """
@@ -16,7 +16,7 @@ def test_task_properties_type_enum():
         TaskProperties(type="npm").type_enum
 
 
-def test_task_depends_on():
+def test_task_depends_on() -> None:
     """
     Test depends_on method.
     """
@@ -29,7 +29,7 @@ def test_task_depends_on():
     assert task_3.depends_on == [task_1, task_2]
 
 
-def test_task_resolve_variables(default_build_task_mock: None):
+def test_task_resolve_variables(default_build_task_mock: None) -> None:
     """
     Test resolve_variables method.
     """
