@@ -16,19 +16,19 @@ repos:
 -   hooks:
     -   id: uv-lock
     repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.16
+    rev: 0.11.24
 -   hooks:
     -   args:
         -   --fix
         id: ruff-check
     -   id: ruff-format
     repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.14
+    rev: v0.15.19
 -   hooks:
     -   id: ty
     repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.49
+    rev: v0.0.52
 -   hooks:
     -   id: markdownlint
     repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.48.0
+    rev: v0.49.0
