@@ -55,7 +55,7 @@ def task_subprocess_command(
         command_value = csc_value(command)
 
         # resolve to a path
-        subprocess_command = [which_resolver(command_value)]
+        subprocess_command = [which_resolver(command_value, task.cwd_use())]
 
         # convert the args into string as well
         subprocess_command.extend(csc_value(arg) for arg in args + extra_args)

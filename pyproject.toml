@@ -53,6 +53,10 @@
 [tool.ty.src]
     exclude = ["tests/"]
 
+[tool.coverage.run]
+    # Capture coverage run with subprocess
+    patch = ["subprocess"]
+
 [tool.uv]
     required-version = ">=0.8.0"
 

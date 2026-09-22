@@ -61,7 +61,7 @@ def shutil_which_patch(mocker: MockerFixture) -> None:
     """
     Make shutil.which return the path instead of resolving it
     """
-    mocker.patch("shutil.which", new=lambda x: x)
+    mocker.patch("shutil.which", new=lambda x, path="": x)
 
 
 @pytest.fixture

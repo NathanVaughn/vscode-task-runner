@@ -375,7 +375,7 @@ class Task(TaskProperties):
 
         # make sure shell executable exists and is absolute
         assert shell.executable is not None
-        shell.executable = which_resolver(shell.executable)
+        shell.executable = which_resolver(shell.executable, self.cwd_use())
 
         # return the shell config
         return shell
