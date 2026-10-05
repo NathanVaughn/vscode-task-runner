@@ -35,7 +35,7 @@ def test_pick(mocker: MockerFixture) -> None:
     class mock_select:
         def __init__(self, *args: Any, **kwds: Any) -> None: ...
 
-        def ask(self):
+        def ask(self) -> str:
             return "Task1"
 
     mocker.patch.object(questionary, "select", new=mock_select)

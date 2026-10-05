@@ -4,7 +4,7 @@ from vscode_task_runner.exceptions import BadInputEnvironmentVariable
 from vscode_task_runner.utils.picker import check_item_with_options
 
 
-def test_check_item_with_options():
+def test_check_item_with_options() -> None:
     # check valid option
     env_value = "option1"
     options = ["option1", "option2", "option3"]

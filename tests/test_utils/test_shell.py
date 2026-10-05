@@ -13,7 +13,7 @@ def detect_shell_patch(mocker: MockerFixture) -> None:
     Fixture to always raise a ShellDetectionFailure exception
     """
 
-    def replacement():
+    def replacement() -> None:
         raise shellingham.ShellDetectionFailure
 
     mocker.patch("shellingham.detect_shell", replacement)

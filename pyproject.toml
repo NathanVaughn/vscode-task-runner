@@ -27,12 +27,12 @@
 
 [dependency-groups]
     dev = [
-        "pre-commit>=3.2.0",
-        "pre-commit-uv>=4.1.5",
         "pytest>=7.3.1",
         "pytest-mock>=3.10.0",
         "pytest-cov>=4.1",
-    ]
+        "types-colorama>=0.4.15.20250801",
+        "prek>=0.4.4",
+]
 
 [project.urls]
     Homepage   = "https://github.com/NathanVaughn/vscode-task-runner"
@@ -43,15 +43,19 @@
     vtr                = "vscode_task_runner.console:run"
     vscode-task-runner = "vscode_task_runner.console:run"
 
-[tool.pyright]
-    pythonVersion              = "3.9"   # set to minimum supported version
-    typeCheckingMode           = "basic"
-    venvPath                   = "."
-    venv                       = ".venv"
-    reportMissingParameterType = true
+[tool.ruff.lint]
+    select = ["E4", "E7", "E9", "F", "ANN"]
+    ignore = ["ANN401"]
 
 [tool.ruff.lint.flake8-tidy-imports]
     ban-relative-imports = "all"
+
+[tool.ty.src]
+    exclude = ["tests/"]
+
+[tool.coverage.run]
+    # Capture coverage run with subprocess
+    patch = ["subprocess"]
 
 [tool.uv]
     required-version = ">=0.8.0"
@@ -60,5 +64,5 @@
     module-root = ""
 
 [build-system]
-    requires      = ["uv_build>=0.11.14,<0.12"]
+    requires      = ["uv_build>=0.12.5,<0.13"]
     build-backend = "uv_build"

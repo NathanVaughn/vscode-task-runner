@@ -374,7 +374,7 @@ Obviously, this will not do anything different if only a single task is being ru
   shell will be used
 - Only schema version 2.0.0 is supported
 - If no `cwd` is specified, the current working directory is used for the task instead
-- If tasks are run in parallel, the output will be interleaved with a task labe
+- If tasks are run in parallel, the output will be interleaved with a task label
   prefix applied
 - Does not support deprecated options (`isShellCommand`, `isBuildCommand`)
 - Does not support any extensions that add extra options/functionality
@@ -383,6 +383,9 @@ Obviously, this will not do anything different if only a single task is being ru
 - Continue on error functionality
 - `VTR_INPUT_${id}` environment variables
 - `VTR_DEFAULT_BUILD_TASK` environment variable
+- Differences in how Python and NodeJS invoke processes can lead to shell scripts
+  not executing if the shell script lacks a shebang and is used as the command
+  in a process task.
 
 ## Similar Projects
 
