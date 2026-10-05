@@ -4,7 +4,6 @@ from typing import Optional, Union
 from pydantic import BaseModel, Field, PrivateAttr
 
 from vscode_task_runner.models.enums import ShellTypeEnum
-from vscode_task_runner.utils.paths import which_resolver
 from vscode_task_runner.variables.resolve import resolve_variables_data
 
 
@@ -55,7 +54,7 @@ class ShellConfiguration(BaseModel):
     # https://github.com/microsoft/vscode/blob/f4fb3e71208ebe861a00581c47d2a98bf23f68a2/src/vs/workbench/contrib/tasks/common/jsonSchemaCommon.ts#L58-L75
     _quoting: Optional[ShellQuotingOptions] = PrivateAttr(default=None)
     """
-    while appearing in the interface, not something the user can specify
+    While appearing in the interface, not something the user can specify
     """
     _type: Optional[ShellTypeEnum] = PrivateAttr(default=None)
     """
@@ -71,10 +70,8 @@ class ShellConfiguration(BaseModel):
             return self._type
 
         assert self.executable is not None
-        shell_executable = which_resolver(self.executable)
-
         # https://stackoverflow.com/a/41659825
-        shell_basename = os.path.basename(shell_executable.replace("\\", os.path.sep))
+        shell_basename = os.path.basename(self.executable.replace("\\", os.path.sep))
         shell_basename = shell_basename.removesuffix(".exe")
 
         # don't check for .exe because it could be running powershell

@@ -7,7 +7,6 @@ from vscode_task_runner.constants import CURRENT_PLATFORM
 from vscode_task_runner.exceptions import ShellNotFound
 from vscode_task_runner.models.enums import PlatformEnum
 from vscode_task_runner.models.shell import ShellConfiguration
-from vscode_task_runner.utils.paths import which_resolver
 
 # shell of last resort
 if CURRENT_PLATFORM == PlatformEnum.windows:
@@ -48,5 +47,5 @@ def get_parent_shell() -> ShellConfiguration:
     if not shell_executable:
         raise ShellNotFound("A shell could not be found")
 
-    # just make sure path is fully resolved
-    return ShellConfiguration(executable=which_resolver(shell_executable))
+    # the path will always be an absolute path
+    return ShellConfiguration(executable=shell_executable)
