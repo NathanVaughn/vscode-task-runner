@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "install-pre-commit",
-            "command": "uv run prek install",
+            "command": "uv run prek install --force",
             "type": "shell"
         },
         {
